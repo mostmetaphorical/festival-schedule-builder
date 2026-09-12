@@ -122,10 +122,16 @@ textarea { width: 100%; font-family: ui-monospace, monospace; font-size: 12.5px;
 .commitment { display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
               margin-bottom: 8px; }
 .commitment input[type=text] { flex: 1 1 140px; min-width: 0; }
-.prefs { display: flex; flex-wrap: wrap; gap: 18px; }
-.prefs label { display: grid; gap: 4px; font-size: 13.5px; color: var(--dim); }
-.prefs input { width: 110px; }
-.prefs small { color: var(--dim); font-size: 12px; }
+/* align-items: start stops the shorter label being stretched to match the
+   taller one, which pushed its input out of line with its neighbour. */
+.prefs { display: flex; flex-wrap: wrap; gap: 18px; align-items: start; }
+.prefs label { display: grid; gap: 4px; font-size: 13.5px; color: var(--dim);
+               align-content: start; }
+.prefs input { width: 88px; }
+.prefs small { color: var(--dim); font-size: 12px; max-width: 22ch; }
+
+.next { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        border-top: 1px solid var(--line); margin-top: 26px; padding-top: 18px; }
 
 /* Plan --------------------------------------------------------------- */
 .strength { border-left: 2px solid var(--gold); padding: 8px 0 8px 14px;

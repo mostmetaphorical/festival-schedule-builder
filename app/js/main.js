@@ -92,6 +92,10 @@ function wireUp() {
 
   $('#max-per-day').addEventListener('change', rebuild);
   $('#buffer').addEventListener('change', rebuild);
+  $('#to-plan').addEventListener('click', () => {
+    rebuild();
+    showStep(4);
+  });
 
   $('#load-url').addEventListener('click', async () => {
     const url = $('#festival-url').value.trim();
