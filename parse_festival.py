@@ -232,13 +232,25 @@ def main() -> None:
         "days": days,
         "films": films,
         "screenings": screenings,
-        "sample_commitments": commitments,
     }
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False),
                    encoding="utf-8")
+
+    # Commitments found on the source page are somebody's volunteer shifts,
+    # work hours or appointments: personal data saying where a person will be
+    # at a given hour. They must never reach published festival data. They go
+    # to a separate gitignored file the app can load locally instead.
+    if commitments:
+        private = out.with_name("my-commitments.json")
+        private.write_text(
+            json.dumps({"commitments": commitments}, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"  {len(commitments)} personal commitments kept out of the "
+              f"festival file, in {private.name} (gitignored)")
 
     events = [f for f in films if f["kind"] == "event"]
     unscoreable = [f for f in films if not f["scoreable"]]

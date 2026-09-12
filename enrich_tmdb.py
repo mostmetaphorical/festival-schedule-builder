@@ -86,6 +86,8 @@ def condense(payload: dict) -> dict:
         # Genre is the signal that carries when nobody involved is familiar -
         # the festival-premiere case. See the thin-evidence table in README.
         "genre": [g["name"] for g in payload.get("genres") or []],
+        # Path only; the app builds the URL so it can choose a size.
+        "poster": payload.get("poster_path") or "",
         "director": [c["name"] for c in crew if c.get("job") == "Director"],
         "writer": [
             c["name"] for c in crew

@@ -72,9 +72,21 @@ function clashes(a, b) {
   return a.start < b.end && b.start < a.end;
 }
 
-/** Stable id for one showing, so a pin can mean "this screening", not "this film". */
-export const screeningId = (screening) =>
-  `${screening.film}@${screening.date}T${screening.time}`;
+/**
+ * Stable id for one showing, so a pin can mean "this screening", not "this
+ * film".
+ *
+ * Accepts a raw screening, where `film` is a title, or a scheduled entry,
+ * where `film` has been replaced by the scored film object. Reading the title
+ * out of whichever shape arrives is what keeps ids comparable: without it a
+ * pin from the UI stringified to "[object Object]" and silently matched
+ * nothing, so Swap and Add appeared to do nothing.
+ */
+export const screeningId = (screening) => {
+  const title =
+    typeof screening.film === 'string' ? screening.film : screening.film?.title;
+  return `${title}@${screening.date}T${screening.time}`;
+};
 
 /**
  * What a slot is worth.

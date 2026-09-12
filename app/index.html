@@ -83,12 +83,85 @@
     <div id="festival-list" class="festivals"></div>
 
     <details class="advanced">
-      <summary>Load a festival from elsewhere</summary>
+      <summary>Add a festival that isn't listed</summary>
+
+      <p class="muted">
+        Festivals publish their schedules days before they start, in whatever
+        shape their ticketing platform uses, so this app reads a plain JSON
+        file instead. Drop one in below and it works immediately — on your
+        device, whether or not it ever gets added here.
+      </p>
+
+      <label class="drop small" id="festival-drop">
+        <input type="file" id="festival-file" accept=".json" hidden>
+        <b>Open a festival file</b>
+        <small>a .json file in the format below</small>
+      </label>
+
+      <p class="muted">Or load one from a web address:</p>
       <input type="url" id="festival-url" placeholder="https://…/festival.json">
       <button id="load-url" class="ghost">Load</button>
-      <p class="muted">Or paste schedule data in the same format:</p>
+
+      <p class="muted">Or paste the data directly:</p>
       <textarea id="festival-paste" rows="4" placeholder='{"festival": "…", "films": [...], "screenings": [...]}'></textarea>
       <button id="load-paste" class="ghost">Use pasted data</button>
+
+      <div id="festival-report" class="status" hidden></div>
+
+      <h3>Making the file</h3>
+      <p class="muted">
+        The repository has scripts that build one from a festival's published
+        schedule, and <code>enrich_festival.py</code> fills in credits and
+        posters from TMDB. If you'd rather assemble it by hand, this is the
+        whole format — everything else is optional:
+      </p>
+<pre><code>{
+  "festival": "Some Fest 2027",
+  "days": ["2027-03-04", "2027-03-05"],
+  "films": [
+    {
+      "title": "A Film",
+      "year": 2027,
+      "runtime": 94,
+      "synopsis": "One or two sentences.",
+      "section": "Main Competition",
+      "kind": "film",
+      "entities": {
+        "director": ["A Director"],
+        "cast": ["An Actor"],
+        "keyword": ["revenge", "small town"],
+        "genre": ["horror"]
+      }
+    }
+  ],
+  "screenings": [
+    { "film": "A Film", "date": "2027-03-04", "time": "7:30 PM", "runtime": 94 }
+  ]
+}</code></pre>
+      <p class="muted">
+        Two things matter: a screening's <code>film</code> has to match a
+        lineup <code>title</code> exactly, and dates are
+        <code>YYYY-MM-DD</code>. Use <code>"kind": "event"</code> for parties,
+        secret screenings and live shows — those get listed but not rated.
+        The more of <code>entities</code> you fill in, the better the
+        recommendations; with none, every film scores the same.
+      </p>
+
+      <h3>Sharing it</h3>
+      <p class="muted">
+        Optional, and only if you want to. A shared festival gets checked
+        against the official schedule before it's added, because a wrong
+        showtime here means someone misses a film.
+      </p>
+      <div class="export-buttons">
+        <button id="submit-issue" class="ghost" disabled>Submit on GitHub</button>
+        <button id="submit-email" class="ghost" disabled>Send by email</button>
+      </div>
+      <p class="muted" id="submit-help">
+        Load a festival first. Both options download the file for you to
+        attach — a web page can't attach it for you, and nothing is sent
+        anywhere until you send it.
+      </p>
     </details>
   </section>
 
@@ -184,6 +257,19 @@
       an honest test in the repository that scores how well it predicts
       ratings it has never seen.
     </p>
+
+    <p class="threshold">
+      <b>Please only send yours if you've rated at least 30 films.</b>
+      This isn't gatekeeping — it's that smaller histories can't answer the
+      question being asked. The test hides 30% of someone's ratings and checks
+      whether the recommender predicts them. With 20 ratings that means
+      learning from 14 films and being graded on 6, which is mostly luck:
+      measured across hundreds of people, profiles under 30 scored barely
+      better than assuming someone likes everything equally. Sending a small
+      one means handing over your viewing history for no useful result, which
+      isn't a fair trade. Rate more films and come back — it stays useful.
+    </p>
+
     <p>
       If you'd like to help, send your <code>ratings.csv</code> to
       <a href="mailto:festrecommender.crucial122@passmail.net">festrecommender.crucial122@passmail.net</a>.
@@ -203,8 +289,9 @@
         email, location, bio, reviews, diary and watchlist are in
         <i>other</i> files in that zip, which is exactly why only this one is
         wanted. If you'd rather not share when you watched things, delete the
-        Date column first — it isn't used. It's only useful if you've rated 15
-        or more films.
+        Date column first — it isn't used. And again: 30 ratings or more,
+        please. Below that your history can't answer the question the test
+        asks, so sending it costs you privacy for nothing.
       </p>
     </details>
   </div>

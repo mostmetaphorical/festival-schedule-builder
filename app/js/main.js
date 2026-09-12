@@ -18,6 +18,12 @@ import {
 import { Recommender, profileStrength } from './recommend.js';
 import { buildSchedule, formatTime, onlyChances, screeningId } from './schedule.js';
 import { downloadHTML, downloadICS, restoreFromHTML } from './export.js';
+import {
+  downloadFestival,
+  issueURL,
+  mailtoURL,
+  validateFestival,
+} from './festival-io.js';
 import { storage } from './storage.js';
 
 const $ = (selector) => document.querySelector(selector);
@@ -97,21 +103,48 @@ function wireUp() {
     showStep(4);
   });
 
+  $('#festival-drop').addEventListener('click', () => $('#festival-file').click());
+  $('#festival-file').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      useFestival(JSON.parse(await file.text()));
+    } catch (error) {
+      reportFestival(null, `That file isn't valid JSON: ${error.message}`);
+    }
+  });
+
   $('#load-url').addEventListener('click', async () => {
     const url = $('#festival-url').value.trim();
     if (!url) return;
     try {
       useFestival(await (await fetch(url)).json());
     } catch (error) {
-      alert(`Could not load that: ${error.message}`);
+      reportFestival(null, `Could not load that: ${error.message}`);
     }
   });
   $('#load-paste').addEventListener('click', () => {
     try {
       useFestival(JSON.parse($('#festival-paste').value));
     } catch (error) {
-      alert(`That isn't valid festival data: ${error.message}`);
+      reportFestival(null, `That isn't valid festival data: ${error.message}`);
     }
+  });
+
+  // Both routes hand the file to the person and open a pre-filled message.
+  // Nothing is transmitted from the page itself.
+  $('#submit-issue').addEventListener('click', () => {
+    const file = downloadFestival(state.festival);
+    window.open(issueURL(state.festival, state.festivalCheck.stats), '_blank',
+                'noopener');
+    reportFestival(state.festivalCheck,
+      `Downloaded ${file} — attach it to the issue that just opened.`);
+  });
+  $('#submit-email').addEventListener('click', () => {
+    const file = downloadFestival(state.festival);
+    window.location.href = mailtoURL(state.festival, state.festivalCheck.stats);
+    reportFestival(state.festivalCheck,
+      `Downloaded ${file} — attach it to the email that just opened.`);
   });
 
   $('#export-ics').addEventListener('click', () =>
@@ -265,7 +298,59 @@ function renderFestivals(index) {
   }
 }
 
+/** Say what was found, and what looks wrong, before anything is acted on. */
+function reportFestival(check, note = '') {
+  const box = $('#festival-report');
+  box.hidden = false;
+
+  if (!check) {
+    box.className = 'status error';
+    box.innerHTML = note;
+    return;
+  }
+
+  const { errors, warnings, stats } = check;
+  const parts = [];
+  if (stats.films) {
+    parts.push(
+      `<b>${stats.films} films</b>, ${stats.screenings} screenings, ` +
+      `${stats.days} days (${stats.from} to ${stats.to}).`
+    );
+  }
+  if (errors.length) {
+    parts.push(
+      `<b>${errors.length} problem${errors.length === 1 ? '' : 's'}:</b> ` +
+      errors.slice(0, 5).join(' ')
+    );
+  }
+  if (warnings.length) {
+    parts.push(
+      `<b>Worth checking:</b> ${warnings.slice(0, 4).join(' ')}`
+    );
+  }
+  if (note) parts.push(note);
+
+  box.className = `status${errors.length ? ' error' : ''}`;
+  box.innerHTML = parts.join('<br>');
+}
+
 function useFestival(data) {
+  // Check before use: a missing date or a mismatched title produces a plan
+  // with silent holes in it, which is worse than a refusal.
+  const check = validateFestival(data);
+  state.festivalCheck = check;
+  reportFestival(check);
+
+  const submittable = check.errors.length === 0;
+  $('#submit-issue').disabled = !submittable;
+  $('#submit-email').disabled = !submittable;
+  $('#submit-help').textContent = submittable
+    ? 'Both options download the file for you to attach — a web page cannot ' +
+      'attach it for you, and nothing is sent until you send it.'
+    : 'Fix the problems above before sharing this one.';
+
+  if (check.errors.length) return;
+
   state.festival = data;
   state.pinned = new Set();
   state.excluded = new Set();
@@ -456,6 +541,7 @@ function renderPlan() {
       row.className = `slot picked${pick.pinned ? ' pinned' : ''}`;
       row.innerHTML =
         `<div class="time">${formatTime(pick.start)}</div>` +
+        poster(film) +
         `<div>` +
         `<div class="title"><button class="disclose" aria-expanded="false"` +
         ` aria-label="Details for ${escapeAttribute(film.title)}"></button>` +
@@ -509,6 +595,7 @@ function renderPlan() {
       section.appendChild(row);
       section.appendChild(details);
     }
+    renderGaps(section, day);
     plan.appendChild(section);
   }
 
@@ -552,6 +639,7 @@ function showAlternatives(row, day, pick) {
       .map(
         (entry, index) => `
       <div class="alt">
+        ${poster(entry.film, 38)}
         <div>
           <b>${entry.film.title}</b>
           ${entry.film.kind === 'event' ? '<span class="badge event">event</span>' : ''}
@@ -588,16 +676,74 @@ function emptyAlternatives() {
   return panel;
 }
 
+const escapeHTML = (value) =>
+  String(value ?? '').replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+  );
+
 const escapeAttribute = (value) =>
   String(value ?? '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+/**
+ * Poster, or a labelled placeholder. A premiere often has no artwork anywhere
+ * yet, and initials explain themselves better than a broken-image icon.
+ */
+function poster(film, size = 46) {
+  if (film.poster) {
+    return `<img class="poster" src="${escapeAttribute(film.poster)}" alt=""
+      loading="lazy" width="${size}" height="${Math.round(size * 1.5)}">`;
+  }
+  const initials = String(film.title || '?')
+    .replace(/^(the|a|an) /i, '')
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0] || '')
+    .join('')
+    .toUpperCase();
+  return `<span class="poster empty" aria-hidden="true">${escapeHTML(initials)}</span>`;
+}
+
+/**
+ * Letterboxd organises people by a slug of their name. Building it from the
+ * name rather than looking each one up means it is right for anyone with a
+ * filmography, and wrong in two cases: a first-timer with no page yet, and a
+ * common name Letterboxd disambiguated with a numeric suffix. Hence the
+ * caveat in the panel rather than a promise.
+ */
+function letterboxdLink(name, role) {
+  const slug = String(name)
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/['’.]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  if (!slug) return escapeHTML(name);
+  return (
+    `<a href="https://letterboxd.com/${role}/${slug}/" target="_blank"` +
+    ` rel="noopener noreferrer">${escapeHTML(name)}</a>`
+  );
+}
+
+const peopleLinks = (names, role) =>
+  names.map((name) => letterboxdLink(name, role)).join(', ');
 
 /** What's worth knowing before deciding: the synopsis, then the credits. */
 function filmDetails(film, pick) {
   const rows = [];
-  if (film.director?.length) rows.push(['Director', film.director.join(', ')]);
-  if (film.cast?.length) rows.push(['Cast', film.cast.slice(0, 5).join(', ')]);
-  if (film.country) rows.push(['Country', film.country]);
-  if (film.section) rows.push(['Programme', film.section]);
+  const people = film.entities || {};
+  if (people.director?.length) {
+    rows.push(['Director', peopleLinks(people.director, 'director')]);
+  }
+  if (people.writer?.length) {
+    rows.push(['Writer', peopleLinks(people.writer.slice(0, 3), 'writer')]);
+  }
+  if (people.cast?.length) {
+    rows.push(['Cast', peopleLinks(people.cast.slice(0, 5), 'actor')]);
+  }
+  if (film.country) rows.push(['Country', escapeHTML(film.country)]);
+  if (film.section) rows.push(['Programme', escapeHTML(film.section)]);
   if (film.runtime) rows.push(['Runtime', `${film.runtime} min`]);
   rows.push(['Showing', `${formatTime(pick.start)}, ${pick.date}`]);
 
@@ -605,10 +751,127 @@ function filmDetails(film, pick) {
     .map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`)
     .join('');
 
+  const hasLinks = people.director?.length || people.cast?.length;
   return (
-    (film.synopsis ? `<p>${film.synopsis}</p>` : '<p class="muted">No synopsis published.</p>') +
-    `<dl>${facts}</dl>`
+    (film.synopsis
+      ? `<p>${escapeHTML(film.synopsis)}</p>`
+      : '<p class="muted">No synopsis published.</p>') +
+    `<dl>${facts}</dl>` +
+    (hasLinks
+      ? '<p class="caveat">Name links go to Letterboxd. They are built from' +
+        ' the name, so a first-time director may not have a page yet.</p>'
+      : '')
   );
+}
+
+// A gap shorter than this can't hold a film, so it isn't worth offering.
+const SHORTEST_USEFUL_GAP = 45;
+
+/**
+ * Free time in a day, offered as something to fill.
+ *
+ * This is also how a film comes back after being dropped by accident: the
+ * gap it left is visible, and everything that fits it - including the thing
+ * just dropped - is one click away.
+ */
+function renderGaps(section, day) {
+  const picks = [...day.picks].sort((a, b) => a.start - b.start);
+  const candidates = day.all.filter(
+    (entry) => entry.film && !entry.blockedBy
+  );
+  if (!candidates.length) return;
+
+  const dayStart = Math.min(...candidates.map((entry) => entry.start));
+  const dayEnd = Math.max(...candidates.map((entry) => entry.end));
+
+  const gaps = [];
+  let cursor = dayStart;
+  for (const pick of picks) {
+    if (pick.start - cursor >= SHORTEST_USEFUL_GAP) {
+      gaps.push({ start: cursor, end: pick.start });
+    }
+    cursor = Math.max(cursor, pick.end);
+  }
+  if (dayEnd - cursor >= SHORTEST_USEFUL_GAP) {
+    gaps.push({ start: cursor, end: dayEnd });
+  }
+
+  for (const gap of gaps) {
+    const fits = day.all
+      .filter(
+        (entry) =>
+          entry.film &&
+          !entry.blockedBy &&
+          entry.start >= gap.start &&
+          entry.end <= gap.end &&
+          !picks.some((pick) => pick.film.title === entry.film.title)
+      )
+      .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0));
+    if (!fits.length) continue;
+
+    const row = document.createElement('div');
+    row.className = 'slot gap';
+    row.innerHTML =
+      `<div class="time">${formatTime(gap.start)}</div>` +
+      `<span class="poster empty" aria-hidden="true">+</span>` +
+      `<div><div class="title">Nothing planned` +
+      `<span class="detail">${Math.round((gap.end - gap.start) / 60)} hours ` +
+      `free · ${fits.length} ${fits.length === 1 ? 'film' : 'films'} ` +
+      `fit here</span></div></div>` +
+      `<div class="actions"><button class="ghost">Add a film</button></div>`;
+
+    row.querySelector('button').addEventListener('click', (event) => {
+      event.stopPropagation();
+      const existing = row.nextElementSibling;
+      if (existing?.classList.contains('alternatives')) {
+        existing.remove();
+        return;
+      }
+
+      const panel = document.createElement('div');
+      panel.className = 'alternatives';
+      panel.innerHTML =
+        `<p class="muted">Fits between ${formatTime(gap.start)} and ` +
+        `${formatTime(gap.end)}:</p>` +
+        fits
+          .map(
+            (entry, index) => `
+          <div class="alt">
+            ${poster(entry.film, 38)}
+            <div>
+              <b>${escapeHTML(entry.film.title)}</b>
+              ${state.excluded.has(entry.film.title)
+                ? '<span class="badge low">you dropped this</span>'
+                : ''}
+              <div class="detail">${formatTime(entry.start)}${
+                entry.film.runtime ? ` · ${entry.film.runtime} min` : ''
+              }${
+                entry.film.scoreable === false
+                  ? ' · not rated — your call'
+                  : ` · predicted ${entry.film.prediction.toFixed(1)}★`
+              }${entry.film.synopsis
+                ? `<br>${escapeHTML(entry.film.synopsis)}`
+                : ''}</div>
+            </div>
+            <button class="ghost" data-add="${index}">Add</button>
+          </div>`
+          )
+          .join('');
+
+      panel.querySelectorAll('[data-add]').forEach((button) =>
+        button.addEventListener('click', () => {
+          const chosen = fits[Number(button.dataset.add)];
+          // Adding something back is also how a drop is undone.
+          state.excluded.delete(chosen.film.title);
+          state.pinned.add(screeningId(chosen));
+          rebuild();
+        })
+      );
+      row.after(panel);
+    });
+
+    section.appendChild(row);
+  }
 }
 
 function renderMissed(plan) {

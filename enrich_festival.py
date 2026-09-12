@@ -160,6 +160,10 @@ def main() -> None:
                 film.get("synopsis") or ""
             ):
                 film["synopsis"] = meta["overview"]
+            # The festival's own artwork wins where the parser found any;
+            # TMDB's poster fills the gap for everything else.
+            if meta.get("poster") and not film.get("poster"):
+                film["poster"] = f"https://image.tmdb.org/t/p/w154{meta['poster']}"
             film["tmdb"] = True
             film["scoreable"] = True
 
