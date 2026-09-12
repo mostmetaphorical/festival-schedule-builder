@@ -457,7 +457,9 @@ function renderPlan() {
       row.innerHTML =
         `<div class="time">${formatTime(pick.start)}</div>` +
         `<div>` +
-        `<div class="title">${film.title}` +
+        `<div class="title"><button class="disclose" aria-expanded="false"` +
+        ` aria-label="Details for ${escapeAttribute(film.title)}"></button>` +
+        `${film.title}` +
         (film.kind === 'event' ? '<span class="badge event">event</span>' : '') +
         (unrated ? '<span class="badge unrated">not rated</span>' : '') +
         (film.confidence === 'low' && !unrated
@@ -483,7 +485,29 @@ function renderPlan() {
       row.querySelector('[data-swap]').addEventListener('click', () =>
         showAlternatives(row, day, pick)
       );
+
+      // The synopsis is what decides a toss-up between two films, but it is
+      // too long to sit in every row - so it opens on demand.
+      const details = document.createElement('div');
+      details.className = 'synopsis';
+      details.hidden = true;
+      details.innerHTML = filmDetails(film, pick);
+
+      const toggle = row.querySelector('.disclose');
+      const open = () => {
+        const showing = details.hidden;
+        details.hidden = !showing;
+        toggle.setAttribute('aria-expanded', String(showing));
+        row.classList.toggle('open', showing);
+      };
+      toggle.addEventListener('click', open);
+      // The whole row is a target too, except where it would steal a click.
+      row.addEventListener('click', (event) => {
+        if (!event.target.closest('button')) open();
+      });
+
       section.appendChild(row);
+      section.appendChild(details);
     }
     plan.appendChild(section);
   }
@@ -562,6 +586,29 @@ function emptyAlternatives() {
   panel.className = 'alternatives';
   panel.innerHTML = '<p class="muted">Nothing else is showing in that slot.</p>';
   return panel;
+}
+
+const escapeAttribute = (value) =>
+  String(value ?? '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+/** What's worth knowing before deciding: the synopsis, then the credits. */
+function filmDetails(film, pick) {
+  const rows = [];
+  if (film.director?.length) rows.push(['Director', film.director.join(', ')]);
+  if (film.cast?.length) rows.push(['Cast', film.cast.slice(0, 5).join(', ')]);
+  if (film.country) rows.push(['Country', film.country]);
+  if (film.section) rows.push(['Programme', film.section]);
+  if (film.runtime) rows.push(['Runtime', `${film.runtime} min`]);
+  rows.push(['Showing', `${formatTime(pick.start)}, ${pick.date}`]);
+
+  const facts = rows
+    .map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`)
+    .join('');
+
+  return (
+    (film.synopsis ? `<p>${film.synopsis}</p>` : '<p class="muted">No synopsis published.</p>') +
+    `<dl>${facts}</dl>`
+  );
 }
 
 function renderMissed(plan) {

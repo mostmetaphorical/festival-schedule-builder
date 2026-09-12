@@ -1,0 +1,13 @@
+# Normalise line endings. The repo stores LF; Windows checkouts can do what
+# they like locally. Without this, moving between Windows and WSL rewrites
+# whole files and every diff becomes noise.
+* text=auto eol=lf
+
+# Binary-ish data: never touch these.
+*.png binary
+*.jpg binary
+*.zip binary
+
+# Generated data files are large and uninteresting in diffs.
+app/data/library.json -diff
+app/data/idf.json -diff

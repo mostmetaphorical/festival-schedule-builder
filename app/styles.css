@@ -155,6 +155,23 @@ textarea { width: 100%; font-family: ui-monospace, monospace; font-size: 12.5px;
 .slot.picked { background: rgba(210, 166, 60, .07); }
 .slot.pinned .title::after { content: " · pinned"; color: var(--gold);
                              font-weight: 400; font-size: 12px; }
+.slot { cursor: pointer; }
+.slot .disclose { background: none; border: 0; color: var(--dim); padding: 0 6px 0 0;
+                  font-size: 11px; line-height: 1; cursor: pointer; }
+.slot .disclose::before { content: "▸"; display: inline-block;
+                          transition: transform .12s ease; }
+.slot .disclose[aria-expanded="true"]::before { transform: rotate(90deg); }
+.slot .disclose:hover { color: var(--gold); }
+.slot.open { background: rgba(210, 166, 60, .12); }
+
+.synopsis { padding: 2px 0 16px 88px; border-bottom: 1px solid rgba(61, 46, 54, .6);
+            background: rgba(210, 166, 60, .05); }
+.synopsis p { color: var(--bone); max-width: 78ch; margin: 0 0 10px; font-size: 14px; }
+.synopsis p.muted { color: var(--dim); font-style: italic; }
+.synopsis dl { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; }
+.synopsis dt { color: var(--dim); font-size: 10.5px; letter-spacing: .1em;
+               text-transform: uppercase; }
+.synopsis dd { margin: 1px 0 0; font-size: 13px; }
 .slot .actions { display: flex; gap: 6px; }
 .slot .actions button { padding: 4px 9px; font-size: 12px; font-weight: 500; }
 .badge { display: inline-block; font-size: 10.5px; letter-spacing: .06em;
@@ -207,6 +224,7 @@ footer { border-top: 1px solid var(--line); padding: 20px 0 40px;
 
 @media (max-width: 620px) {
   .slot { grid-template-columns: 64px 1fr; }
+  .synopsis { padding-left: 0; }
   .slot .actions { grid-column: 2; }
   .slot .stars { grid-column: 2; }
   .prefs { flex-direction: column; gap: 12px; }
