@@ -1,0 +1,663 @@
+/**
+ * The app.
+ *
+ * Order of events: read a ratings export, resolve credits for those films,
+ * score the festival's slate, fit it around the person's commitments, and let
+ * them overrule any of it before they take it away.
+ *
+ * No server, no account, no telemetry.
+ */
+
+import { readExport } from './letterboxd.js';
+import {
+  BundleProvider,
+  MetadataCache,
+  TMDBProvider,
+  resolveLibrary,
+} from './metadata.js';
+import { Recommender, profileStrength } from './recommend.js';
+import { buildSchedule, formatTime, onlyChances, screeningId } from './schedule.js';
+import { downloadHTML, downloadICS, restoreFromHTML } from './export.js';
+import { storage } from './storage.js';
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+const state = {
+  ratings: [],
+  library: [],
+  missing: [],
+  profile: null,
+  festival: null,
+  scored: [],
+  commitments: [],
+  pinned: new Set(),
+  excluded: new Set(),
+  schedule: null,
+  tmdbKey: '',
+};
+
+let recommender = null;
+let bundle = null;
+const cache = new MetadataCache();
+
+/* ---------- setup ---------- */
+
+async function boot() {
+  const [model, idf, stopwords, festivals] = await Promise.all([
+    fetch('data/model.json').then((r) => r.json()),
+    fetch('data/idf.json').then((r) => r.json()),
+    fetch('data/stopwords.json').then((r) => r.json()),
+    fetch('data/festivals.json').then((r) => r.json()),
+  ]);
+
+  recommender = new Recommender(model, idf, stopwords);
+  renderFestivals(festivals);
+  wireUp();
+  restoreSession();
+}
+
+function wireUp() {
+  $('#drop').addEventListener('click', () => $('#ratings-file').click());
+  $('#ratings-file').addEventListener('change', (event) => {
+    if (event.target.files[0]) loadRatings(event.target.files[0]);
+  });
+
+  const drop = $('#drop');
+  ['dragover', 'dragleave', 'drop'].forEach((type) => {
+    drop.addEventListener(type, (event) => {
+      event.preventDefault();
+      drop.classList.toggle('over', type === 'dragover');
+      if (type === 'drop' && event.dataTransfer.files[0]) {
+        loadRatings(event.dataTransfer.files[0]);
+      }
+    });
+  });
+
+  $$('.step').forEach((button) =>
+    button.addEventListener('click', () => showStep(Number(button.dataset.step)))
+  );
+
+  $('#try-demo').addEventListener('click', async () => {
+    setStatus('Loading a demo profile…');
+    const text = await fetch('fixtures/demo-ratings.csv').then((r) => r.text());
+    await loadRatings(new File([text], 'demo-ratings.csv', { type: 'text/csv' }));
+  });
+
+  $('#save-key').addEventListener('click', useTMDBKey);
+  $('#add-commitment').addEventListener('click', () => addCommitmentRow());
+  $('#commitments-file').addEventListener('change', (event) => {
+    if (event.target.files[0]) importCommitments(event.target.files[0]);
+  });
+
+  $('#max-per-day').addEventListener('change', rebuild);
+  $('#buffer').addEventListener('change', rebuild);
+
+  $('#load-url').addEventListener('click', async () => {
+    const url = $('#festival-url').value.trim();
+    if (!url) return;
+    try {
+      useFestival(await (await fetch(url)).json());
+    } catch (error) {
+      alert(`Could not load that: ${error.message}`);
+    }
+  });
+  $('#load-paste').addEventListener('click', () => {
+    try {
+      useFestival(JSON.parse($('#festival-paste').value));
+    } catch (error) {
+      alert(`That isn't valid festival data: ${error.message}`);
+    }
+  });
+
+  $('#export-ics').addEventListener('click', () =>
+    downloadICS(state.schedule, state.festival.festival)
+  );
+  $('#export-html').addEventListener('click', () =>
+    downloadHTML(state.schedule, state.festival.festival, {
+      includeProfile: $('#include-profile').checked,
+      profileData: $('#include-profile').checked ? sessionData() : null,
+      strength: profileStrength(state.library.length),
+    })
+  );
+  $('#export-pdf').addEventListener('click', () => window.print());
+  $('#include-profile').addEventListener('change', (event) => {
+    $('#share-warning').classList.toggle('sharing', event.target.checked);
+  });
+
+  const remember = $('#remember');
+  remember.checked = storage.enabled();
+  $('#forget').hidden = !storage.enabled();
+  if (!storage.available()) {
+    remember.disabled = true;
+    $('#remember-detail').textContent =
+      'This browser is blocking local storage (private windows usually do), ' +
+      'so nothing can be remembered here. Use the saved page instead.';
+  }
+  remember.addEventListener('change', (event) => {
+    storage.enable(event.target.checked);
+    $('#forget').hidden = !event.target.checked;
+    if (event.target.checked) saveSession();
+  });
+  $('#forget').addEventListener('click', () => {
+    storage.clear();
+    $('#remember').checked = false;
+    $('#forget').hidden = true;
+    setStatus('Erased everything this app had stored in this browser.');
+  });
+}
+
+/* ---------- step 1: ratings ---------- */
+
+async function loadRatings(file) {
+  setStatus('Reading…');
+  try {
+    // A previously exported page can be dropped straight back in.
+    if (/\.html?$/i.test(file.name)) return restoreFromFile(file);
+
+    const { ratings, source } = await readExport(file);
+    if (ratings.length === 0) {
+      return setStatus('No ratings found in that file.', true);
+    }
+
+    state.ratings = ratings;
+    setStatus(`Read <b>${ratings.length}</b> ratings from your ${source} export. Looking up who made them…`);
+    await resolve();
+  } catch (error) {
+    setStatus(`Could not read that file: ${error.message}`, true);
+  }
+}
+
+async function resolve() {
+  if (!bundle) {
+    bundle = new BundleProvider(await fetch('data/library.json').then((r) => r.json()));
+  }
+  const provider = state.tmdbKey
+    ? new TMDBProvider(state.tmdbKey, cache)
+    : bundle;
+
+  // With a key, look up only what the bundle doesn't already cover.
+  let result;
+  if (state.tmdbKey) {
+    const first = await resolveLibrary(state.ratings, bundle);
+    const rest = await resolveLibrary(first.missing, provider, (done, total) =>
+      setStatus(`Looking up ${done} of ${total} films TMDB might know…`)
+    );
+    result = {
+      resolved: [...first.resolved, ...rest.resolved],
+      missing: rest.missing,
+    };
+  } else {
+    result = await resolveLibrary(state.ratings, provider);
+  }
+
+  state.library = result.resolved;
+  state.missing = result.missing;
+  state.profile = recommender.buildProfile(state.library);
+
+  const strength = profileStrength(state.library.length);
+  setStatus(
+    `Matched <b>${state.library.length}</b> of ${state.ratings.length} films. ` +
+      `<b>${strength.headline}.</b> ${strength.detail}` +
+      (state.missing.length
+        ? ` ${state.missing.length} weren't recognised — a TMDB key would find most of them.`
+        : '')
+  );
+  renderMissing();
+  saveSession();
+
+  $('.step[data-step="2"]').removeAttribute('disabled');
+  if (state.library.length) showStep(2);
+}
+
+function renderMissing() {
+  const box = $('#missing-list');
+  if (!state.missing.length) {
+    box.innerHTML = '<p class="muted">Everything matched.</p>';
+    return;
+  }
+  const names = state.missing
+    .slice(0, 40)
+    .map((film) => `${film.title}${film.year ? ` (${film.year})` : ''}`)
+    .join(' · ');
+  box.innerHTML = `<p class="muted">${state.missing.length} unmatched: ${names}${
+    state.missing.length > 40 ? ' …' : ''
+  }</p>`;
+}
+
+function useTMDBKey() {
+  const key = $('#tmdb-key').value.trim();
+  if (!key) return;
+  state.tmdbKey = key;
+  setStatus('Looking up the films that weren\'t in the bundled list…');
+  resolve();
+}
+
+/* ---------- step 2: festival ---------- */
+
+function renderFestivals(index) {
+  const list = $('#festival-list');
+  list.innerHTML = '';
+
+  for (const festival of index.festivals) {
+    const ready = festival.status === 'ready';
+    const button = document.createElement('button');
+    button.className = 'festival';
+    button.type = 'button';
+    if (!ready) button.disabled = true;
+    button.innerHTML =
+      `<span>${festival.name}<br><span class="where">${festival.city}</span></span>` +
+      `<span class="tag ${ready ? 'ready' : ''}">${
+        ready ? 'schedule ready' : 'not published yet'
+      }</span>` +
+      `<span class="when">${festival.starts}</span>`;
+    if (ready) {
+      button.addEventListener('click', async () => {
+        setStatus(`Loading ${festival.name}…`);
+        useFestival(await fetch(festival.data).then((r) => r.json()));
+      });
+    }
+    list.appendChild(button);
+  }
+}
+
+function useFestival(data) {
+  state.festival = data;
+  state.pinned = new Set();
+  state.excluded = new Set();
+
+  // Commitments already on the festival file are a starting point, not a
+  // decision - the person can delete them.
+  if (data.sample_commitments?.length && state.commitments.length === 0) {
+    state.commitments = data.sample_commitments.map((c) => ({ ...c }));
+  }
+  renderCommitments();
+  score();
+  showStep(3);
+}
+
+/* ---------- step 3: commitments ---------- */
+
+function addCommitmentRow(commitment = null) {
+  state.commitments.push(
+    commitment || { date: state.festival?.days?.[0] || '', window: '', label: '' }
+  );
+  renderCommitments();
+}
+
+function renderCommitments() {
+  const box = $('#commitments');
+  box.innerHTML = '';
+
+  state.commitments.forEach((commitment, index) => {
+    const row = document.createElement('div');
+    row.className = 'commitment';
+    row.innerHTML =
+      `<input type="date" value="${commitment.date || ''}" data-field="date">` +
+      `<input type="text" value="${commitment.window || ''}" data-field="window"
+              placeholder="2:00 PM - 9:00 PM">` +
+      `<input type="text" value="${commitment.label || ''}" data-field="label"
+              placeholder="what is it?">` +
+      `<button class="ghost danger" data-remove>Remove</button>`;
+
+    row.querySelectorAll('input').forEach((input) =>
+      input.addEventListener('change', () => {
+        commitment[input.dataset.field] = input.value;
+        rebuild();
+      })
+    );
+    row.querySelector('[data-remove]').addEventListener('click', () => {
+      state.commitments.splice(index, 1);
+      renderCommitments();
+      rebuild();
+    });
+    box.appendChild(row);
+  });
+}
+
+/** Accepts a calendar export or a simple CSV. */
+async function importCommitments(file) {
+  const text = await file.text();
+
+  if (/BEGIN:VCALENDAR/i.test(text)) {
+    const events = text.split(/BEGIN:VEVENT/i).slice(1);
+    for (const event of events) {
+      const start = event.match(/DTSTART[^:]*:(\d{8})T?(\d{2})?(\d{2})?/i);
+      const end = event.match(/DTEND[^:]*:(\d{8})T?(\d{2})?(\d{2})?/i);
+      const summary = event.match(/SUMMARY:(.*)/i);
+      if (!start) continue;
+      const date = `${start[1].slice(0, 4)}-${start[1].slice(4, 6)}-${start[1].slice(6, 8)}`;
+      state.commitments.push({
+        date,
+        window: `${start[2] || '00'}:${start[3] || '00'} - ${end?.[2] || '23'}:${
+          end?.[3] || '59'
+        }`,
+        label: (summary?.[1] || 'busy').trim(),
+      });
+    }
+  } else {
+    const lines = text.trim().split(/\r?\n/).slice(1);
+    for (const line of lines) {
+      const [date, start, end, label] = line.split(',').map((v) => v?.trim());
+      if (date && start && end) {
+        state.commitments.push({ date, window: `${start} - ${end}`, label: label || 'busy' });
+      }
+    }
+  }
+
+  renderCommitments();
+  rebuild();
+}
+
+/* ---------- scoring and planning ---------- */
+
+function score() {
+  if (!state.festival || !state.profile) return;
+
+  const scoreable = state.festival.films.filter((f) => f.scoreable !== false);
+  const rest = state.festival.films.filter((f) => f.scoreable === false);
+
+  // Unscoreable items keep the person's own average rather than a fake
+  // prediction, and are labelled as such in the UI.
+  state.scored = [
+    ...recommender.scoreSlate(state.profile, scoreable),
+    ...rest.map((film) => ({
+      ...film,
+      prediction: state.profile.mean,
+      confidence: 'none',
+      reasons: { people: [], keywords: [] },
+    })),
+  ];
+  rebuild();
+}
+
+function rebuild() {
+  if (!state.scored.length) return;
+
+  state.schedule = buildSchedule(
+    state.scored,
+    state.festival.screenings,
+    state.commitments,
+    {
+      maxPerDay: Number($('#max-per-day').value) || Infinity,
+      buffer: Number($('#buffer').value),
+      pinned: state.pinned,
+      excluded: state.excluded,
+    }
+  );
+
+  renderPlan();
+  saveSession();
+  $('.step[data-step="4"]').removeAttribute('disabled');
+}
+
+function stars(value) {
+  const filled = Math.round(value);
+  return `<span class="stars">${'★'.repeat(filled)}<span class="off">${'★'.repeat(
+    Math.max(0, 5 - filled)
+  )}</span></span>`;
+}
+
+function renderPlan() {
+  const strength = profileStrength(state.library.length);
+  $('#strength').className = `strength ${strength.level}`;
+  $('#strength').innerHTML = `<b>${strength.headline}</b><span>${strength.detail}</span>`;
+
+  const single = onlyChances(state.schedule);
+  const plan = $('#plan');
+  plan.innerHTML = '';
+
+  for (const day of state.schedule.days) {
+    if (!day.picks.length) continue;
+
+    const section = document.createElement('section');
+    section.className = 'day';
+    const heading = new Date(`${day.date}T12:00:00`).toLocaleDateString(undefined, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+    section.innerHTML = `<h3>${heading}</h3>`;
+
+    for (const pick of day.picks) {
+      const film = pick.film;
+      const id = screeningId(pick);
+      const unrated = film.scoreable === false;
+
+      // Say what the score was actually built on. "Themes" on its own tells
+      // someone nothing about whether to trust it.
+      const people = film.reasons?.people
+        ?.map(
+          (person) =>
+            `you rated ${person.films} ${
+              person.films === 1 ? 'film' : 'films'
+            } with ${person.name} ${person.average.toFixed(1)}★`
+        )
+        .join(' · ');
+      const themes = film.reasons?.keywords?.length
+        ? `themes you've rated before: ${film.reasons.keywords.join(', ')}`
+        : '';
+      const genres = film.reasons?.genres
+        ?.map(
+          (genre) =>
+            `you rate ${genre.name} ${genre.average.toFixed(1)}★ on average ` +
+            `across ${genre.films} films`
+        )
+        .join(' · ');
+      const reasons =
+        [people, themes, genres].filter(Boolean).join(' · ') ||
+        'Nothing in your history connects to this one — scored on its description alone.';
+
+      const row = document.createElement('div');
+      row.className = `slot picked${pick.pinned ? ' pinned' : ''}`;
+      row.innerHTML =
+        `<div class="time">${formatTime(pick.start)}</div>` +
+        `<div>` +
+        `<div class="title">${film.title}` +
+        (film.kind === 'event' ? '<span class="badge event">event</span>' : '') +
+        (unrated ? '<span class="badge unrated">not rated</span>' : '') +
+        (film.confidence === 'low' && !unrated
+          ? '<span class="badge low">little to go on</span>'
+          : '') +
+        (single.has(film.title) ? '<span class="badge only">only chance</span>' : '') +
+        `</div>` +
+        `<div class="detail">${
+          unrated ? 'No ratings history can predict this one — your call.' : reasons
+        }${film.runtime ? ` · ${film.runtime} min` : ''}</div>` +
+        `</div>` +
+        `<div>${unrated ? '' : stars(film.prediction)}` +
+        `<div class="actions">` +
+        `<button class="ghost" data-swap="${id}">Swap</button>` +
+        `<button class="ghost" data-drop="${film.title}">Drop</button>` +
+        `</div></div>`;
+
+      row.querySelector('[data-drop]').addEventListener('click', () => {
+        state.excluded.add(film.title);
+        state.pinned.delete(id);
+        rebuild();
+      });
+      row.querySelector('[data-swap]').addEventListener('click', () =>
+        showAlternatives(row, day, pick)
+      );
+      section.appendChild(row);
+    }
+    plan.appendChild(section);
+  }
+
+  renderMissed(plan);
+  renderDropped(plan);
+}
+
+/**
+ * What else was showing at that time, so a pick can be overruled knowingly.
+ * Shown inline rather than in a dialog: choosing between films means reading
+ * what they are, and a one-line prompt can't show that.
+ */
+function showAlternatives(row, day, pick) {
+  const existing = row.nextElementSibling;
+  if (existing?.classList.contains('alternatives')) {
+    existing.remove();
+    return;
+  }
+
+  const options = day.all
+    .filter(
+      (entry) =>
+        entry.film &&
+        entry.film.title !== pick.film.title &&
+        !state.excluded.has(entry.film.title) &&
+        entry.start < pick.end &&
+        pick.start < entry.end
+    )
+    .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0));
+
+  if (!options.length) {
+    row.after(emptyAlternatives());
+    return;
+  }
+
+  const panel = document.createElement('div');
+  panel.className = 'alternatives';
+  panel.innerHTML =
+    `<p class="muted">Also showing against ${pick.film.title}:</p>` +
+    options
+      .map(
+        (entry, index) => `
+      <div class="alt">
+        <div>
+          <b>${entry.film.title}</b>
+          ${entry.film.kind === 'event' ? '<span class="badge event">event</span>' : ''}
+          ${entry.blockedBy ? '<span class="badge low">during a commitment</span>' : ''}
+          <div class="detail">${formatTime(entry.start)}${
+            entry.film.runtime ? ` · ${entry.film.runtime} min` : ''
+          }${
+            entry.film.scoreable === false
+              ? ' · not rated — your call'
+              : ` · predicted ${entry.film.prediction.toFixed(1)}★`
+          }${entry.film.synopsis ? `<br>${entry.film.synopsis}` : ''}</div>
+        </div>
+        <button class="ghost" data-pick="${index}">Use this instead</button>
+      </div>`
+      )
+      .join('');
+
+  panel.querySelectorAll('[data-pick]').forEach((button) =>
+    button.addEventListener('click', () => {
+      const chosen = options[Number(button.dataset.pick)];
+      state.excluded.add(pick.film.title);
+      state.pinned.add(screeningId(chosen));
+      rebuild();
+    })
+  );
+
+  row.after(panel);
+}
+
+function emptyAlternatives() {
+  const panel = document.createElement('div');
+  panel.className = 'alternatives';
+  panel.innerHTML = '<p class="muted">Nothing else is showing in that slot.</p>';
+  return panel;
+}
+
+function renderMissed(plan) {
+  const missed = state.schedule.missed.slice(0, 12);
+  if (!missed.length) return;
+
+  const details = document.createElement('details');
+  details.className = 'missed';
+  details.innerHTML =
+    `<summary>${state.schedule.missed.length} films you're missing, and why</summary>` +
+    `<ul>${missed
+      .map(
+        (item) =>
+          `<li><b>${item.film.title}</b> — ${item.reason}${
+            item.film.scoreable === false
+              ? ''
+              : ` (predicted ${item.film.prediction.toFixed(1)}★)`
+          }</li>`
+      )
+      .join('')}</ul>`;
+  plan.appendChild(details);
+}
+
+function renderDropped(plan) {
+  if (!state.excluded.size) return;
+
+  const details = document.createElement('details');
+  details.className = 'missed';
+  details.innerHTML =
+    `<summary>${state.excluded.size} you dropped</summary>` +
+    `<ul>${[...state.excluded]
+      .map((title) => `<li>${title} <button class="ghost" data-undrop="${title}">put back</button></li>`)
+      .join('')}</ul>`;
+  details.querySelectorAll('[data-undrop]').forEach((button) =>
+    button.addEventListener('click', () => {
+      state.excluded.delete(button.dataset.undrop);
+      rebuild();
+    })
+  );
+  plan.appendChild(details);
+}
+
+/* ---------- session ---------- */
+
+const sessionData = () => ({
+  ratings: state.ratings,
+  commitments: state.commitments,
+  pinned: [...state.pinned],
+  excluded: [...state.excluded],
+  festival: state.festival?.festival || null,
+});
+
+function saveSession() {
+  if (storage.enabled()) storage.save(sessionData());
+}
+
+async function restoreSession() {
+  const saved = storage.load();
+  if (!saved?.ratings?.length) return;
+
+  state.ratings = saved.ratings;
+  state.commitments = saved.commitments || [];
+  state.pinned = new Set(saved.pinned || []);
+  state.excluded = new Set(saved.excluded || []);
+  setStatus(`Restored ${saved.ratings.length} ratings saved in this browser.`);
+  await resolve();
+}
+
+async function restoreFromFile(file) {
+  const data = restoreFromHTML(await file.text());
+  if (!data) {
+    return setStatus(
+      "That page doesn't carry a saved profile. Re-export it with the ratings box ticked.",
+      true
+    );
+  }
+  state.ratings = data.ratings || [];
+  state.commitments = data.commitments || [];
+  state.pinned = new Set(data.pinned || []);
+  state.excluded = new Set(data.excluded || []);
+  await resolve();
+}
+
+/* ---------- chrome ---------- */
+
+function setStatus(html, isError = false) {
+  const box = $('#ratings-status');
+  box.hidden = false;
+  box.className = `status${isError ? ' error' : ''}`;
+  box.innerHTML = html;
+}
+
+function showStep(step) {
+  $$('.panel').forEach((panel) => {
+    panel.hidden = panel.id !== `panel-${step}`;
+  });
+  $$('.step').forEach((button) =>
+    button.setAttribute('aria-current', String(Number(button.dataset.step) === step))
+  );
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+boot();

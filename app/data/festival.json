@@ -1,0 +1,5186 @@
+{
+  "festival": "Fantastic Fest 2026",
+  "days": [
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-19",
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22",
+    "2026-09-23",
+    "2026-09-24"
+  ],
+  "films": [
+    {
+      "title": "3 Weeks After",
+      "year": 2026,
+      "country": "RS/BG/IT/HR/LU",
+      "runtime": 94,
+      "section": "N. American premiere",
+      "genre": "Drama",
+      "tags": [
+        "Children in Peril",
+        "Dark"
+      ],
+      "director": [
+        "Miroslav Terzić"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "When a school trip leaves a group of teenagers stranded far from home, the recent suicide of a classmate begins to expose the fractures, loyalties and secrets holding them together.",
+      "entities": {
+        "director": [
+          "Miroslav Terzić"
+        ],
+        "writer": [
+          "Vladimir Arsenijević",
+          "Bojan Vuletić",
+          "Miroslav Terzić"
+        ],
+        "cast": [
+          "Jovan Ginić",
+          "Klara Hrvanović",
+          "Anđela Alavirević",
+          "Tihana Lazović",
+          "Branislav Trifunović",
+          "Andrija Marković"
+        ],
+        "keyword": [
+          "children in peril",
+          "dark",
+          "drama",
+          "high school",
+          "mental health",
+          "stranded",
+          "suicide",
+          "teen drama",
+          "teen suicide",
+          "youth violence"
+        ],
+        "genre": [
+          "drama",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "5 More Minutes",
+      "year": 2026,
+      "country": "Spain",
+      "runtime": 93,
+      "section": "Main Competition",
+      "genre": "Dark comedy / sci-fi",
+      "tags": [
+        "Main Competition",
+        "Dark Comedy",
+        "Sci-Fi"
+      ],
+      "director": [
+        "Javier Ruiz Caldera"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "An on-the-rocks couple retreat to a secluded countryside home for the weekend in an effort to repair their marriage. They're greeted by the singular head of the real estate agency who shows them around the place and hands over the keys. Just before he leaves, however, the entire world slips into a time loop, and the last five minutes begin to repeat endlessly.",
+      "entities": {
+        "director": [
+          "Javier Ruiz Caldera"
+        ],
+        "writer": [
+          "Berto Romero"
+        ],
+        "cast": [
+          "Berto Romero",
+          "Belén Cuesta",
+          "Javier Cámara",
+          "Carlos Bernardino",
+          "Marc Soler",
+          "Cláudia Mello"
+        ],
+        "keyword": [
+          "dark comedy",
+          "main competition",
+          "sci-fi",
+          "time loop"
+        ],
+        "genre": [
+          "comedy",
+          "fantasy",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Adult Supervision",
+      "year": 2026,
+      "country": "Sweden",
+      "runtime": 108,
+      "section": "Next Wave Competition",
+      "genre": "Drama / thriller",
+      "tags": [
+        "Next Wave",
+        "Children in Peril"
+      ],
+      "director": [
+        "Alex Schulman"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Three fathers accompany their teenage daughters on a school trip to a remote island. What begins as a peaceful getaway soon turns into a series of unexpected problems. Each father has a different approach to parenting, influenced by his own past experiences, and their conflicting views create tension among them. As the situation becomes increasingly difficult to control, memories of their past return and force them to confront their mistakes and shortcomings. The trip ultimately leaves them questioning who is really in control.",
+      "entities": {
+        "director": [
+          "Alex Schulman"
+        ],
+        "writer": [
+          "Alex Schulman"
+        ],
+        "cast": [
+          "Gustaf Skarsgård",
+          "Fares Fares",
+          "Linus Wahlgren",
+          "Olof Olingdahl",
+          "Baxter Renman",
+          "Bruno Saurén"
+        ],
+        "keyword": [
+          "children in peril",
+          "drama",
+          "next wave",
+          "thriller"
+        ],
+        "genre": [
+          "comedy",
+          "drama",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Attack on Paradise",
+      "year": 2026,
+      "country": "BE/NL",
+      "runtime": 99,
+      "section": "US premiere",
+      "genre": "Action",
+      "tags": [
+        "Action",
+        "Gory",
+        "Body Count",
+        "ACAB",
+        "Great Kills"
+      ],
+      "director": [
+        "Bob Colaers"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "After seven sleepless years, Suleyman reunites with his mother just as henchmen, cops and a bad raid drag him back into violence.",
+      "entities": {
+        "director": [
+          "Bob Colaers"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "acab",
+          "action",
+          "body count",
+          "gory",
+          "great kills"
+        ],
+        "genre": [
+          "action",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Beware Boiúna",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 104,
+      "section": "Opening Night",
+      "genre": "Creature horror",
+      "tags": [
+        "Opening Night",
+        "When Animals Attack",
+        "Horror"
+      ],
+      "director": [
+        "Mike P. Nelson"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Deep in the Amazon, a medical mission spirals into a fight for survival when Boiúna, a colossal ancient predator, awakens to reclaim her domain. In the jungle where nature holds absolute power, she decides who lives and who dies.",
+      "entities": {
+        "director": [
+          "Mike P. Nelson"
+        ],
+        "writer": [
+          "Mike P. Nelson",
+          "Alan B. McElroy",
+          "Tony Giglio"
+        ],
+        "cast": [
+          "Logan Marshall-Green",
+          "Kiana Madeira",
+          "Jessica Rothe",
+          "Jackson Bews",
+          "Juan Pablo Shuk",
+          "Will Close"
+        ],
+        "keyword": [
+          "amazon rainforest",
+          "brazil",
+          "brazilian folklore",
+          "creature",
+          "creature feature",
+          "creature horror",
+          "giant snake",
+          "horror",
+          "humanitarian work",
+          "opening night",
+          "rainforest",
+          "when animals attack"
+        ],
+        "genre": [
+          "action",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Birthday Party",
+      "year": 2026,
+      "country": "France",
+      "runtime": 114,
+      "section": "Main Competition",
+      "genre": "Psychological thriller",
+      "tags": [
+        "Main Competition",
+        "Cerebral",
+        "Children in Peril"
+      ],
+      "director": [
+        "Léa Mysius"
+      ],
+      "cinematographer": "",
+      "cast": [
+        "Monica Bellucci"
+      ],
+      "synopsis": "Nora turns 40 and gets three uninvited guests who insist she isn't who she claims — and her constructed life comes apart.",
+      "entities": {
+        "director": [
+          "Léa Mysius"
+        ],
+        "writer": [],
+        "cast": [
+          "Monica Bellucci"
+        ],
+        "keyword": [
+          "cerebral",
+          "children in peril",
+          "main competition",
+          "psychological thriller"
+        ],
+        "genre": [
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "The Blood Countess",
+      "year": 2026,
+      "country": "AT/DE/LU",
+      "runtime": 119,
+      "section": "Main Competition",
+      "genre": "Vampire comedy",
+      "tags": [
+        "Main Competition",
+        "Vampire",
+        "Queer",
+        "Comedy",
+        "Arthouse Gone Wild"
+      ],
+      "director": [
+        "Ulrike Ottinger"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The Blood Countess and her maid embark on a quest for the red elixir of life and a book that threatens the vampire realm. Hot on their heels are a police inspector, two vampirologists, a vegetarian nephew and his therapist.",
+      "entities": {
+        "director": [
+          "Ulrike Ottinger"
+        ],
+        "writer": [
+          "Elfriede Jelinek",
+          "Ulrike Ottinger"
+        ],
+        "cast": [
+          "Isabelle Huppert",
+          "Birgit Minichmayr",
+          "Thomas Schubert",
+          "Lars Eidinger",
+          "André Jung",
+          "Sophie Rois"
+        ],
+        "keyword": [
+          "arthouse gone wild",
+          "comedy",
+          "countess",
+          "main competition",
+          "queer",
+          "vampire",
+          "vampire comedy",
+          "woman director"
+        ],
+        "genre": [
+          "comedy",
+          "fantasy",
+          "horror",
+          "mystery"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Blood Feast",
+      "year": 1963,
+      "country": "USA",
+      "runtime": 67,
+      "section": "Rep — 4K restoration",
+      "genre": "Splatter",
+      "tags": [
+        "Rep Screening",
+        "Gory"
+      ],
+      "director": [
+        "Herschell Gordon Lewis"
+      ],
+      "cinematographer": "Herschell Gordon Lewis",
+      "cast": [],
+      "synopsis": "In the sleepy suburbs of Miami, seemingly normal Egyptian immigrant Fuad Ramses runs a successful catering business. He also murders young women and plans to use their body parts to revive the goddess Ishtar. The insane Ramses hypnotizes a socialite in order to land a job catering a party for her debutante daughter, Suzette Fremont, and turns the event into an evening of gruesome deaths, bloody dismemberment and ritual sacrifice.",
+      "entities": {
+        "director": [
+          "Herschell Gordon Lewis"
+        ],
+        "writer": [
+          "Allison Louise Downe",
+          "Herschell Gordon Lewis",
+          "David F. Friedman"
+        ],
+        "cast": [
+          "William Kerwin",
+          "Mal Arnold",
+          "Connie Mason",
+          "Lyn Bolton",
+          "Scott H. Hall",
+          "Christy Foushee"
+        ],
+        "keyword": [
+          "caterer",
+          "gory",
+          "rep screening",
+          "splatter",
+          "tongue",
+          "video nasty"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Bloody Tennis",
+      "year": 2026,
+      "country": "Germany",
+      "runtime": 90,
+      "section": "Horror Competition",
+      "genre": "Coming-of-age horror",
+      "tags": [
+        "Horror Competition",
+        "Horror"
+      ],
+      "director": [
+        "Nikias Chryssos"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Sophie joins a prestigious tennis academy, where the brutality of competitive sports is taken to its extreme and only the hungriest survive.",
+      "entities": {
+        "director": [
+          "Nikias Chryssos"
+        ],
+        "writer": [
+          "Nikias Chryssos"
+        ],
+        "cast": [
+          "Sandra Guldberg Kampp",
+          "Elina Löwensohn",
+          "Tracy Gotoas",
+          "Lily Taïeb",
+          "Juliana Vieira-Guerra",
+          "Helena Zengel"
+        ],
+        "keyword": [
+          "coming-of-age horror",
+          "horror",
+          "horror competition"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Carrie (two episodes)",
+      "year": 2026,
+      "country": "CA/USA",
+      "runtime": 101,
+      "section": "US premiere",
+      "genre": "TV horror",
+      "tags": [
+        "Horror"
+      ],
+      "director": [
+        "Mike Flanagan"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Carrie navigates a viral bullying scandal and emerging telekinesis after her father's death.",
+      "entities": {
+        "director": [
+          "Mike Flanagan"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "horror",
+          "tv horror"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Cinema Recomposed: Silent Monsters",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 65,
+      "section": "Rep — world premiere",
+      "genre": "Silent shorts + live score",
+      "tags": [
+        "Rep Screening"
+      ],
+      "director": [
+        "Various (1908–1930)"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A live string quartet performs new scores by seven composers aged 17–24 for seven classic silent horror shorts.",
+      "entities": {
+        "director": [
+          "Various (1908–1930)"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "rep screening",
+          "silent shorts + live score"
+        ],
+        "genre": []
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Compliance",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 104,
+      "section": "N. American premiere",
+      "genre": "Found-footage horror",
+      "tags": [
+        "ACAB",
+        "Evil",
+        "Found Footage",
+        "Mind Control",
+        "Psychopaths",
+        "Horror",
+        "The Future is Bleak",
+        "Trauma",
+        "Conspiracy"
+      ],
+      "director": [
+        "Kyle Mangione-Smith"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "On the eve of a landmark deal for a major tech startup, they're faced with a sexual assault controversy that threatens to become a PR disaster. As new hire Sam works to contain the fallout, it becomes clear that not all is as it seems, and she quickly finds herself in a game of cat and mouse with a criminal organization taking aim at the company and their investors.",
+      "entities": {
+        "director": [
+          "Kyle Mangione-Smith"
+        ],
+        "writer": [
+          "Kyle Mangione-Smith"
+        ],
+        "cast": [
+          "Megan Wilcox",
+          "Lindsey Normington",
+          "Charlie Wood",
+          "Derek S. Orr",
+          "Darren Deng",
+          "Michael Boose"
+        ],
+        "keyword": [
+          "acab",
+          "conspiracy",
+          "criminal organization",
+          "evil",
+          "found footage",
+          "found-footage horror",
+          "horror",
+          "mind control",
+          "political",
+          "political conspiracy",
+          "psychopaths",
+          "screenlife",
+          "the future is bleak",
+          "trauma"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Corpus",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 102,
+      "section": "US premiere",
+      "genre": "Erotic supernatural horror",
+      "tags": [
+        "Queer",
+        "Kinky",
+        "Neon Thriller",
+        "Girls Just Want to Have Fun",
+        "Trauma"
+      ],
+      "director": [
+        "Corrin Evans"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "It’s the summer of 1998 in New York City; Sayo, a soulful nightlife photographer and small-time drug dealer, is invited to a party upstate by his longtime friend and unrequited love, a movie star on the rise: Vince Marlowe. Together with their rowdy friend Ross, they drive to a remote, bucolic manor in hopes of some summer debauchery. But when they arrive, they discover that the promise of a party is actually three mysterious women — Billie, Wren, and Cata — whose disturbing agenda draws the boys into a dark web of seduction and terror.",
+      "entities": {
+        "director": [
+          "Corrin Evans"
+        ],
+        "writer": [
+          "Corrin Evans",
+          "Lily Cowles"
+        ],
+        "cast": [
+          "Jeff Wahlberg",
+          "Brodie Townsend",
+          "Michael Vlamis",
+          "Lily Cowles",
+          "Nuha Jes Izman",
+          "Ching Valdes-Aran"
+        ],
+        "keyword": [
+          "erotic supernatural horror",
+          "girls just want to have fun",
+          "kinky",
+          "neon thriller",
+          "queer",
+          "trauma"
+        ],
+        "genre": [
+          "horror",
+          "romance",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Cycle",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 111,
+      "section": "Horror Competition",
+      "genre": "Mystery horror",
+      "tags": [
+        "Horror Competition",
+        "Strong Women"
+      ],
+      "director": [
+        "Jordan Downey"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A man missing 36 years turns up at a crime scene; his estranged daughter unpicks his past.",
+      "entities": {
+        "director": [
+          "Jordan Downey"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "horror competition",
+          "mystery horror",
+          "strong women"
+        ],
+        "genre": [
+          "horror",
+          "mystery"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Death Has No Master",
+      "year": 2026,
+      "country": "VE/CA/IT/LU",
+      "runtime": 106,
+      "section": "N. American premiere",
+      "genre": "Drama / thriller",
+      "tags": [
+        "Colonizers Suck",
+        "Dark"
+      ],
+      "director": [
+        "Jorge Thielen Armand"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Caro travels to Venezuela to sell her late father’s cacao plantation, only to find the family mansion occupied by its former staff, who are determined to remain at all costs. As Caro takes justice into her own hands to claim the inheritance she believes is hers, she sets off a struggle that unearths the violence buried in the land and its memory.",
+      "entities": {
+        "director": [
+          "Jorge Thielen Armand"
+        ],
+        "writer": [
+          "Jorge Thielen Armand"
+        ],
+        "cast": [
+          "Asia Argento",
+          "Dogreika Tovar",
+          "Jorge Thielen Hedderich",
+          "Yermain Sequera",
+          "Arturo Rodríguez",
+          "Jericó Montilla"
+        ],
+        "keyword": [
+          "aggressive",
+          "colonizers suck",
+          "dark",
+          "drama",
+          "immigration",
+          "inflammatory",
+          "intense",
+          "nightmare",
+          "paranoid",
+          "plantation",
+          "provocative",
+          "psychotic",
+          "squatting",
+          "sweaty",
+          "thriller",
+          "venezuela",
+          "violence"
+        ],
+        "genre": [
+          "drama",
+          "fantasy",
+          "mystery",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Death of a Yellow Bird",
+      "year": 2026,
+      "country": "Canada",
+      "runtime": 93,
+      "section": "Horror Competition",
+      "genre": "Ghost drama",
+      "tags": [
+        "Horror Competition",
+        "Don't Watch That Tape",
+        "Horror"
+      ],
+      "director": [
+        "Cody Calahan"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A dying man who returns to his childhood home to record a series of messages for his son. But what begins as an attempt to leave something behind takes a supernatural turn when he discovers a presence haunting the isolated cabin.",
+      "entities": {
+        "director": [
+          "Cody Calahan"
+        ],
+        "writer": [
+          "Cody Calahan"
+        ],
+        "cast": [
+          "Ari Millen"
+        ],
+        "keyword": [
+          "cabin",
+          "don't watch that tape",
+          "ghost drama",
+          "haunting",
+          "horror",
+          "horror competition",
+          "supernatural",
+          "supernatural horror"
+        ],
+        "genre": [
+          "drama",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Dog God",
+      "year": 1997,
+      "country": "Thailand",
+      "runtime": 110,
+      "section": "Rep — international premiere",
+      "genre": "Satire",
+      "tags": [
+        "Rep Screening",
+        "Banned",
+        "Take Your Vitamins"
+      ],
+      "director": [
+        "Ing K"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Banned in Thailand for nearly 30 years for insulting religion; an anarchic attack on blind faith.",
+      "entities": {
+        "director": [
+          "Ing K"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "banned",
+          "rep screening",
+          "satire",
+          "take your vitamins"
+        ],
+        "genre": [
+          "comedy"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Donkey Princess",
+      "year": 2026,
+      "country": "CL/FR/NL/UY/DE",
+      "runtime": 90,
+      "section": "N. American premiere",
+      "genre": "Animated fantasy",
+      "tags": [
+        "Sword & Sorcery",
+        "Fantasy",
+        "Strong Women",
+        "Take Your Vitamins"
+      ],
+      "director": [
+        "Cristóbal León",
+        "Joaquín Cociña"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Diana is the princess of an ancient kingdom. Her father, King Arthur, forbids love. When Diana falls in love with Lalo, he banishes him. Using a magical bracelet, Diana travels to other worlds in search of her love.",
+      "entities": {
+        "director": [
+          "Cristóbal León",
+          "Joaquín Cociña"
+        ],
+        "writer": [
+          "Alejandra Moffat",
+          "Joaquín Cociña",
+          "Cristóbal León"
+        ],
+        "cast": [
+          "Antonia Giesen",
+          "Andrew Bargsted",
+          "Francisco Melo"
+        ],
+        "keyword": [
+          "animated fantasy",
+          "fantasy",
+          "strong women",
+          "sword & sorcery",
+          "take your vitamins"
+        ],
+        "genre": [
+          "animation",
+          "fantasy",
+          "romance",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Extreme Prejudice",
+      "year": 1987,
+      "country": "USA",
+      "runtime": 105,
+      "section": "Special presentation",
+      "genre": "Neo-western action",
+      "tags": [
+        "Rep Screening",
+        "Action",
+        "Western"
+      ],
+      "director": [
+        "Walter Hill"
+      ],
+      "cinematographer": "Matthew F. Leonetti",
+      "cast": [
+        "Nick Nolte",
+        "Powers Boothe"
+      ],
+      "synopsis": "Lean, mean Texas Ranger Jack Benteen locks horns with a former friend, Cash Bailey, now a ruthless drug kingpin. Though they're on opposite sides of the law, they share a love interest in the sensual Sarita. When a crew of rogue soldiers descends upon the border town for an off-the-books mission, all roads lead to a bloody, to-the-death showdown, as loyalties shift and the lines between good and evil are blurred.",
+      "entities": {
+        "director": [
+          "Walter Hill"
+        ],
+        "writer": [
+          "John Milius",
+          "Harry Kleiner",
+          "Deric Washburn",
+          "Fred Rexer"
+        ],
+        "cast": [
+          "Nick Nolte",
+          "Powers Boothe",
+          "Michael Ironside",
+          "María Conchita Alonso",
+          "Rip Torn",
+          "Clancy Brown"
+        ],
+        "keyword": [
+          "action",
+          "drugs",
+          "kingpin",
+          "mexican standoff",
+          "modern western",
+          "neo-noir",
+          "neo-western action",
+          "organized crime",
+          "rep screening",
+          "robbery",
+          "texas",
+          "texas ranger",
+          "western"
+        ],
+        "genre": [
+          "action",
+          "crime",
+          "drama",
+          "thriller",
+          "western"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Face of Horror",
+      "year": 2026,
+      "country": "UK",
+      "runtime": 120,
+      "section": "US premiere",
+      "genre": "Gothic ghost story",
+      "tags": [
+        "Strong Women",
+        "Shot on Film",
+        "Gory"
+      ],
+      "director": [
+        "Anna Biller"
+      ],
+      "cinematographer": "M. David Mullen (35mm)",
+      "cast": [
+        "Jonah Hauer-King",
+        "Kristine Froseth",
+        "Ellie Bamber",
+        "Leo Suter",
+        "Bella Heathcote"
+      ],
+      "synopsis": "In medieval England, the beautiful Eleanor pines away for her errant husband, the handsome but adulterous knight Edward. When Edward’s treachery culminates in a tragedy that robs Eleanor first of her beauty and then of her life, she returns as a ghost to eke bloody revenge on Edward and his new bride.",
+      "entities": {
+        "director": [
+          "Anna Biller"
+        ],
+        "writer": [
+          "Anna Biller"
+        ],
+        "cast": [
+          "Kristine Froseth",
+          "Jonah Hauer-King",
+          "Bella Heathcote",
+          "Ellie Bamber",
+          "Leo Suter",
+          "Ben Radcliffe"
+        ],
+        "keyword": [
+          "14th century",
+          "adultery",
+          "based on myths, legends or folklore",
+          "ghost story",
+          "gory",
+          "gothic",
+          "gothic ghost story",
+          "horror romance",
+          "knight",
+          "noblewoman",
+          "revenge",
+          "shot on film",
+          "squire",
+          "strong women",
+          "supernatural horror"
+        ],
+        "genre": [
+          "horror",
+          "romance"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Flapjax",
+      "year": 2026,
+      "country": "USA/CA",
+      "runtime": 98,
+      "section": "World premiere",
+      "genre": "Horror comedy",
+      "tags": [
+        "Camp",
+        "Aliens",
+        "Gross Out",
+        "Take Your Vitamins"
+      ],
+      "director": [
+        "Rocko Zevenbergen"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "An over-eager fast-food manager is tasked with reviving a highly addictive menu item called \"FLAPJAX\" to save his fast-food company from bankruptcy. He pulls his estranged mother, a faded pop-star known as Popo, out of retirement to promote the item. However, he soon becomes ensnared by the company's true intentions and his deeply rooted mommy issues.",
+      "entities": {
+        "director": [
+          "Rocko Zevenbergen"
+        ],
+        "writer": [
+          "Rocko Zevenbergen",
+          "Estevan Muñoz"
+        ],
+        "cast": [
+          "Gabriel Cagan",
+          "Georgia Kate Haege",
+          "Madeline Barbush",
+          "Kaoru Koide",
+          "Daniel Martin Berkey",
+          "Takumi Mitobe"
+        ],
+        "keyword": [
+          "aliens",
+          "camp",
+          "gross out",
+          "horror comedy",
+          "take your vitamins"
+        ],
+        "genre": [
+          "comedy",
+          "horror",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Frisk",
+      "year": 1995,
+      "country": "USA",
+      "runtime": 89,
+      "section": "Rep — 4K restoration",
+      "genre": "Queer transgressive",
+      "tags": [
+        "Rep Screening",
+        "Queer",
+        "Psychopaths",
+        "Unsafe Sex",
+        "Shot on Film",
+        "Restoration"
+      ],
+      "director": [
+        "Todd Verow"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A first person narrative of the exploits of a gay serial killer in deeply disturbing, controversial drama about violence, sexuality, and the imagination. Dennis, the main character, whose lead we follow on this path between what is real and what we can only hope is surreal. His friends attempt to determine if he's truly a psychopath.",
+      "entities": {
+        "director": [
+          "Todd Verow"
+        ],
+        "writer": [
+          "Jim Dwyer",
+          "George LaVoo",
+          "Todd Verow"
+        ],
+        "cast": [
+          "Michael Gunther",
+          "Craig Chester",
+          "Michael Stock",
+          "Raoul O'Connell",
+          "Jaie Laplante",
+          "Parker Posey"
+        ],
+        "keyword": [
+          "based on novel or book",
+          "gay theme",
+          "lgbt",
+          "psychopaths",
+          "queer",
+          "queer transgressive",
+          "rep screening",
+          "restoration",
+          "sadism",
+          "serial killer",
+          "shot on film",
+          "unsafe sex"
+        ],
+        "genre": [
+          "comedy",
+          "drama",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Full Phil",
+      "year": 2026,
+      "country": "FR/USA",
+      "runtime": 78,
+      "section": "World premiere",
+      "genre": "Absurdist comedy",
+      "tags": [
+        "Comedy",
+        "Absurd",
+        "Arthouse Gone Wild",
+        "WTF"
+      ],
+      "director": [
+        "Quentin Dupieux"
+      ],
+      "cinematographer": "",
+      "cast": [
+        "Kristen Stewart",
+        "Woody Harrelson",
+        "Tim Heidecker",
+        "Eric Wareheim"
+      ],
+      "synopsis": "Wealthy American industrialist Philip Doom attempts to reconnect with his daughter Madeleine during a luxurious trip to Paris. Unfortunately, French cuisine, a 1950s horror film, and an intrusive hotel employee disrupt their stay.",
+      "entities": {
+        "director": [
+          "Quentin Dupieux"
+        ],
+        "writer": [
+          "Quentin Dupieux"
+        ],
+        "cast": [
+          "Woody Harrelson",
+          "Kristen Stewart",
+          "Charlotte Le Bon",
+          "Tim Heidecker",
+          "Eric Wareheim",
+          "Emma Mackey"
+        ],
+        "keyword": [
+          "absurd",
+          "absurdist comedy",
+          "arthouse gone wild",
+          "comedy",
+          "wtf"
+        ],
+        "genre": [
+          "comedy",
+          "drama"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Future Tense",
+      "year": 2026,
+      "country": "ZA/AU",
+      "runtime": 98,
+      "section": "US premiere",
+      "genre": "Sci-fi",
+      "tags": [
+        "Sci-Fi",
+        "Colonizers Suck",
+        "Cerebral",
+        "Strong Women"
+      ],
+      "director": [
+        "Jenna Cato Bass"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In a dystopian future, a young couple clashes during their time-traveling vacation.",
+      "entities": {
+        "director": [
+          "Jenna Cato Bass"
+        ],
+        "writer": [
+          "Jenna Cato Bass"
+        ],
+        "cast": [
+          "Lawrence Maleka",
+          "Kristen Raath"
+        ],
+        "keyword": [
+          "cerebral",
+          "colonizers suck",
+          "sci-fi",
+          "strong women",
+          "time travel"
+        ],
+        "genre": [
+          "romance",
+          "science fiction",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Game Master",
+      "year": 2026,
+      "country": "France",
+      "runtime": 89,
+      "section": "International premiere",
+      "genre": "Comedy",
+      "tags": [
+        "Comedy",
+        "LARPing",
+        "Heartwarming"
+      ],
+      "director": [
+        "Éric Judor"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A warm comedy about imagination, awkward parenthood and the eccentric world of live-action roleplay.",
+      "entities": {
+        "director": [
+          "Éric Judor"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "comedy",
+          "heartwarming",
+          "larping"
+        ],
+        "genre": [
+          "comedy"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Ghost in the Cell",
+      "year": 2026,
+      "country": "Indonesia",
+      "runtime": 106,
+      "section": "N. American premiere",
+      "genre": "Horror / action",
+      "tags": [
+        "Horror Competition",
+        "Horror"
+      ],
+      "director": [
+        "Joko Anwar"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In a notorious prison, an invisible force begins killing inmates brutally, compelling enemy gangs and corrupt guards to work together as they try to survive the mounting bloodshed.",
+      "entities": {
+        "director": [
+          "Joko Anwar"
+        ],
+        "writer": [
+          "Joko Anwar"
+        ],
+        "cast": [
+          "Abimana Aryasatya",
+          "Bront Palarae",
+          "Dimas Danang",
+          "Endy Arfian",
+          "Lukman Sardi",
+          "Mike Lucock"
+        ],
+        "keyword": [
+          "action",
+          "brutal",
+          "dark",
+          "ghost",
+          "gore",
+          "haunted",
+          "horror",
+          "horror competition",
+          "inmate",
+          "intense",
+          "jail",
+          "prison",
+          "prison cell",
+          "prisoner",
+          "satire",
+          "splatter",
+          "terror cell"
+        ],
+        "genre": [
+          "action",
+          "comedy",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Gimme Truth",
+      "year": 2026,
+      "country": "Canada",
+      "runtime": 84,
+      "section": "US premiere",
+      "genre": "Documentary",
+      "tags": [
+        "Aliens",
+        "Documentary",
+        "Conspiracy Theories"
+      ],
+      "director": [
+        "Brad Abrahams",
+        "Simon Ennis"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "False flags. Forbidden archeology. Chemtrails. Nefarious extraterrestrials. Fake pandemics. Through the intertwined stories of truth-seekers, influencers, and ex-believers, the film explores what draws people into the gravitational pull of conspiracy culture, and what happens when your truth becomes your identity.",
+      "entities": {
+        "director": [
+          "Simon Ennis",
+          "Brad Abrahams"
+        ],
+        "writer": [
+          "Brad Abrahams",
+          "Simon Ennis",
+          "Nick Taylor"
+        ],
+        "cast": [],
+        "keyword": [
+          "aliens",
+          "conspiracy theories",
+          "documentary"
+        ],
+        "genre": [
+          "documentary"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Girl in the Night",
+      "year": 2026,
+      "country": "Slovenia",
+      "runtime": 94,
+      "section": "Main Competition · World premiere",
+      "genre": "Deadpan comedy",
+      "tags": [
+        "Main Competition",
+        "Absurd",
+        "Camp",
+        "Comedy",
+        "Heartwarming",
+        "Strong Women"
+      ],
+      "director": [
+        "Luka Marčetić"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The aimless life of an alienated petty thief takes an unexpected turn for the worse when he steals a bicycle from an enigmatic girl who spends her nights fighting crime.",
+      "entities": {
+        "director": [
+          "Luka Marčetič"
+        ],
+        "writer": [
+          "Luka Marčetič"
+        ],
+        "cast": [
+          "Urban Kuntarič",
+          "Lara Wolf",
+          "Rok Roudi",
+          "Doroteja Nadrah",
+          "Nejc Jezernik",
+          "Marko Mandić"
+        ],
+        "keyword": [
+          "absurd",
+          "camp",
+          "comedy",
+          "deadpan comedy",
+          "heartwarming",
+          "main competition",
+          "strong women"
+        ],
+        "genre": [
+          "comedy",
+          "drama",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Glorious Dead",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 81,
+      "section": "US premiere",
+      "genre": "Apocalyptic horror",
+      "tags": [
+        "Alumnus"
+      ],
+      "director": [
+        "John Adams",
+        "Toby Poser"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A small-town sheriff and her deputy awaken to a changed world where blood drips from taps, people and pets vanish, fleshy creatures roam the woods, and the hamlet descends into chaos. By noon, the skies turn white with snow, and the dirt cannot keep the dead down as the shattered community buckles under the pressure, and as the sun sets, all hell has frozen over.",
+      "entities": {
+        "director": [
+          "Toby Poser",
+          "John Adams"
+        ],
+        "writer": [],
+        "cast": [
+          "Zelda Adams",
+          "Toby Poser"
+        ],
+        "keyword": [
+          "alumnus",
+          "apocalyptic horror"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Godmother",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 85,
+      "section": "Horror Competition · World premiere",
+      "genre": "Horror",
+      "tags": [
+        "Horror Competition",
+        "Respect Your Elders",
+        "Desert",
+        "Horror"
+      ],
+      "director": [
+        "John Veron"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A meticulously planned desert couples' vacation spirals into chaos when family tensions and a pair of mysterious hosts with devilish intentions transform a romantic getaway into a nightmare.",
+      "entities": {
+        "director": [
+          "John Veron"
+        ],
+        "writer": [
+          "John Veron",
+          "Alanah Pearce"
+        ],
+        "cast": [
+          "Paige Evans",
+          "Cameron Cuffe",
+          "Riley Dandy",
+          "Bruce Davison",
+          "Dee Wallace"
+        ],
+        "keyword": [
+          "desert",
+          "horror",
+          "horror competition",
+          "independent film",
+          "respect your elders"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Half",
+      "year": 2026,
+      "country": "India",
+      "runtime": 111,
+      "section": "International premiere",
+      "genre": "Vampire action",
+      "tags": [
+        "Great Kills",
+        "Vampire",
+        "Road Trip",
+        "Action"
+      ],
+      "director": [
+        "Samjad"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Two half-vampire siblings, left for dead by scavengers, come back for revenge.",
+      "entities": {
+        "director": [
+          "Samjad P S"
+        ],
+        "writer": [
+          "Praveen Viswanath",
+          "Samjad P S"
+        ],
+        "cast": [
+          "Ranjith Sajeev",
+          "Aiswarya Raj",
+          "Amala Paul",
+          "Abbas",
+          "Srikant Murali"
+        ],
+        "keyword": [
+          "action",
+          "great kills",
+          "road trip",
+          "vampire",
+          "vampire action"
+        ],
+        "genre": [
+          "action",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Hell House",
+      "year": 2001,
+      "country": "USA",
+      "runtime": 86,
+      "section": "Rep — restoration premiere",
+      "genre": "Documentary",
+      "tags": [
+        "Rep Screening",
+        "Children in Peril"
+      ],
+      "director": [
+        "George Ratliff"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A look at the \"Hell House\" performed annually in October by the youth members of Trinity Church (Assemblies of God) in Cedar Hill, Texas (a Dallas suburb) — seen by over 10,000 visitors each year.",
+      "entities": {
+        "director": [
+          "George Ratliff"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "children in peril",
+          "documentary",
+          "rep screening"
+        ],
+        "genre": [
+          "documentary"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Henry: Portrait of a Serial Killer",
+      "year": 1986,
+      "country": "USA",
+      "runtime": 83,
+      "section": "Rep — new 35mm print",
+      "genre": "Crime horror",
+      "tags": [
+        "Rep Screening",
+        "Iconic Killer"
+      ],
+      "director": [
+        "John McNaughton"
+      ],
+      "cinematographer": "Charlie Lieberman",
+      "cast": [
+        "Michael Rooker"
+      ],
+      "synopsis": "Arriving in Chicago, Henry moves in with ex-con acquaintance Otis and starts schooling him in the ways of the serial killer.",
+      "entities": {
+        "director": [
+          "John McNaughton"
+        ],
+        "writer": [
+          "Richard Fire",
+          "John McNaughton"
+        ],
+        "cast": [
+          "Michael Rooker",
+          "Tracy Arnold",
+          "Tom Towles",
+          "Mary Demas",
+          "Anne Bartoletti",
+          "Elizabeth Kaden"
+        ],
+        "keyword": [
+          "based on true story",
+          "biography",
+          "chicago, illinois",
+          "crime horror",
+          "home invasion",
+          "iconic killer",
+          "incest",
+          "killing spree",
+          "murder",
+          "prostitute",
+          "psychopath",
+          "rape",
+          "rep screening",
+          "sadistic",
+          "serial killer",
+          "sister"
+        ],
+        "genre": [
+          "crime",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Heretiks",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 89,
+      "section": "Horror Competition · World premiere",
+      "genre": "Witch horror",
+      "tags": [
+        "Horror Competition",
+        "Witchy",
+        "Evil Entity",
+        "Children in Peril",
+        "Coming of Age"
+      ],
+      "director": [
+        "Gregg Bishop"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "On Halloween night, a disaffected teenage girl must team up with a renegade witch to protect her little sister from a murderous coven hellbent on sacrificing her in an apocalyptic ritual.",
+      "entities": {
+        "director": [
+          "Gregg Bishop"
+        ],
+        "writer": [
+          "Ben Collins",
+          "Luke Piotrowski"
+        ],
+        "cast": [
+          "Kimberly Epstein",
+          "Josie Juliette Wert",
+          "Ava Mae Seidensticker",
+          "Tess Williams",
+          "Luke Speakman"
+        ],
+        "keyword": [
+          "children in peril",
+          "coming of age",
+          "coven (akelarre)",
+          "evil entity",
+          "halloween",
+          "holiday horror",
+          "home invasion",
+          "horror competition",
+          "supernatural",
+          "supernatural horror",
+          "witch",
+          "witch horror",
+          "witchy"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "I Have Proof",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 76,
+      "section": "Burnt Ends · World premiere",
+      "genre": "Horror",
+      "tags": [
+        "Burnt Ends",
+        "Horror"
+      ],
+      "director": [
+        "James Cullen Bressack"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Plot details are being kept locked in an old VCR, but the film is said to be psychologically charged, and favor 'texture, imperfection, and immediacy over polish'.",
+      "entities": {
+        "director": [
+          "James Cullen Bressack"
+        ],
+        "writer": [
+          "James Cullen Bressack"
+        ],
+        "cast": [
+          "Larsen Deane",
+          "Lilly Van Der Meer",
+          "Kelly Lynn Reiter",
+          "B.J. Hendricks"
+        ],
+        "keyword": [
+          "burnt ends",
+          "found footage",
+          "horror",
+          "independent film",
+          "vhs horror"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Into the Sky",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 97,
+      "section": "World premiere",
+      "genre": "Sci-fi comedy",
+      "tags": [
+        "Aliens",
+        "Comedy"
+      ],
+      "director": [
+        "Evan Wolf Buxbaum",
+        "Drew Mylrea"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A man's efforts to win back his wife keep getting derailed when aliens mysteriously snatch him from Earth, making his path to reconciliation a lot more complicated than expected.",
+      "entities": {
+        "director": [
+          "Drew Mylrea",
+          "Evan Buxbaum"
+        ],
+        "writer": [
+          "Drew Mylrea",
+          "Evan Buxbaum"
+        ],
+        "cast": [
+          "Sam Richardson",
+          "Sofia Black-D'Elia",
+          "David Cross",
+          "Arturo Castro",
+          "Jon Rudnitsky",
+          "Annabel O'Hagan"
+        ],
+        "keyword": [
+          "aliens",
+          "comedy",
+          "sci-fi comedy"
+        ],
+        "genre": [
+          "comedy",
+          "science fiction",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Janur Ireng: Sewu Dino the Prequel",
+      "year": 2026,
+      "country": "Indonesia",
+      "runtime": 94,
+      "section": "N. American premiere",
+      "genre": "Occult horror",
+      "tags": [
+        "Horror"
+      ],
+      "director": [
+        "Kimo Stamboel"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "After losing their family home in a devastating fire, two impoverished siblings accept the hospitality of a wealthy long-lost uncle, unaware that his grand estate holds a sinister plot to exploit them.",
+      "entities": {
+        "director": [
+          "Kimo Stamboel"
+        ],
+        "writer": [
+          "Kimo Stamboel",
+          "Khalid Kashogi"
+        ],
+        "cast": [
+          "Rio Dewanto",
+          "Marthino Lio",
+          "Ratu Rafa",
+          "Tora Sudiro",
+          "Masayu Anastasia",
+          "Karina Suwandi"
+        ],
+        "keyword": [
+          "based on twitter thread",
+          "blood",
+          "ghost",
+          "goat",
+          "haunted",
+          "horror",
+          "java",
+          "mystic",
+          "occult horror",
+          "prequel",
+          "slaughter",
+          "snake",
+          "supernatural power",
+          "terror",
+          "tradition",
+          "tragedy"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Jim Queen",
+      "year": 2026,
+      "country": "France",
+      "runtime": 84,
+      "section": "US premiere",
+      "genre": "Animated musical comedy",
+      "tags": [
+        "Queer",
+        "Musical",
+        "Animated",
+        "Kinky"
+      ],
+      "director": [
+        "Marco Nguyen",
+        "Nicolas Athane"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "When Heterosis - a mysterious virus that turns gay men straight sweeps through the Parisian gay scene, Jim, the six packed sovereign of the Gym Queens, goes from Pride royalty to social outcast. With only Lucien, a freshly-out twink with more heart than abs, still by his side, Jim must race to find a cure before the disease erases the community that once worshipped him.",
+      "entities": {
+        "director": [
+          "Nicolas Athané",
+          "Marco Nguyen"
+        ],
+        "writer": [
+          "Nicolas Athané",
+          "Marco Nguyen",
+          "Brice Chevillard",
+          "Simon Balteaux"
+        ],
+        "cast": [
+          "Alex Ramirès",
+          "Jéremy Gillet",
+          "Shirley Souagnon",
+          "François Sagat",
+          "Elisabeth Wiener",
+          "Harald Marlot"
+        ],
+        "keyword": [
+          "adult animation",
+          "animated",
+          "animated musical comedy",
+          "closeted homosexual",
+          "comforting",
+          "gay icon",
+          "gay men",
+          "grand",
+          "heterosexual",
+          "hilarious",
+          "inspirational",
+          "joyful",
+          "kinky",
+          "lgtbiq+",
+          "lighthearted",
+          "musical",
+          "mysterious illness",
+          "playful",
+          "provocative",
+          "queer",
+          "queer animation",
+          "social media influencer",
+          "sympathetic",
+          "twink",
+          "witty"
+        ],
+        "genre": [
+          "animation",
+          "comedy",
+          "music"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Jollyface",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 77,
+      "section": "Next Wave · World premiere",
+      "genre": "Slasher thriller",
+      "tags": [
+        "Next Wave",
+        "ACAB",
+        "Gory",
+        "Horror"
+      ],
+      "director": [
+        "Justin Floyd"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A woman investigating her Black fiancé's murder is hunted through her apartment complex by a killer silencing the truth.",
+      "entities": {
+        "director": [
+          "Justin Floyd"
+        ],
+        "writer": [],
+        "cast": [
+          "Kofi Siriboe",
+          "Alexis Louder",
+          "Emily Kimball",
+          "Jacob Bridges"
+        ],
+        "keyword": [
+          "acab",
+          "gory",
+          "horror",
+          "next wave",
+          "slasher thriller"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Kick On",
+      "year": 2026,
+      "country": "Australia",
+      "runtime": 89,
+      "section": "US premiere",
+      "genre": "Crime thriller",
+      "tags": [
+        "Action",
+        "Gory",
+        "Mean"
+      ],
+      "director": [
+        "Nick Kozakis"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "When a night of partying leads four friends to kick on, at the extravagant drug-fueled lair of a mobster's reckless son, they find themselves fighting for their lives amidst a brutal spiral of paranoia, violence and ultimate betrayal.",
+      "entities": {
+        "director": [
+          "Nick Kozakis"
+        ],
+        "writer": [
+          "Phillip Klimek"
+        ],
+        "cast": [],
+        "keyword": [
+          "action",
+          "crime thriller",
+          "gory",
+          "mean"
+        ],
+        "genre": [
+          "action",
+          "crime",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Kung Fu Deadly",
+      "year": 2026,
+      "country": "IE/AU",
+      "runtime": 96,
+      "section": "World premiere",
+      "genre": "Action comedy",
+      "tags": [
+        "Action",
+        "Camp",
+        "Martial Arts",
+        "Comedy"
+      ],
+      "director": [
+        "Fergal Costello"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Danny and Frank, two bumbling pest exterminators, cross paths with the enigmatic Lien, a Taoist guardian hunting an ancient Chinese jiangshi in Dublin. Together they set out to deal with this menace the only way they know how: extermination.",
+      "entities": {
+        "director": [
+          "Fergal Costello"
+        ],
+        "writer": [
+          "Paddy McDonald",
+          "Paul Markey"
+        ],
+        "cast": [
+          "Steven He",
+          "Michael Tient",
+          "Gemma Chua-Tran",
+          "Jason Tobin",
+          "Max Huang",
+          "Ling Cooper Tang"
+        ],
+        "keyword": [
+          "action",
+          "action comedy",
+          "camp",
+          "comedy",
+          "martial arts"
+        ],
+        "genre": [
+          "action",
+          "adventure",
+          "comedy"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Kylgor in the Grisly Abyss",
+      "year": 2026,
+      "country": "Canada",
+      "runtime": 74,
+      "section": "Next Wave · World premiere",
+      "genre": "Puppet fantasy",
+      "tags": [
+        "Next Wave",
+        "Puppets",
+        "Gory",
+        "Great Kills",
+        "Take Your Vitamins"
+      ],
+      "director": [
+        "Mason Jeffrey Newton-DeRushie"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Kylgor and his band of fellow survivors set out for revenge and to behead the Evil King Kath but unexpectedly plummet into the Grisly Abyss.",
+      "entities": {
+        "director": [
+          "Mason Newton DeRushie"
+        ],
+        "writer": [
+          "Mason Newton DeRushie"
+        ],
+        "cast": [
+          "Ry Barrett",
+          "Timothy Paul McCarthy",
+          "Jessica Vano",
+          "John Migliore",
+          "Jason David Brown",
+          "Anthony D.P. Mann"
+        ],
+        "keyword": [
+          "gory",
+          "great kills",
+          "next wave",
+          "puppet fantasy",
+          "puppetry",
+          "puppets",
+          "stop motion",
+          "sword and sorcery",
+          "take your vitamins"
+        ],
+        "genre": [
+          "fantasy",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Little Doors",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 79,
+      "section": "Burnt Ends · US premiere",
+      "genre": "Absurdist sci-fi romance",
+      "tags": [
+        "Burnt Ends",
+        "Cerebral",
+        "Sci-Fi"
+      ],
+      "director": [
+        "Anthony Oberbeck"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In a quietly apocalyptic world a lonely woman discovers a small wooden door on the side of her body and must decide whether or not to open it.",
+      "entities": {
+        "director": [
+          "Anthony Oberbeck"
+        ],
+        "writer": [
+          "Anthony Oberbeck"
+        ],
+        "cast": [
+          "Megan Koester",
+          "Anthony Oberbeck",
+          "Eleanore Pienta",
+          "Ikechukwu Ufomadu",
+          "Connor M. Kizer",
+          "Frank Mosley"
+        ],
+        "keyword": [
+          "absurdist sci-fi romance",
+          "burnt ends",
+          "cerebral",
+          "sci-fi"
+        ],
+        "genre": [
+          "comedy",
+          "romance",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Magick Mtn.",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 80,
+      "section": "Burnt Ends · World premiere",
+      "genre": "Occult fantasy",
+      "tags": [
+        "Burnt Ends",
+        "Camp",
+        "Take Your Vitamins"
+      ],
+      "director": [
+        "Hana Mae Lee",
+        "Hal Satin"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Lord Mmorke, a tepid and ghoulish narrator, walks us through 3 separate fables all intersecting in a realm beyond the tangible. Rituals and retellings about a Deathrock squatter jailed by a sadistic psychiatrist and the evils of regret, a pair of criminal plumbers plunging further towards Hell's grips and the beer-soaked leather of the Sunset Strip, and an architect's ambition built on the shaky bedrock of the Devil's promise. What begins as a tale ends in a spell cast upon unsuspecting characters and audiences alike",
+      "entities": {
+        "director": [
+          "Hana Mae Lee",
+          "Hal Satin"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "burnt ends",
+          "camp",
+          "occult fantasy",
+          "take your vitamins"
+        ],
+        "genre": [
+          "fantasy"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Mr. Creamjeans' Hidey Hole",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 70,
+      "section": "Burnt Ends · World premiere",
+      "genre": "Gross-out anthology",
+      "tags": [
+        "Burnt Ends",
+        "Gross Out"
+      ],
+      "director": [
+        "Heath Benfield"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Henry, a man plagued by chronic pain and unresolved guilt, receives a chilling message: \"I know what you did.\" The note leads him to The Hidey Hole, an underground museum of erotic nightmares, curated by the charismatic and unsettling Mr. Creamjeans. There, Henry is offered a chance to erase all traces of his secret crime... but only if he submits to a guided tour of the museum's most depraved exhibits. With every tale, Henry's pain worsens and his grip on reality slips, until he's forced to confront the twisted role he's played in the lives (and deaths) of others. By the end, Henry must decide: confess the truth and face the consequence, or lose himself to the Hidey Hole forever.",
+      "entities": {
+        "director": [
+          "Heath Benfield"
+        ],
+        "writer": [
+          "Josh Griffey",
+          "Jonathan Holiday"
+        ],
+        "cast": [
+          "Josh Griffey",
+          "Jessa Jupiter Flux",
+          "Fred Bort",
+          "Erika Lewandowski",
+          "Stephen Haynes",
+          "Marlee Carpenter"
+        ],
+        "keyword": [
+          "anthology",
+          "burnt ends",
+          "gross out",
+          "gross-out anthology",
+          "horor"
+        ],
+        "genre": [
+          "comedy",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "No Rest for the Wicked",
+      "year": 2026,
+      "country": "Denmark",
+      "runtime": 103,
+      "section": "US premiere",
+      "genre": "Queer folk horror",
+      "tags": [
+        "Queer",
+        "Relationship Horror",
+        "Horror"
+      ],
+      "director": [
+        "Kasper Kalle"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "1862. Baldur lives a fisherman’s life on the isolated Faroe Islands far to the north in the Atlantic Ocean. His world is turned upside down when a stranger arrives: Helge, a rugged whaler, who awakens deep emotions within him. A mutual attraction starts to grow. When tragedy strikes, their forbidden passion unleashes natural forces so disturbing that the villagers rally to keep evil at bay. But Baldur and Helge refuse to let their love be buried. They will fight till the end – and after.",
+      "entities": {
+        "director": [
+          "Kasper 'Kalle' Skovsbøl"
+        ],
+        "writer": [
+          "Rasmus Birch"
+        ],
+        "cast": [
+          "Egor Venned",
+          "Pilou Asbæk",
+          "Sofia Nolsøe Mikkelsen",
+          "Jóhannes Haukur Jóhannesson",
+          "Kjartan Hansen",
+          "Búi Dam"
+        ],
+        "keyword": [
+          "faroe islands",
+          "folk horror",
+          "gay vampire",
+          "horror",
+          "queer",
+          "queer folk horror",
+          "queer horror",
+          "relationship horror"
+        ],
+        "genre": [
+          "drama",
+          "fantasy",
+          "horror",
+          "romance"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "No Way Down",
+      "year": 2026,
+      "country": "France",
+      "runtime": 91,
+      "section": "World premiere",
+      "genre": "Survival thriller",
+      "tags": [
+        "ACAB",
+        "Gory",
+        "Horror",
+        "Make Them Pay",
+        "Survival",
+        "Trauma"
+      ],
+      "director": [
+        "Mohamed Chabane",
+        "Théo Jourdain"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "An ex-convict enters a derelict tower block to find his ex-girlfriend's brother and is pulled back into violence.",
+      "entities": {
+        "director": [
+          "Mohamed Chabane",
+          "Théo Jourdain"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "acab",
+          "gory",
+          "horror",
+          "make them pay",
+          "survival",
+          "survival thriller",
+          "trauma"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Ogroff",
+      "year": 1983,
+      "country": "France",
+      "runtime": 89,
+      "section": "Rep — restoration premiere",
+      "genre": "Underground slasher",
+      "tags": [
+        "Rep Screening"
+      ],
+      "director": [
+        "Norbert Moutier"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Ogroff, an AWOL-solider-turned-hermit, lives in the French backwoods, and, still believing war to be raging, slaughters anyone who enters them. One day, a family's car breaks down in Ogroff's domain and a fight for their lives begins.",
+      "entities": {
+        "director": [
+          "Norbert Moutier"
+        ],
+        "writer": [
+          "Norbert Moutier"
+        ],
+        "cast": [
+          "Norbert Moutier",
+          "Robert Alaux",
+          "Françoise Deniel",
+          "Pierre Pattin",
+          "Alain Petit",
+          "Jean-Pierre Putters"
+        ],
+        "keyword": [
+          "gore",
+          "lumberjack",
+          "rep screening",
+          "slasher",
+          "underground slasher",
+          "vietnam veteran",
+          "woods",
+          "zombie"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Ones Who Grieve",
+      "year": 2026,
+      "country": "France",
+      "runtime": 116,
+      "section": "N. American premiere",
+      "genre": "Period horror drama",
+      "tags": [
+        "Dark"
+      ],
+      "director": [
+        "Quarxx"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "At the end of the 19th century, on an isolated farm, Zélie is trapped under the authority of her father, Jacob, a deeply religious man. As a mysterious disease known as the “Black Veil” ravages the surrounding countryside and faith begins to blur with madness, she must fight to preserve her humanity and claim her freedom.",
+      "entities": {
+        "director": [
+          "Quarxx"
+        ],
+        "writer": [
+          "Quarxx"
+        ],
+        "cast": [
+          "Thierry Frémont",
+          "Zélie Rixhon",
+          "Jean-Baptiste Maunier",
+          "Isabelle Anciaux",
+          "Philippine Poiraud",
+          "Quentin Lasbazeilles"
+        ],
+        "keyword": [
+          "dark",
+          "period horror drama"
+        ],
+        "genre": [
+          "drama",
+          "fantasy",
+          "history",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Pathetic Fallacy",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 98,
+      "section": "Main Competition · World premiere",
+      "genre": "Psychedelic musical",
+      "tags": [
+        "Main Competition",
+        "Musical",
+        "Psychedelic"
+      ],
+      "director": [
+        "Adam Egypt Mortimer"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A young widower arrives in a new-age mountain town in search of cosmic answers and a chance to heal. Instead, he finds an outlandish murderer and a forest of demonic spirits who offer a horrific bargain: the power to cheat death at a nightmarish cost.",
+      "entities": {
+        "director": [
+          "Adam Egypt Mortimer"
+        ],
+        "writer": [
+          "Andrew Barrer",
+          "Gabriel Ferrari"
+        ],
+        "cast": [
+          "Kid Cudi",
+          "Jessica Rothe",
+          "Travis Fimmel",
+          "Natasha Lyonne",
+          "Richard Harmon",
+          "Jess Brown"
+        ],
+        "keyword": [
+          "cosmic horror",
+          "demonic spirit",
+          "main competition",
+          "musical",
+          "psychedelic",
+          "psychedelic musical",
+          "supernatural",
+          "supernatural horror"
+        ],
+        "genre": [
+          "horror",
+          "music",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Phreaker",
+      "year": 2026,
+      "country": "Canada",
+      "runtime": 98,
+      "section": "Next Wave · World premiere",
+      "genre": "Thriller",
+      "tags": [
+        "Next Wave",
+        "Coming of Age",
+        "ACAB",
+        "Bullying",
+        "The Future is Bleak"
+      ],
+      "director": [
+        "Adam Yorke"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Inspired by true events. Before there were hackers, there were phreakers. A blind teenager joins the early underworld of \"phone freaks\" where he learns to hack his way to money, power, and eventually, a place on the FBI's most wanted list.",
+      "entities": {
+        "director": [
+          "Adam Yorke"
+        ],
+        "writer": [],
+        "cast": [
+          "Robb Wells",
+          "Dayton Sinkia",
+          "Maria Syrgiannis",
+          "Josh Stone"
+        ],
+        "keyword": [
+          "acab",
+          "bullying",
+          "coming of age",
+          "next wave",
+          "the future is bleak",
+          "thriller"
+        ],
+        "genre": [
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Platypus",
+      "year": 2026,
+      "country": "Canada",
+      "runtime": 85,
+      "section": "Next Wave · World premiere",
+      "genre": "Dream-logic slasher",
+      "tags": [
+        "Next Wave",
+        "Queer",
+        "Kinky",
+        "Shot on Film",
+        "Body Count"
+      ],
+      "director": [
+        "Joshua Gratton"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Kimberly, a young schoolgirl in a small town, secretly dreams of the masked killer Platypus terrorizing the area. But nobody believes her, and the dreams are becoming more vivid, more violent, and ever closer to home.",
+      "entities": {
+        "director": [
+          "Joshua Gratton"
+        ],
+        "writer": [
+          "Joshua Gratton"
+        ],
+        "cast": [
+          "Kayla Lundstram",
+          "Giselle Morison",
+          "Micah Greentree",
+          "Morgan Mitchell",
+          "Aoife Josie Clements",
+          "Tristan C. Pina"
+        ],
+        "keyword": [
+          "body count",
+          "dream-logic slasher",
+          "independent film",
+          "kinky",
+          "masked killer",
+          "next wave",
+          "queer",
+          "serial killer",
+          "shot on film",
+          "slasher"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Play House",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 85,
+      "section": "World premiere",
+      "genre": "Horror",
+      "tags": [
+        "Puppets",
+        "Don't Watch That Tape",
+        "Horror"
+      ],
+      "director": [
+        "Nicolas Jon Curcio"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "While renovating a dilapidated house to win back his ex, a young man discovers VHS tapes of an unaired TV show in the basement. But as the show’s dark history surfaces, it seeps into his life, threatening his last chance at reconciliation.",
+      "entities": {
+        "director": [
+          "Nicolas Curcio"
+        ],
+        "writer": [
+          "Kirby Gladstein",
+          "Nicolas Curcio"
+        ],
+        "cast": [
+          "Will Harrison",
+          "Jessica Sula",
+          "Jordan Gonzalez",
+          "James Urbaniak",
+          "Nina Millin",
+          "Kevin Keppy"
+        ],
+        "keyword": [
+          "creepy kids show",
+          "don't watch that tape",
+          "haunted house",
+          "horror",
+          "puppets",
+          "vhs"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Posthumous",
+      "year": 2026,
+      "country": "Australia",
+      "runtime": 110,
+      "section": "Horror Competition · World premiere",
+      "genre": "Occult horror",
+      "tags": [
+        "Horror Competition",
+        "Don't Watch That Tape",
+        "Horror"
+      ],
+      "director": [
+        "Josh Tanner"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "After returning to her childhood home, Zoe discovers a mysterious videotape that unravels everything she thought she knew about her birth and her mother's death, awakening an unimaginable horror.",
+      "entities": {
+        "director": [
+          "Josh Tanner"
+        ],
+        "writer": [
+          "Josh Tanner",
+          "Jade van der Lei"
+        ],
+        "cast": [
+          "Sophie Lowe",
+          "David Roberts",
+          "Doris Younane",
+          "Remy Hii",
+          "Christopher James Baker",
+          "Kira-Che Heelan"
+        ],
+        "keyword": [
+          "don't watch that tape",
+          "horror",
+          "horror competition",
+          "occult horror"
+        ],
+        "genre": [
+          "drama",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "A Prayer for the Dying",
+      "year": 2026,
+      "country": "NO/GR/UK/SE",
+      "runtime": 95,
+      "section": "Main Competition",
+      "genre": "Western horror",
+      "tags": [
+        "Main Competition",
+        "Western",
+        "Gory"
+      ],
+      "director": [
+        "Dara Van Dusen"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In 1870 Friendship, Wisconsin, a small town of Scandinavian settlers still suffering the repercussions of the recent Civil War. When faced with a new and even deadlier threat, one man is forced to make a harrowing choice: save his young family or defend the community that gave him a second chance at life and meaning.",
+      "entities": {
+        "director": [
+          "Dara Van Dusen"
+        ],
+        "writer": [
+          "Dara Van Dusen"
+        ],
+        "cast": [
+          "Johnny Flynn",
+          "John C. Reilly",
+          "Kristine Kujath Thorp",
+          "Gustav Lindh",
+          "Hilton Pelser",
+          "Andrew Whipp"
+        ],
+        "keyword": [
+          "1870s",
+          "19th century",
+          "american civil war",
+          "based on novel or book",
+          "gory",
+          "main competition",
+          "post civil war",
+          "second chance",
+          "western",
+          "western horror",
+          "wisconsin"
+        ],
+        "genre": [
+          "drama",
+          "horror",
+          "thriller",
+          "western"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Red Snow",
+      "year": 2026,
+      "country": "FI/EE/SE",
+      "runtime": 92,
+      "section": "Horror Competition · World premiere",
+      "genre": "Christmas vampire comedy",
+      "tags": [
+        "Horror Competition",
+        "Vampire",
+        "Christmas",
+        "Comedy",
+        "Gross Out"
+      ],
+      "director": [
+        "Ilja Rautsi"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In Finland, sixteen-year-old emo teen Johanna dreams of a glittering Twilight vampire prince. What she gets instead is Martti — a balding, beer-bellied 49-year-old bloodsucker who slips into a Santa suit to gain entry to homes and devour entire families. In Finland, sixteen-year-old emo teen Johanna dreams of a glittering Twilight vampire prince. What she gets instead is Martti — a balding, beer-bellied 49-year-old bloodsucker who slips into a Santa suit to gain entry to homes and devour entire families. When Johanna crosses paths with Martti on Christmas Eve, she thinks her dark fairy tale has come true. But instead of eternal romance, she finds herself trapped in a bloody and horrific nightmare of aging masculine toxicity, family trauma, and festive slaughter. By morning, the snow will turn red.",
+      "entities": {
+        "director": [
+          "Ilja Rautsi"
+        ],
+        "writer": [
+          "Ilja Rautsi"
+        ],
+        "cast": [
+          "Hannu-Pekka Björkman",
+          "Anni Iikkanen",
+          "Tommi Korpela",
+          "Krista Kosonen",
+          "Kari Hietalahti",
+          "Jussi Vatanen"
+        ],
+        "keyword": [
+          "christmas",
+          "christmas vampire comedy",
+          "comedy",
+          "gross out",
+          "horror competition",
+          "santa claus",
+          "vampire"
+        ],
+        "genre": [
+          "comedy",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Resident Evil",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 93,
+      "section": "Gala screening",
+      "genre": "Action horror",
+      "tags": [
+        "Opening Night",
+        "Horror"
+      ],
+      "director": [
+        "Zach Cregger"
+      ],
+      "cinematographer": "",
+      "cast": [
+        "Austin Abrams"
+      ],
+      "synopsis": "Medical courier Bryan unwittingly finds himself fighting for survival as one fateful, horrifying night collapses around him in chaos.",
+      "entities": {
+        "director": [
+          "Zach Cregger"
+        ],
+        "writer": [
+          "Shay Hatten",
+          "Zach Cregger"
+        ],
+        "cast": [
+          "Austin Abrams",
+          "Zach Cherry",
+          "Kali Reis",
+          "Paul Walter Hauser",
+          "Johnno Wilson"
+        ],
+        "keyword": [
+          "action horror",
+          "based on video game",
+          "body horror",
+          "horror",
+          "opening night",
+          "outbreak",
+          "reboot",
+          "survival",
+          "survival horror",
+          "zombie",
+          "zombie apocalypse",
+          "zombie horror"
+        ],
+        "genre": [
+          "action",
+          "adventure",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "River",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 92,
+      "section": "US premiere",
+      "genre": "Survival slasher",
+      "tags": [
+        "Iconic Killer",
+        "Survival",
+        "Horror",
+        "Psychopaths",
+        "Strong Women"
+      ],
+      "director": [
+        "Joshua Giuliano"
+      ],
+      "cinematographer": "",
+      "cast": [
+        "Jane Levy",
+        "Jessica Rothe"
+      ],
+      "synopsis": "Three estranged siblings scattering their father's ashes are stranded on a river and hunted by a masked stranger.",
+      "entities": {
+        "director": [
+          "Joshua Giuliano"
+        ],
+        "writer": [
+          "Joshua Giuliano"
+        ],
+        "cast": [
+          "Jane Levy",
+          "Jessica Rothe",
+          "Max Mattern",
+          "Dane DiLiegro",
+          "Mickey Dolan",
+          "Addison Smith"
+        ],
+        "keyword": [
+          "boat",
+          "death of father",
+          "grief",
+          "horror",
+          "iconic killer",
+          "psychopaths",
+          "river",
+          "serial killer",
+          "siblings",
+          "slasher",
+          "stranded",
+          "strong women",
+          "survival",
+          "survival horror",
+          "survival slasher"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Roma Elastica",
+      "year": 2026,
+      "country": "FR/IT",
+      "runtime": 107,
+      "section": "Main Competition",
+      "genre": "Hyper-pulp psychodrama",
+      "tags": [
+        "Main Competition",
+        "Queer",
+        "Psychedelic"
+      ],
+      "director": [
+        "Bertrand Mandico"
+      ],
+      "cinematographer": "Nicolas Eveilleau",
+      "cast": [
+        "Marion Cotillard",
+        "Noémie Merlant",
+        "Isabella Ferrari",
+        "Ornella Muti",
+        "Franco Nero"
+      ],
+      "synopsis": "1982. French actress Eddie is on the verge of collapse and travels to Rome accompanied by her loyal makeup artist, Valentina, to shoot a science-fiction film – a film that could be her last one.",
+      "entities": {
+        "director": [
+          "Bertrand Mandico"
+        ],
+        "writer": [
+          "Bertrand Mandico"
+        ],
+        "cast": [
+          "Marion Cotillard",
+          "Noémie Merlant",
+          "Martina Scrinzi",
+          "Agnese Claisse",
+          "Isabella Ferrari",
+          "Maurizio Lombardi"
+        ],
+        "keyword": [
+          "1980s",
+          "actress",
+          "female protagonist",
+          "hyper-pulp psychodrama",
+          "main competition",
+          "psychedelic",
+          "queer",
+          "rome, italy"
+        ],
+        "genre": [
+          "comedy",
+          "drama",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Roy from Space",
+      "year": 1983,
+      "country": "Mexico",
+      "runtime": 64,
+      "section": "Rep — restoration premiere",
+      "genre": "Animated sci-fi",
+      "tags": [
+        "Rep Screening",
+        "Camp",
+        "Animated",
+        "Sci-Fi",
+        "Psychedelic",
+        "Restoration"
+      ],
+      "director": [
+        "Héctor López Carmona"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In this unauthorized adaptation of the first two Flash Gordon story arcs, the world's greatest astronaut Roy is sent to Mars with Dr. Faz and psychologist Helena to investigate the cosmic rays coming from the planet. What entails is a space epic of recognizable proportions.",
+      "entities": {
+        "director": [
+          "Héctor López Carmona"
+        ],
+        "writer": [
+          "Ulises Pérez Aguirre"
+        ],
+        "cast": [
+          "Salvador Nájar",
+          "Rubén Moya",
+          "Patricia Martínez",
+          "Rommy Mendoza",
+          "Esteban Siller",
+          "Álvaro Tarcicio"
+        ],
+        "keyword": [
+          "animated",
+          "animated sci-fi",
+          "animation",
+          "camp",
+          "former lost media",
+          "mexican art",
+          "mexican cinema",
+          "psychedelic",
+          "rep screening",
+          "restoration",
+          "sci-fi",
+          "science fiction",
+          "space adventure"
+        ],
+        "genre": [
+          "adventure",
+          "animation",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Screamplay",
+      "year": 1984,
+      "country": "USA",
+      "runtime": 93,
+      "section": "Rep — 4K restoration",
+      "genre": "Expressionist horror",
+      "tags": [
+        "Rep Screening",
+        "Camp",
+        "Cult Classic",
+        "Iconic Killer",
+        "Restoration"
+      ],
+      "director": [
+        "Rufus Butler Seder"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A talented writer, Edgar Allen, arrives in Hollywood with big dreams but is quickly pulled into a world of madness and depravity. A detective investigating a series of murders discovers that they are similar to the murders that occur in the new script by Edgar. Who will survive and what parts will be left for them?",
+      "entities": {
+        "director": [
+          "Rufus Butler Seder"
+        ],
+        "writer": [
+          "Rufus Butler Seder",
+          "Ed Greenberg"
+        ],
+        "cast": [
+          "Rufus Butler Seder",
+          "Eugene Seder",
+          "George Kuchar",
+          "Cheryl Hirshman",
+          "James McCann",
+          "Lonny McDougall"
+        ],
+        "keyword": [
+          "audacious",
+          "camp",
+          "cult classic",
+          "expressionist horror",
+          "iconic killer",
+          "rep screening",
+          "restoration"
+        ],
+        "genre": [
+          "comedy",
+          "crime",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Sick",
+      "year": 2026,
+      "country": "Poland",
+      "runtime": 90,
+      "section": "Next Wave · World premiere",
+      "genre": "Dark drama",
+      "tags": [
+        "Next Wave",
+        "Respect Your Elders",
+        "Arthouse Gone Wild"
+      ],
+      "director": [
+        "Agata Trzebuchowska"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Sixteen-year-old Maks is sent to the countryside to care for his ailing grandmother. What was once a childhood haven now feels dark and alien. His beloved grandma no longer recognizes him, and his older sister Emma—shaken by a ruined tennis career—seeks comfort in drugs and detachment.",
+      "entities": {
+        "director": [
+          "Agata Trzebuchowska"
+        ],
+        "writer": [
+          "Agata Trzebuchowska"
+        ],
+        "cast": [],
+        "keyword": [
+          "arthouse gone wild",
+          "dark drama",
+          "next wave",
+          "respect your elders"
+        ],
+        "genre": [
+          "drama",
+          "horror",
+          "romance"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Spiral",
+      "year": 2026,
+      "country": "IT/FR/BE",
+      "runtime": 115,
+      "section": "US premiere",
+      "genre": "Supernatural drama",
+      "tags": [
+        "Witchy",
+        "Horror"
+      ],
+      "director": [
+        "Paolo Strippoli"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "On a stormy night in Rome, Anna arrives at her daughter Alice’s apartment with a devastating confession: their entire family history is built on a lie. Twenty years earlier, after a horrific accident that nearly cost Alice her leg, Anna claims she made a pact with a mysterious Stranger to save her. But the miracle came at a price. What she believed was a single desperate bargain has in fact unleashed a spiraling chain reaction — a domino effect of increasingly dark events that have haunted their lives ever since. Now, the Stranger has come to collect. And Anna is convinced that only Alice can break the spiral and set things right. But at what cost?",
+      "entities": {
+        "director": [
+          "Paolo Strippoli"
+        ],
+        "writer": [
+          "Paolo Strippoli",
+          "Salvatore de Chirico"
+        ],
+        "cast": [
+          "Jasmine Trinca",
+          "Romana Maggiora Vergano",
+          "Adriano Giannini",
+          "Valeria Bruni Tedeschi",
+          "Andrea Genovese",
+          "Marina Limosani"
+        ],
+        "keyword": [
+          "horror",
+          "supernatural drama",
+          "witchy"
+        ],
+        "genre": [
+          "drama",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Squirrel",
+      "year": 2026,
+      "country": "FI/DE/NL/SE",
+      "runtime": 92,
+      "section": "International premiere",
+      "genre": "Sci-fi",
+      "tags": [
+        "Sci-Fi",
+        "Cute Animals"
+      ],
+      "director": [
+        "Markus Lehmusruusu"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Pasi, a lonely but kind-hearted designer of artificial animals, lives in a world where nature is just a memory and human well-being is organized with perhaps too much care. One day, Pasi accidentally finds the world's last living squirrel and meets Emilia, an official who enforces the rules of well-being. Pasi decides to defy society's rules and help the squirrel, but something unexpected happens—the squirrel becomes depressed and Pasi falls in love.",
+      "entities": {
+        "director": [
+          "Markus Lehmusruusu"
+        ],
+        "writer": [
+          "Markus Lehmusruusu"
+        ],
+        "cast": [
+          "Miro Lopperi",
+          "Mimosa Willamo",
+          "Hannu-Pekka Björkman",
+          "Roderick Kabanga",
+          "Pirjo Heikkilä",
+          "Eero Ritala"
+        ],
+        "keyword": [
+          "cute animals",
+          "sci-fi",
+          "squirrel"
+        ],
+        "genre": [
+          "comedy",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "The Swallow",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 82,
+      "section": "Closing Night · World premiere",
+      "genre": "Creature horror",
+      "tags": [
+        "Closing Night",
+        "Body Count",
+        "Eco-horror",
+        "Evil Entity",
+        "Great Kills",
+        "Horror",
+        "Mean",
+        "Survival"
+      ],
+      "director": [
+        "Kevin Kölsch",
+        "Dennis Widmyer"
+      ],
+      "cinematographer": "",
+      "cast": [
+        "Grace Van Dien"
+      ],
+      "synopsis": "Ziggy and her four friends journey out on a camping trip to a picturesque remote forest. But trespassing into an off-limits area, they awaken an uncanny terror in the woods... and a ravenous hunger from within the Earth. Soon, the ground itself is trying to swallow anything and anyone it comes into contact with and Ziggy and her friends have nowhere to run as every trembling step they take could be their last.",
+      "entities": {
+        "director": [
+          "Dennis Widmyer",
+          "Kevin Kölsch"
+        ],
+        "writer": [
+          "Kevin Kölsch",
+          "Dennis Widmyer"
+        ],
+        "cast": [
+          "Grace Van Dien",
+          "Jack Wright",
+          "Tayler Buck",
+          "Kalama Epstein",
+          "Kayla DiVenere"
+        ],
+        "keyword": [
+          "body count",
+          "closing night",
+          "creature horror",
+          "eco-horror",
+          "evil entity",
+          "forest",
+          "great kills",
+          "horror",
+          "mean",
+          "survival"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Too Many Beasts",
+      "year": 2026,
+      "country": "France",
+      "runtime": 96,
+      "section": "Next Wave · N. American premiere",
+      "genre": "Rural crime thriller",
+      "tags": [
+        "Next Wave"
+      ],
+      "director": [
+        "Sarah Arnold"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In the French countryside, wild boars ravaging crops spark an open war between farmers and members of a gentlemen’s hunting club, who feed the game between hunts. Brun, a bankrupt farmer, struggles to keep his farm afloat. When the club’s president pushes him to his limits, Brun shoots him and disappears. A year later, Fulda, a volatile police officer just transferred to the region, leads the investigation. Still struggling after a recent breakup, and as wild boars proliferate across the region, he is pushed to the brink of sanity.",
+      "entities": {
+        "director": [
+          "Sarah Arnold"
+        ],
+        "writer": [
+          "Sarah Arnold",
+          "Olivier Séror",
+          "Jérémie Dubois"
+        ],
+        "cast": [
+          "Alexis Manenti",
+          "Ella Rumpf",
+          "Vincent Dedienne",
+          "Jean-Louis Coulloc'h",
+          "Pascal Rénéric",
+          "Bertrand Belin"
+        ],
+        "keyword": [
+          "next wave",
+          "rural crime thriller"
+        ],
+        "genre": [
+          "comedy",
+          "crime",
+          "drama",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Upiro",
+      "year": 2026,
+      "country": "Spain",
+      "runtime": 106,
+      "section": "Main Competition · World premiere",
+      "genre": "Gothic vampire horror",
+      "tags": [
+        "Main Competition",
+        "Vampire",
+        "Gothic",
+        "Kinky",
+        "Unsafe Sex",
+        "Horror"
+      ],
+      "director": [
+        "Óscar Martín"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Spain, 1755. Ana is sent to a cloistered monastery where several nuns are afflicted by a mysterious  disease. With the help of an unorthodox priest, the young novice uncovers an ancient legend and  malevolent force: a bloodthirsty upiro.",
+      "entities": {
+        "director": [
+          "Oscar Martín"
+        ],
+        "writer": [
+          "Elena Muñoz"
+        ],
+        "cast": [
+          "Pauline Brisy",
+          "Javier Botet",
+          "Diego Anido",
+          "Victoria Cerrada",
+          "Tania Santana",
+          "Juanjo Puigcorbé"
+        ],
+        "keyword": [
+          "18th century",
+          "gothic",
+          "gothic vampire horror",
+          "horror",
+          "kinky",
+          "main competition",
+          "unsafe sex",
+          "vampire",
+          "vampiric"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Ürei",
+      "year": 2026,
+      "country": "Kazakhstan",
+      "runtime": 80,
+      "section": "Next Wave · World premiere",
+      "genre": "Folk horror",
+      "tags": [
+        "Next Wave",
+        "Respect Your Elders",
+        "Horror"
+      ],
+      "director": [
+        "Yerkezhan Baizhan"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "When a young girl is left with her aging grandmother in rural Kazakhstan, an ordinary act of familial care quickly turns into an unsettling descent into the unknown where loss can take monstrous forms.",
+      "entities": {
+        "director": [
+          "Yerkezhan Baizhan"
+        ],
+        "writer": [
+          "Yerkezhan Baizhan"
+        ],
+        "cast": [
+          "Tynyshgul Sultanberdieva",
+          "Akerke Kozaiyr",
+          "Asset Eszhan",
+          "Gulbahram Baybosynova",
+          "Zangar Miyatuly",
+          "Almagul Holmuhanova"
+        ],
+        "keyword": [
+          "folk horror",
+          "horror",
+          "next wave",
+          "respect your elders"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Vertiginous",
+      "year": 2026,
+      "country": "France",
+      "runtime": 67,
+      "section": "US premiere",
+      "genre": "Animated absurdist sci-fi",
+      "tags": [
+        "Animated",
+        "Absurd",
+        "Sci-Fi",
+        "Arthouse Gone Wild",
+        "Comedy",
+        "The Future is Bleak"
+      ],
+      "director": [
+        "Quentin Dupieux"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Jacques goes to his friend Bruno's house to tell him some big news: the entire human race is living in a simulation...",
+      "entities": {
+        "director": [
+          "Quentin Dupieux"
+        ],
+        "writer": [
+          "Quentin Dupieux"
+        ],
+        "cast": [
+          "Alain Chabat",
+          "Jonathan Cohen",
+          "Anaïs Demoustier",
+          "Jean-Marie Winling",
+          "Jean-Christophe Le Guennan",
+          "Oscar Vercken de Vreuschmen"
+        ],
+        "keyword": [
+          "absurd",
+          "animated",
+          "animated absurdist sci-fi",
+          "arthouse gone wild",
+          "comedy",
+          "sci-fi",
+          "the future is bleak"
+        ],
+        "genre": [
+          "animation",
+          "comedy",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Victorian Psycho",
+      "year": 2026,
+      "country": "USA/UK",
+      "runtime": 102,
+      "section": "N. American premiere",
+      "genre": "Period horror comedy",
+      "tags": [
+        "Great Kills",
+        "Psychopaths",
+        "Horror"
+      ],
+      "director": [
+        "Zachary Wigon"
+      ],
+      "cinematographer": "Nico Aguilar",
+      "cast": [
+        "Maika Monroe",
+        "Thomasin McKenzie",
+        "Jason Isaacs",
+        "Ruth Wilson"
+      ],
+      "synopsis": "When eccentric young governess Winifred Notty arrives at a remote Gothic manor, a string of unsettling events leads the household to suspect she isn't who she claims to be—but the truth may be far more dangerous than they imagine.",
+      "entities": {
+        "director": [
+          "Zachary Wigon"
+        ],
+        "writer": [
+          "Virginia Feito"
+        ],
+        "cast": [
+          "Maika Monroe",
+          "Thomasin McKenzie",
+          "Ruth Wilson",
+          "Jason Isaacs",
+          "Evie Templeton",
+          "Jacobi Jupe"
+        ],
+        "keyword": [
+          "1850s",
+          "based on novel or book",
+          "great kills",
+          "horror",
+          "period horror comedy",
+          "psycho",
+          "psychological horror",
+          "psychopaths",
+          "victorian england"
+        ],
+        "genre": [
+          "comedy",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Welcome to Dolly's House",
+      "year": 2026,
+      "country": "Taiwan",
+      "runtime": 86,
+      "section": "N. American premiere",
+      "genre": "Animated horror",
+      "tags": [
+        "Animation",
+        "Horror",
+        "Ghosts",
+        "Witchy"
+      ],
+      "director": [
+        "Seven Ych",
+        "Rady Fu",
+        "Tree Muta"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A young YouTuber, Princess Maria, is determined to reveal the enigmatic secrets of Madame Dolly, a sorceress who can turn lifeless dolls into human beings. But as Princess Maria delves deeper, suppressed and painful memories resurface within her…",
+      "entities": {
+        "director": [
+          "Rady Fu",
+          "Tree Muta",
+          "Seven YCH"
+        ],
+        "writer": [
+          "Seven YCH"
+        ],
+        "cast": [
+          "Teresa Daley",
+          "Yao Ai-ning",
+          "Bruce Chiu",
+          "Hannah Quinlivan",
+          "Tai Ping-ya"
+        ],
+        "keyword": [
+          "animated horror",
+          "animation",
+          "doll",
+          "ghosts",
+          "horror",
+          "witchy",
+          "youtuber"
+        ],
+        "genre": [
+          "adventure",
+          "animation",
+          "fantasy",
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "What Happened to Doris?",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 92,
+      "section": "World premiere",
+      "genre": "Paranormal horror",
+      "tags": [
+        "Ghosts",
+        "Strong Women",
+        "Horror"
+      ],
+      "director": [
+        "Nick Simon"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In 1974 LA suburbs, a single mom faces violent attacks by an invisible entity. When no one believes her, she seeks help from paranormal investigators, sparking a notorious documented supernatural case.",
+      "entities": {
+        "director": [
+          "Nick Simon"
+        ],
+        "writer": [
+          "Thomas Fenton"
+        ],
+        "cast": [
+          "Heather Graham",
+          "Mimi Rogers",
+          "Luke Baines",
+          "Kevin Keppy",
+          "Marcus Coloma",
+          "Morgan Peter Brown"
+        ],
+        "keyword": [
+          "1970s",
+          "evil spirits",
+          "ghosts",
+          "horror",
+          "los angeles, california",
+          "paranormal horror",
+          "paranormal investigation",
+          "single mother",
+          "strong women",
+          "supernatural horror"
+        ],
+        "genre": [
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Wild Horse Nine",
+      "year": 2026,
+      "country": "UK/USA/CL",
+      "runtime": 118,
+      "section": "Texas premiere",
+      "genre": "Dark comedy thriller",
+      "tags": [
+        "Dark Comedy"
+      ],
+      "director": [
+        "Martin McDonagh"
+      ],
+      "cinematographer": "Ben Davis",
+      "cast": [
+        "John Malkovich",
+        "Sam Rockwell",
+        "Steve Buscemi",
+        "Tom Waits",
+        "Parker Posey",
+        "Mariana Di Girolamo"
+      ],
+      "synopsis": "Shortly before the 1973 Chilean coup, CIA agents Chris and Lee are dispatched from Santiago to Easter Island by their bureau chief, MJ. Amongst the Island's iconic statues, and as the longtime partners wrestle with their dark pasts and present conspiracies, Chris's newfound bond with a pair of rebellious students threatens to send everyone’s trip to this remote paradise sideways.",
+      "entities": {
+        "director": [
+          "Martin McDonagh"
+        ],
+        "writer": [
+          "Martin McDonagh"
+        ],
+        "cast": [
+          "John Malkovich",
+          "Sam Rockwell",
+          "Steve Buscemi",
+          "Mariana di Girolamo",
+          "Ailín Salas",
+          "Tom Waits"
+        ],
+        "keyword": [
+          "1970s",
+          "central intelligence agency (cia)",
+          "comedy thriller",
+          "crime comedy",
+          "dark comedy",
+          "dark comedy thriller",
+          "easter island"
+        ],
+        "genre": [
+          "comedy",
+          "crime",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Fantastic Shorts",
+      "year": 2026,
+      "country": "Various",
+      "runtime": 0,
+      "section": "Shorts programme",
+      "genre": "Shorts · mixed",
+      "tags": [
+        "Shorts",
+        "Horror",
+        "Comedy",
+        "Sci-Fi",
+        "Queer"
+      ],
+      "director": [
+        "Various"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The “something for everyone” block, themed on nothing being what it seems. Nine shorts: Dead Angle (Goya-winning revenge thriller) · Fester (Canadian dark comedy, toilet-based teleportation) · Gossamer (a singer's irrevocable metamorphosis after biotech restores her voice — Cronenbergian sci-fi merged with a live prog-metal performance, music by Rolo Tomassi) · Is This Desire? (Filipino gothic riff on Henry James) · Jimmy's Custom Coffin (doc: a man planning his own funeral) · Richard Goes on a Date (awkward comedy, telekinesis) · Scraps (masked Christmas-begging tradition turns unsettling) · Spiders on My Lashline (phantasmagoric, genderqueer pole dancer) · The Waddles (absurdist comedy into cosmic horror).",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "comedy",
+          "horror",
+          "mixed",
+          "queer",
+          "sci-fi",
+          "shorts"
+        ],
+        "genre": [
+          "comedy",
+          "horror",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Drawn & Quartered",
+      "year": 2026,
+      "country": "Various",
+      "runtime": 0,
+      "section": "Shorts programme",
+      "genre": "Shorts · animation",
+      "tags": [
+        "Shorts",
+        "Animated",
+        "Stop-Motion",
+        "Sci-Fi",
+        "Psychedelic"
+      ],
+      "director": [
+        "Various"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The annual animation block, across stop-motion, hand-drawn and experimental technique. Nine shorts: Eight Uncomfortable Robots (a product catalogue of robots with existential afflictions) · Insecticide · The Magician (spider-like magicians who kidnap babies) · Penguin (Kaspar Jancis) · Pre-Parenting (stop-motion: glasses show expectant parents their child's future life) · Shape of Your Heart (Leonid Shmelkov — Earth after alien intervention) · Starlit (day-glo intergalactic romance) · Visit into Irradiated Land (tours of a nuclear zone, animated with earth on backlit glass so the medium mimics radiation breakdown — Cannes Critics' Week 2026) · Wolpie of the Woods (stop-motion fable).",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "animated",
+          "animation",
+          "psychedelic",
+          "sci-fi",
+          "shorts",
+          "stop-motion"
+        ],
+        "genre": [
+          "animation",
+          "science fiction"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "BURNT ENDominations",
+      "year": 2026,
+      "country": "Various",
+      "runtime": 0,
+      "section": "Shorts programme · Burnt Ends",
+      "genre": "Shorts · outsider animation",
+      "tags": [
+        "Burnt Ends",
+        "Shorts",
+        "Animated",
+        "Psychedelic",
+        "WTF",
+        "Absurd"
+      ],
+      "director": [
+        "Various · guest curators Ashley Sengstaken",
+        "Robbie Ward",
+        "Skinner"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The Burnt Ends animation block — the festival's own description promises “a midnight mass from the forbidden side of the cartoon dial.” Six shorts: Demoni Ferox: Night People Stole My Baby (5 min, surreal nightmares and the Night People) · I Have A (5 min, Rory Waudby-Tolley — a man lists the things he has) · Mother Earth (17 min, Jimmy ScreamerClauz — aliens weaponise human anger until mankind destroys itself, then discover the one thing they cannot manufacture) · Showgirls — The Da Da Edit (2 min, a lesbian rewrite of an already lesbian film, rotoscoped with reverence) · Timecrow & Friends in: Psycho Psalms (15 min, forgotten 1940s D-list cartoon misfits pulled through a portal into the internet age) · Tom Thumb (26 min, Russian — Tom is chased through a Small World that turns out to fit inside the belly of a mantis he is watching through green glass).",
+      "entities": {
+        "director": [
+          "Various · guest curators Ashley Sengstaken",
+          "Robbie Ward",
+          "Skinner"
+        ],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "absurd",
+          "animated",
+          "burnt ends",
+          "outsider animation",
+          "psychedelic",
+          "shorts",
+          "wtf"
+        ],
+        "genre": [
+          "animation"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Shorts With Legs",
+      "year": 2026,
+      "country": "Various",
+      "runtime": 0,
+      "section": "Shorts programme",
+      "genre": "Shorts · WTF",
+      "tags": [
+        "Shorts",
+        "Absurd",
+        "WTF",
+        "Gross Out",
+        "Queer",
+        "Musical"
+      ],
+      "director": [
+        "Various"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The WTF block — “unorthodox birthings, forbidden desires, anthropomorphized bodily fluids.” Nine shorts from six countries: Blessing · Dog Mom (a woman claims to have given live birth to her dog) · EE (erotic thriller about a collectible anime figurine, shot on MiniDV) · A Lobster Named Desire (humanoid crustaceans and intravaginal punk musical numbers) · The Old Lady and the Eternity (an 86-year-old refuses to have her consciousness uploaded; archival footage of the director's own grandmother plus generative AI) · Orla (musical fairytale — a banished maiden and the guardian of the forest) · A Pint of Bitter (a pub pint becomes a galactic nightmare) · Sinkpisser · Stain (a bed stain gives romantic advice).",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "absurd",
+          "gross out",
+          "musical",
+          "queer",
+          "shorts",
+          "wtf"
+        ],
+        "genre": [
+          "music"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Short Fuse",
+      "year": 2026,
+      "country": "Various",
+      "runtime": 0,
+      "section": "Shorts programme",
+      "genre": "Shorts · horror",
+      "tags": [
+        "Shorts",
+        "Horror",
+        "Folk Horror",
+        "Found Footage",
+        "Queer"
+      ],
+      "director": [
+        "Various"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The signature horror shorts block. Nine shorts: Bagman (creepypasta techno-chiller) · Dëmm (Senegalese folk horror — grief as primeval terror) · Gigit (Malaysian Pontianak folklore; a girl at war with her brother finds a kindred spirit in a vengeful female ghost) · The Haunting of Play House (Chris McInroy of Chäir and Guts — a priest exorcises a demonic playhouse) · It Helps · Scissors (a violent man walks into a den of queer baddies) · Stretcher (fixed-camera French neck-injury shocker) · Transference (Austin-made hypnotherapy creeper) · Vape Glow (sleazy found-footage POV) · Zippy's House.",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "folk horror",
+          "found footage",
+          "horror",
+          "queer",
+          "shorts"
+        ],
+        "genre": [
+          "horror"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Visions Of/From South Africa",
+      "year": 2026,
+      "country": "South Africa",
+      "runtime": 0,
+      "section": "Shorts programme · with Durban IFF",
+      "genre": "Shorts · drama",
+      "tags": [
+        "Shorts",
+        "Drama",
+        "Strong Women"
+      ],
+      "director": [
+        "Various"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The fourth annual curated sidebar, in partnership with Durban International Film Festival — five South African shorts on identity and self-determination. Being You (an Oscar-winning screenwriter confronts her younger self) · B(l)ind the Sacrifice (Nakhane — a spiritual leader and a rebellious son) · Fleas (two Zimbabwean boys in a South African township; a night journey for water) · The House That Never Sleeps (a reclusive author and bookbinder guarding secrets) · Swim Hard (a swim coach whose event allows no water).",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "drama",
+          "shorts",
+          "strong women"
+        ],
+        "genre": [
+          "drama"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Secret Screening #1",
+      "year": 2026,
+      "country": "—",
+      "runtime": 0,
+      "section": "Secret screening",
+      "genre": "Unknown",
+      "tags": [
+        "Secret"
+      ],
+      "director": [
+        "Undisclosed"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "Title withheld until the lights go down. Historically a studio genre title opening within six to twelve weeks — this year's plausible candidates are Other Mommy, Clayface and Godzilla Minus Zero.",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "secret",
+          "unknown"
+        ],
+        "genre": []
+      },
+      "kind": "event",
+      "scoreable": false
+    },
+    {
+      "title": "Secret Screening #2",
+      "year": 2026,
+      "country": "—",
+      "runtime": 0,
+      "section": "Secret screening",
+      "genre": "Unknown",
+      "tags": [
+        "Secret"
+      ],
+      "director": [
+        "Undisclosed"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The second undisclosed title, Monday evening.",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "secret",
+          "unknown"
+        ],
+        "genre": []
+      },
+      "kind": "event",
+      "scoreable": false
+    },
+    {
+      "title": "Primetime",
+      "year": 2026,
+      "country": "—",
+      "runtime": 110,
+      "section": "TV premieres",
+      "genre": "Television",
+      "tags": [
+        "TV",
+        "Horror"
+      ],
+      "director": [
+        "Various"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "In 2006, To Catch a Predator host Chris Hansen sets out to make television history.",
+      "entities": {
+        "director": [
+          "Lance Oppenheim"
+        ],
+        "writer": [
+          "Ajon Singh"
+        ],
+        "cast": [
+          "Robert Pattinson",
+          "Merritt Wever",
+          "Skyler Gisondo",
+          "Phoebe Bridgers",
+          "Matthew Maher",
+          "Bokeem Woodbine"
+        ],
+        "keyword": [
+          "2000s",
+          "based on magazine, newspaper or article",
+          "based on true story",
+          "confrontation",
+          "hidden camera",
+          "horror",
+          "journalism",
+          "network",
+          "online predator",
+          "sting operation",
+          "television",
+          "tv"
+        ],
+        "genre": [
+          "crime",
+          "drama",
+          "horror",
+          "thriller"
+        ]
+      },
+      "kind": "film",
+      "scoreable": true,
+      "tmdb": true
+    },
+    {
+      "title": "Alamo Exclusives Sneak Peak: Littermates",
+      "year": 2026,
+      "country": "—",
+      "runtime": 87,
+      "section": "Sneak preview",
+      "genre": "Unknown",
+      "tags": [
+        "Sneak Preview"
+      ],
+      "director": [
+        "Undisclosed"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "An advance look at an Alamo Exclusives title, 87 minutes. No synopsis published. Alamo Exclusives is the chain's own distribution arm.",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "sneak preview",
+          "unknown"
+        ],
+        "genre": []
+      },
+      "kind": "film",
+      "scoreable": true
+    },
+    {
+      "title": "Doug Benson Movie Interruption",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 0,
+      "section": "Live event",
+      "genre": "Live comedy",
+      "tags": [
+        "Live",
+        "Comedy"
+      ],
+      "director": [
+        "Doug Benson"
+      ],
+      "cinematographer": "",
+      "cast": [
+        "Doug Benson and guests"
+      ],
+      "synopsis": "Comedian Doug Benson and guests talk over a film, live. A long-running Alamo format; the film is usually undisclosed beforehand.",
+      "entities": {
+        "director": [
+          "Doug Benson"
+        ],
+        "writer": [],
+        "cast": [
+          "Doug Benson and guests"
+        ],
+        "keyword": [
+          "comedy",
+          "live",
+          "live comedy"
+        ],
+        "genre": [
+          "comedy"
+        ]
+      },
+      "kind": "event",
+      "scoreable": false
+    },
+    {
+      "title": "Fantastic Feud 2026",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 0,
+      "section": "Live event",
+      "genre": "Live game show",
+      "tags": [
+        "Live",
+        "Comedy"
+      ],
+      "director": [
+        "—"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "The festival's long-running team game show, filmmakers and critics against each other. Late Monday night.",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "comedy",
+          "live",
+          "live game show"
+        ],
+        "genre": [
+          "comedy"
+        ]
+      },
+      "kind": "event",
+      "scoreable": false
+    },
+    {
+      "title": "Drag Show",
+      "year": 2026,
+      "country": "USA",
+      "runtime": 0,
+      "section": "Live event",
+      "genre": "Live performance",
+      "tags": [
+        "Live",
+        "Queer"
+      ],
+      "director": [
+        "—"
+      ],
+      "cinematographer": "",
+      "cast": [],
+      "synopsis": "A drag show in the Wednesday early-evening slot. No further detail published.",
+      "entities": {
+        "director": [],
+        "writer": [],
+        "cast": [],
+        "keyword": [
+          "live",
+          "live performance",
+          "queer"
+        ],
+        "genre": []
+      },
+      "kind": "event",
+      "scoreable": false
+    }
+  ],
+  "screenings": [
+    {
+      "film": "Full Phil",
+      "date": "2026-09-17",
+      "time": "5:00 PM",
+      "runtime": 78
+    },
+    {
+      "film": "Resident Evil",
+      "date": "2026-09-17",
+      "time": "5:15 PM",
+      "runtime": 93
+    },
+    {
+      "film": "Beware Boiúna",
+      "date": "2026-09-17",
+      "time": "8:15 PM",
+      "runtime": 104
+    },
+    {
+      "film": "Janur Ireng: Sewu Dino the Prequel",
+      "date": "2026-09-17",
+      "time": "8:45 PM",
+      "runtime": 94
+    },
+    {
+      "film": "The Glorious Dead",
+      "date": "2026-09-17",
+      "time": "11:15 PM",
+      "runtime": 81
+    },
+    {
+      "film": "Flapjax",
+      "date": "2026-09-17",
+      "time": "11:30 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Roy from Space",
+      "date": "2026-09-17",
+      "time": "11:45 PM",
+      "runtime": 64
+    },
+    {
+      "film": "Ghost in the Cell",
+      "date": "2026-09-18",
+      "time": "11:00 AM",
+      "runtime": 106
+    },
+    {
+      "film": "Frisk",
+      "date": "2026-09-18",
+      "time": "11:00 AM",
+      "runtime": 89
+    },
+    {
+      "film": "Fantastic Shorts",
+      "date": "2026-09-18",
+      "time": "11:00 AM",
+      "runtime": null
+    },
+    {
+      "film": "Roma Elastica",
+      "date": "2026-09-18",
+      "time": "11:15 AM",
+      "runtime": 107
+    },
+    {
+      "film": "Kylgor in the Grisly Abyss",
+      "date": "2026-09-18",
+      "time": "11:30 AM",
+      "runtime": 74
+    },
+    {
+      "film": "The Face of Horror",
+      "date": "2026-09-18",
+      "time": "1:50 PM",
+      "runtime": 120
+    },
+    {
+      "film": "Wild Horse Nine",
+      "date": "2026-09-18",
+      "time": "2:00 PM",
+      "runtime": 118
+    },
+    {
+      "film": "Into the Sky",
+      "date": "2026-09-18",
+      "time": "2:00 PM",
+      "runtime": 97
+    },
+    {
+      "film": "Death of a Yellow Bird",
+      "date": "2026-09-18",
+      "time": "2:15 PM",
+      "runtime": 93
+    },
+    {
+      "film": "The Ones Who Grieve",
+      "date": "2026-09-18",
+      "time": "2:15 PM",
+      "runtime": 116
+    },
+    {
+      "film": "Victorian Psycho",
+      "date": "2026-09-18",
+      "time": "5:00 PM",
+      "runtime": 102
+    },
+    {
+      "film": "Kung Fu Deadly",
+      "date": "2026-09-18",
+      "time": "5:15 PM",
+      "runtime": 96
+    },
+    {
+      "film": "Sick",
+      "date": "2026-09-18",
+      "time": "5:30 PM",
+      "runtime": 90
+    },
+    {
+      "film": "Death Has No Master",
+      "date": "2026-09-18",
+      "time": "5:30 PM",
+      "runtime": 106
+    },
+    {
+      "film": "A Prayer for the Dying",
+      "date": "2026-09-18",
+      "time": "5:30 PM",
+      "runtime": 95
+    },
+    {
+      "film": "The Spiral",
+      "date": "2026-09-18",
+      "time": "8:00 PM",
+      "runtime": 115
+    },
+    {
+      "film": "Upiro",
+      "date": "2026-09-18",
+      "time": "8:00 PM",
+      "runtime": 106
+    },
+    {
+      "film": "Ürei",
+      "date": "2026-09-18",
+      "time": "8:15 PM",
+      "runtime": 80
+    },
+    {
+      "film": "Short Fuse",
+      "date": "2026-09-18",
+      "time": "8:15 PM",
+      "runtime": null
+    },
+    {
+      "film": "Godmother",
+      "date": "2026-09-18",
+      "time": "8:30 PM",
+      "runtime": 85
+    },
+    {
+      "film": "Secret Screening #1",
+      "date": "2026-09-18",
+      "time": "11:15 PM",
+      "runtime": null
+    },
+    {
+      "film": "Attack on Paradise",
+      "date": "2026-09-18",
+      "time": "11:30 PM",
+      "runtime": 99
+    },
+    {
+      "film": "Donkey Princess",
+      "date": "2026-09-19",
+      "time": "11:00 AM",
+      "runtime": 90
+    },
+    {
+      "film": "3 Weeks After",
+      "date": "2026-09-19",
+      "time": "11:20 AM",
+      "runtime": 94
+    },
+    {
+      "film": "Welcome to Dolly's House",
+      "date": "2026-09-19",
+      "time": "11:40 AM",
+      "runtime": 86
+    },
+    {
+      "film": "Henry: Portrait of a Serial Killer",
+      "date": "2026-09-19",
+      "time": "11:50 AM",
+      "runtime": 83
+    },
+    {
+      "film": "Posthumous",
+      "date": "2026-09-19",
+      "time": "2:00 PM",
+      "runtime": 110
+    },
+    {
+      "film": "Future Tense",
+      "date": "2026-09-19",
+      "time": "2:10 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Carrie (two episodes)",
+      "date": "2026-09-19",
+      "time": "2:15 PM",
+      "runtime": 101
+    },
+    {
+      "film": "The Birthday Party",
+      "date": "2026-09-19",
+      "time": "2:30 PM",
+      "runtime": 114
+    },
+    {
+      "film": "Jollyface",
+      "date": "2026-09-19",
+      "time": "2:50 PM",
+      "runtime": 77
+    },
+    {
+      "film": "Half",
+      "date": "2026-09-19",
+      "time": "5:00 PM",
+      "runtime": 111
+    },
+    {
+      "film": "The Cycle",
+      "date": "2026-09-19",
+      "time": "5:10 PM",
+      "runtime": 111
+    },
+    {
+      "film": "The Blood Countess",
+      "date": "2026-09-19",
+      "time": "5:15 PM",
+      "runtime": 119
+    },
+    {
+      "film": "Extreme Prejudice",
+      "date": "2026-09-19",
+      "time": "5:30 PM",
+      "runtime": 105
+    },
+    {
+      "film": "Adult Supervision",
+      "date": "2026-09-19",
+      "time": "5:45 PM",
+      "runtime": 108
+    },
+    {
+      "film": "Phreaker",
+      "date": "2026-09-19",
+      "time": "8:00 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Play House",
+      "date": "2026-09-19",
+      "time": "8:15 PM",
+      "runtime": 85
+    },
+    {
+      "film": "Shorts With Legs",
+      "date": "2026-09-19",
+      "time": "8:15 PM",
+      "runtime": null
+    },
+    {
+      "film": "The Heretiks",
+      "date": "2026-09-19",
+      "time": "8:30 PM",
+      "runtime": 89
+    },
+    {
+      "film": "Game Master",
+      "date": "2026-09-19",
+      "time": "8:45 PM",
+      "runtime": 89
+    },
+    {
+      "film": "River",
+      "date": "2026-09-19",
+      "time": "11:00 PM",
+      "runtime": 92
+    },
+    {
+      "film": "Kick On",
+      "date": "2026-09-19",
+      "time": "11:15 PM",
+      "runtime": 89
+    },
+    {
+      "film": "Screamplay",
+      "date": "2026-09-19",
+      "time": "11:30 PM",
+      "runtime": 93
+    },
+    {
+      "film": "No Rest for the Wicked",
+      "date": "2026-09-20",
+      "time": "11:00 AM",
+      "runtime": 103
+    },
+    {
+      "film": "The Squirrel",
+      "date": "2026-09-20",
+      "time": "11:05 AM",
+      "runtime": 92
+    },
+    {
+      "film": "Dog God",
+      "date": "2026-09-20",
+      "time": "11:15 AM",
+      "runtime": 110
+    },
+    {
+      "film": "Visions Of/From South Africa",
+      "date": "2026-09-20",
+      "time": "11:15 AM",
+      "runtime": null
+    },
+    {
+      "film": "Platypus",
+      "date": "2026-09-20",
+      "time": "11:30 AM",
+      "runtime": 85
+    },
+    {
+      "film": "Cinema Recomposed: Silent Monsters",
+      "date": "2026-09-20",
+      "time": "11:40 AM",
+      "runtime": 65
+    },
+    {
+      "film": "Gimme Truth",
+      "date": "2026-09-20",
+      "time": "11:50 AM",
+      "runtime": 84
+    },
+    {
+      "film": "Red Snow",
+      "date": "2026-09-20",
+      "time": "2:00 PM",
+      "runtime": 92
+    },
+    {
+      "film": "Alamo Exclusives Sneak Peak: Littermates",
+      "date": "2026-09-20",
+      "time": "2:00 PM",
+      "runtime": 87
+    },
+    {
+      "film": "Too Many Beasts",
+      "date": "2026-09-20",
+      "time": "2:20 PM",
+      "runtime": 96
+    },
+    {
+      "film": "5 More Minutes",
+      "date": "2026-09-20",
+      "time": "2:30 PM",
+      "runtime": 93
+    },
+    {
+      "film": "Hell House",
+      "date": "2026-09-20",
+      "time": "2:40 PM",
+      "runtime": 86
+    },
+    {
+      "film": "Corpus",
+      "date": "2026-09-20",
+      "time": "2:45 PM",
+      "runtime": 102
+    },
+    {
+      "film": "Primetime",
+      "date": "2026-09-20",
+      "time": "5:00 PM",
+      "runtime": 110
+    },
+    {
+      "film": "What Happened to Doris?",
+      "date": "2026-09-20",
+      "time": "5:20 PM",
+      "runtime": 92
+    },
+    {
+      "film": "Girl in the Night",
+      "date": "2026-09-20",
+      "time": "5:30 PM",
+      "runtime": 94
+    },
+    {
+      "film": "Pathetic Fallacy",
+      "date": "2026-09-20",
+      "time": "8:00 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Bloody Tennis",
+      "date": "2026-09-20",
+      "time": "8:15 PM",
+      "runtime": 90
+    },
+    {
+      "film": "Drawn & Quartered",
+      "date": "2026-09-20",
+      "time": "8:15 PM",
+      "runtime": null
+    },
+    {
+      "film": "Compliance",
+      "date": "2026-09-20",
+      "time": "8:30 PM",
+      "runtime": 104
+    },
+    {
+      "film": "Blood Feast",
+      "date": "2026-09-20",
+      "time": "8:50 PM",
+      "runtime": 67
+    },
+    {
+      "film": "Jim Queen",
+      "date": "2026-09-20",
+      "time": "11:00 PM",
+      "runtime": 84
+    },
+    {
+      "film": "No Way Down",
+      "date": "2026-09-20",
+      "time": "11:15 PM",
+      "runtime": 91
+    },
+    {
+      "film": "Ogroff",
+      "date": "2026-09-20",
+      "time": "11:30 PM",
+      "runtime": 89
+    },
+    {
+      "film": "Game Master",
+      "date": "2026-09-21",
+      "time": "11:00 AM",
+      "runtime": 89
+    },
+    {
+      "film": "Future Tense",
+      "date": "2026-09-21",
+      "time": "11:15 AM",
+      "runtime": 98
+    },
+    {
+      "film": "Victorian Psycho",
+      "date": "2026-09-21",
+      "time": "11:30 AM",
+      "runtime": 102
+    },
+    {
+      "film": "Screamplay",
+      "date": "2026-09-21",
+      "time": "11:45 AM",
+      "runtime": 93
+    },
+    {
+      "film": "Janur Ireng: Sewu Dino the Prequel",
+      "date": "2026-09-21",
+      "time": "2:00 PM",
+      "runtime": 94
+    },
+    {
+      "film": "Doug Benson Movie Interruption",
+      "date": "2026-09-21",
+      "time": "2:00 PM",
+      "runtime": null
+    },
+    {
+      "film": "The Face of Horror",
+      "date": "2026-09-21",
+      "time": "2:15 PM",
+      "runtime": 120
+    },
+    {
+      "film": "Ogroff",
+      "date": "2026-09-21",
+      "time": "2:30 PM",
+      "runtime": 89
+    },
+    {
+      "film": "Little Doors",
+      "date": "2026-09-21",
+      "time": "2:45 PM",
+      "runtime": 79
+    },
+    {
+      "film": "Fantastic Shorts",
+      "date": "2026-09-21",
+      "time": "4:50 PM",
+      "runtime": null
+    },
+    {
+      "film": "I Have Proof",
+      "date": "2026-09-21",
+      "time": "5:00 PM",
+      "runtime": 76
+    },
+    {
+      "film": "Flapjax",
+      "date": "2026-09-21",
+      "time": "5:10 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Beware Boiúna",
+      "date": "2026-09-21",
+      "time": "5:20 PM",
+      "runtime": 104
+    },
+    {
+      "film": "Godmother",
+      "date": "2026-09-21",
+      "time": "5:45 PM",
+      "runtime": 85
+    },
+    {
+      "film": "Secret Screening #2",
+      "date": "2026-09-21",
+      "time": "8:00 PM",
+      "runtime": null
+    },
+    {
+      "film": "Into the Sky",
+      "date": "2026-09-21",
+      "time": "8:30 PM",
+      "runtime": 97
+    },
+    {
+      "film": "Short Fuse",
+      "date": "2026-09-21",
+      "time": "11:00 PM",
+      "runtime": null
+    },
+    {
+      "film": "Red Snow",
+      "date": "2026-09-21",
+      "time": "11:15 PM",
+      "runtime": 92
+    },
+    {
+      "film": "Fantastic Feud 2026",
+      "date": "2026-09-21",
+      "time": "11:30 PM",
+      "runtime": null
+    },
+    {
+      "film": "Ghost in the Cell",
+      "date": "2026-09-21",
+      "time": "11:35 PM",
+      "runtime": 106
+    },
+    {
+      "film": "Full Phil",
+      "date": "2026-09-22",
+      "time": "11:00 AM",
+      "runtime": 78
+    },
+    {
+      "film": "Drawn & Quartered",
+      "date": "2026-09-22",
+      "time": "11:00 AM",
+      "runtime": null
+    },
+    {
+      "film": "The Spiral",
+      "date": "2026-09-22",
+      "time": "11:15 AM",
+      "runtime": 115
+    },
+    {
+      "film": "Ürei",
+      "date": "2026-09-22",
+      "time": "11:20 AM",
+      "runtime": 80
+    },
+    {
+      "film": "Jollyface",
+      "date": "2026-09-22",
+      "time": "2:00 PM",
+      "runtime": 77
+    },
+    {
+      "film": "Adult Supervision",
+      "date": "2026-09-22",
+      "time": "2:15 PM",
+      "runtime": 108
+    },
+    {
+      "film": "Play House",
+      "date": "2026-09-22",
+      "time": "2:30 PM",
+      "runtime": 85
+    },
+    {
+      "film": "Pathetic Fallacy",
+      "date": "2026-09-22",
+      "time": "2:45 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Upiro",
+      "date": "2026-09-22",
+      "time": "5:00 PM",
+      "runtime": 106
+    },
+    {
+      "film": "Frisk",
+      "date": "2026-09-22",
+      "time": "5:00 PM",
+      "runtime": 89
+    },
+    {
+      "film": "Death of a Yellow Bird",
+      "date": "2026-09-22",
+      "time": "5:15 PM",
+      "runtime": 93
+    },
+    {
+      "film": "The Glorious Dead",
+      "date": "2026-09-22",
+      "time": "5:30 PM",
+      "runtime": 81
+    },
+    {
+      "film": "Magick Mtn.",
+      "date": "2026-09-22",
+      "time": "5:45 PM",
+      "runtime": 80
+    },
+    {
+      "film": "Compliance",
+      "date": "2026-09-22",
+      "time": "8:00 PM",
+      "runtime": 104
+    },
+    {
+      "film": "Mr. Creamjeans' Hidey Hole",
+      "date": "2026-09-22",
+      "time": "8:00 PM",
+      "runtime": 70
+    },
+    {
+      "film": "No Rest for the Wicked",
+      "date": "2026-09-22",
+      "time": "8:15 PM",
+      "runtime": 103
+    },
+    {
+      "film": "Kick On",
+      "date": "2026-09-22",
+      "time": "8:30 PM",
+      "runtime": 89
+    },
+    {
+      "film": "Kylgor in the Grisly Abyss",
+      "date": "2026-09-22",
+      "time": "8:45 PM",
+      "runtime": 74
+    },
+    {
+      "film": "Dog God",
+      "date": "2026-09-22",
+      "time": "11:00 PM",
+      "runtime": 110
+    },
+    {
+      "film": "Half",
+      "date": "2026-09-22",
+      "time": "11:00 PM",
+      "runtime": 111
+    },
+    {
+      "film": "The Heretiks",
+      "date": "2026-09-22",
+      "time": "11:20 PM",
+      "runtime": 89
+    },
+    {
+      "film": "BURNT ENDominations",
+      "date": "2026-09-22",
+      "time": "11:30 PM",
+      "runtime": null
+    },
+    {
+      "film": "Death Has No Master",
+      "date": "2026-09-23",
+      "time": "11:00 AM",
+      "runtime": 106
+    },
+    {
+      "film": "Kung Fu Deadly",
+      "date": "2026-09-23",
+      "time": "11:15 AM",
+      "runtime": 96
+    },
+    {
+      "film": "The Blood Countess",
+      "date": "2026-09-23",
+      "time": "11:35 AM",
+      "runtime": 119
+    },
+    {
+      "film": "Hell House",
+      "date": "2026-09-23",
+      "time": "11:50 AM",
+      "runtime": 86
+    },
+    {
+      "film": "Shorts With Legs",
+      "date": "2026-09-23",
+      "time": "2:00 PM",
+      "runtime": null
+    },
+    {
+      "film": "Wild Horse Nine",
+      "date": "2026-09-23",
+      "time": "2:00 PM",
+      "runtime": 118
+    },
+    {
+      "film": "Corpus",
+      "date": "2026-09-23",
+      "time": "2:20 PM",
+      "runtime": 102
+    },
+    {
+      "film": "Phreaker",
+      "date": "2026-09-23",
+      "time": "2:30 PM",
+      "runtime": 98
+    },
+    {
+      "film": "Welcome to Dolly's House",
+      "date": "2026-09-23",
+      "time": "2:45 PM",
+      "runtime": 86
+    },
+    {
+      "film": "Roma Elastica",
+      "date": "2026-09-23",
+      "time": "5:00 PM",
+      "runtime": 107
+    },
+    {
+      "film": "5 More Minutes",
+      "date": "2026-09-23",
+      "time": "5:15 PM",
+      "runtime": 93
+    },
+    {
+      "film": "Attack on Paradise",
+      "date": "2026-09-23",
+      "time": "5:30 PM",
+      "runtime": 99
+    },
+    {
+      "film": "3 Weeks After",
+      "date": "2026-09-23",
+      "time": "5:30 PM",
+      "runtime": 94
+    },
+    {
+      "film": "Platypus",
+      "date": "2026-09-23",
+      "time": "5:45 PM",
+      "runtime": 85
+    },
+    {
+      "film": "Drag Show",
+      "date": "2026-09-23",
+      "time": "7:00 PM",
+      "runtime": null
+    },
+    {
+      "film": "Girl in the Night",
+      "date": "2026-09-23",
+      "time": "8:00 PM",
+      "runtime": 94
+    },
+    {
+      "film": "A Prayer for the Dying",
+      "date": "2026-09-23",
+      "time": "8:00 PM",
+      "runtime": 95
+    },
+    {
+      "film": "The Birthday Party",
+      "date": "2026-09-23",
+      "time": "8:15 PM",
+      "runtime": 114
+    },
+    {
+      "film": "Gimme Truth",
+      "date": "2026-09-23",
+      "time": "8:45 PM",
+      "runtime": 84
+    },
+    {
+      "film": "Posthumous",
+      "date": "2026-09-23",
+      "time": "11:00 PM",
+      "runtime": 110
+    },
+    {
+      "film": "What Happened to Doris?",
+      "date": "2026-09-23",
+      "time": "11:30 PM",
+      "runtime": 92
+    },
+    {
+      "film": "Blood Feast",
+      "date": "2026-09-23",
+      "time": "11:45 PM",
+      "runtime": 67
+    },
+    {
+      "film": "The Cycle",
+      "date": "2026-09-24",
+      "time": "11:00 AM",
+      "runtime": 111
+    },
+    {
+      "film": "Visions Of/From South Africa",
+      "date": "2026-09-24",
+      "time": "11:00 AM",
+      "runtime": null
+    },
+    {
+      "film": "Carrie (two episodes)",
+      "date": "2026-09-24",
+      "time": "11:15 AM",
+      "runtime": 101
+    },
+    {
+      "film": "Too Many Beasts",
+      "date": "2026-09-24",
+      "time": "11:30 AM",
+      "runtime": 96
+    },
+    {
+      "film": "Jim Queen",
+      "date": "2026-09-24",
+      "time": "11:45 AM",
+      "runtime": 84
+    },
+    {
+      "film": "River",
+      "date": "2026-09-24",
+      "time": "2:00 PM",
+      "runtime": 92
+    },
+    {
+      "film": "No Way Down",
+      "date": "2026-09-24",
+      "time": "2:15 PM",
+      "runtime": 91
+    },
+    {
+      "film": "Henry: Portrait of a Serial Killer",
+      "date": "2026-09-24",
+      "time": "2:30 PM",
+      "runtime": 83
+    },
+    {
+      "film": "Roy from Space",
+      "date": "2026-09-24",
+      "time": "2:45 PM",
+      "runtime": 64
+    },
+    {
+      "film": "The Ones Who Grieve",
+      "date": "2026-09-24",
+      "time": "5:00 PM",
+      "runtime": 116
+    },
+    {
+      "film": "The Squirrel",
+      "date": "2026-09-24",
+      "time": "5:15 PM",
+      "runtime": 92
+    },
+    {
+      "film": "Donkey Princess",
+      "date": "2026-09-24",
+      "time": "5:15 PM",
+      "runtime": 90
+    },
+    {
+      "film": "Sick",
+      "date": "2026-09-24",
+      "time": "5:45 PM",
+      "runtime": 90
+    },
+    {
+      "film": "Bloody Tennis",
+      "date": "2026-09-24",
+      "time": "8:00 PM",
+      "runtime": 90
+    },
+    {
+      "film": "The Swallow",
+      "date": "2026-09-24",
+      "time": "8:15 PM",
+      "runtime": 82
+    }
+  ]
+}

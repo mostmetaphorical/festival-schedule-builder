@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Festival Schedule Builder</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Festival <em>schedule builder</em></h1>
+    <p class="sub">
+      Import your film ratings, tell it when you're busy, and get a
+      conflict-free plan ranked by what you're most likely to enjoy.
+      <b>Everything runs in this browser</b> — your ratings are never uploaded.
+    </p>
+  </div>
+</header>
+
+<nav class="steps" aria-label="Steps">
+  <div class="wrap">
+    <button class="step" data-step="1" aria-current="true"><span>1</span> Ratings</button>
+    <button class="step" data-step="2"><span>2</span> Festival</button>
+    <button class="step" data-step="3"><span>3</span> Your time</button>
+    <button class="step" data-step="4"><span>4</span> Plan</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 1. Ratings ------------------------------------------------------->
+  <section class="panel" id="panel-1">
+    <h2>Your ratings</h2>
+    <p>
+      Letterboxd lets you download your data from
+      <b>Settings → Data → Export your data</b>. Drop the zip in below, or just
+      the <code>ratings.csv</code> from inside it. IMDb exports work too.
+    </p>
+
+    <label class="drop" id="drop">
+      <input type="file" id="ratings-file" accept=".zip,.csv" hidden>
+      <b>Choose your export</b>
+      <small>.zip or .csv — it is read here, not uploaded</small>
+    </label>
+
+    <p class="muted">
+      No account, no sign-in. The file is read by this page and stays on your
+      device.
+    </p>
+
+    <p class="muted">
+      Just looking? <button id="try-demo" class="ghost">Try it with a demo
+      profile</button> — 125 invented ratings from a horror-leaning viewer.
+    </p>
+
+    <div id="ratings-status" class="status" hidden></div>
+
+    <details class="advanced">
+      <summary>Films it couldn't identify, and TMDB lookups</summary>
+      <p class="muted">
+        Film credits come from a list bundled with this app. Anything it
+        doesn't recognise can be looked up from TMDB if you paste a free API
+        key — the key stays in this browser and is only used to ask about
+        films, never about you.
+      </p>
+      <input type="password" id="tmdb-key" placeholder="TMDB API key (optional)"
+             autocomplete="off">
+      <button id="save-key" class="ghost">Use this key</button>
+      <div id="missing-list" class="missing"></div>
+    </details>
+  </section>
+
+  <!-- 2. Festival ------------------------------------------------------>
+  <section class="panel" id="panel-2" hidden>
+    <h2>Which festival</h2>
+    <p class="muted">
+      Schedules are often published days before a festival starts, so this list
+      is updated as they appear. Not seeing yours? Load one from a URL or paste
+      the schedule data.
+    </p>
+    <div id="festival-list" class="festivals"></div>
+
+    <details class="advanced">
+      <summary>Load a festival from elsewhere</summary>
+      <input type="url" id="festival-url" placeholder="https://…/festival.json">
+      <button id="load-url" class="ghost">Load</button>
+      <p class="muted">Or paste schedule data in the same format:</p>
+      <textarea id="festival-paste" rows="4" placeholder='{"festival": "…", "films": [...], "screenings": [...]}'></textarea>
+      <button id="load-paste" class="ghost">Use pasted data</button>
+    </details>
+  </section>
+
+  <!-- 3. Constraints --------------------------------------------------->
+  <section class="panel" id="panel-3" hidden>
+    <h2>When you're not free</h2>
+    <p class="muted">
+      Volunteer shifts, work, a dentist appointment — anything the plan should
+      schedule around.
+    </p>
+
+    <div id="commitments"></div>
+    <button id="add-commitment" class="ghost">Add a commitment</button>
+
+    <details class="advanced">
+      <summary>Import from a file</summary>
+      <p class="muted">
+        A calendar <code>.ics</code> export or a CSV with date, start and end
+        columns.
+      </p>
+      <input type="file" id="commitments-file" accept=".ics,.csv">
+    </details>
+
+    <h3>Preferences</h3>
+    <div class="prefs">
+      <label>
+        Most films per day
+        <input type="number" id="max-per-day" min="1" max="10" value="4">
+      </label>
+      <label>
+        Gap between screenings
+        <input type="number" id="buffer" min="0" max="120" step="5" value="20">
+        <small>minutes, for queueing and getting between venues</small>
+      </label>
+    </div>
+  </section>
+
+  <!-- 4. Plan ---------------------------------------------------------->
+  <section class="panel" id="panel-4" hidden>
+    <h2>Your plan</h2>
+    <div id="strength" class="strength"></div>
+    <div id="plan"></div>
+
+    <div class="export">
+      <h3>Take it with you</h3>
+      <div class="export-buttons">
+        <button id="export-ics">Add to calendar (.ics)</button>
+        <button id="export-html" class="ghost">Save as a web page</button>
+        <button id="export-pdf" class="ghost">Print / save as PDF</button>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="include-profile">
+        Include my ratings in the saved page, so I can load it back later
+      </label>
+      <p class="warn" id="share-warning">
+        Without that box ticked, the saved page holds only your schedule and is
+        safe to share or host publicly. Tick it and the file also contains your
+        rating history — useful as a backup, but it is personal, so don't post
+        it anywhere public.
+      </p>
+    </div>
+
+    <div class="remember">
+      <label class="check">
+        <input type="checkbox" id="remember">
+        Remember this on this device
+      </label>
+      <p class="muted" id="remember-detail">
+        Stores your ratings and plan in this browser only, so you don't have to
+        import them again. Nothing is sent anywhere and there's no account.
+        Browsers do clear this sometimes — the downloaded file is the reliable
+        backup.
+      </p>
+      <button id="forget" class="ghost danger" hidden>Erase what's stored</button>
+    </div>
+  </section>
+
+</main>
+
+<section class="contribute">
+  <div class="wrap">
+    <h2>Help make the recommendations better</h2>
+    <p>
+      This is an alpha. The model behind it was trained on an old public
+      dataset of mostly mainstream films, and it's being tested against real
+      film-festival slates — where most titles are premieres nobody has rated
+      yet. More real rating histories make it measurably better, and there's
+      an honest test in the repository that scores how well it predicts
+      ratings it has never seen.
+    </p>
+    <p>
+      If you'd like to help, send your <code>ratings.csv</code> to
+      <a href="mailto:festrecommender.crucial122@passmail.net">festrecommender.crucial122@passmail.net</a>.
+    </p>
+    <details>
+      <summary>What to send, and what not to</summary>
+      <ol>
+        <li>On a computer, sign in and open
+          <a href="https://letterboxd.com/settings/data/">letterboxd.com/settings/data</a>.</li>
+        <li>Click <b>Export your data</b>. A .zip downloads.</li>
+        <li>Open the .zip and take out <b>ratings.csv</b> only.</li>
+        <li>Send that one file. <b>Please don't send the whole .zip.</b></li>
+      </ol>
+      <p class="muted">
+        <code>ratings.csv</code> holds only the date, film title, film year, a
+        link to the film, and your star rating. Your username, real name,
+        email, location, bio, reviews, diary and watchlist are in
+        <i>other</i> files in that zip, which is exactly why only this one is
+        wanted. If you'd rather not share when you watched things, delete the
+        Date column first — it isn't used. It's only useful if you've rated 15
+        or more films.
+      </p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Ratings stay on your device. Film details come from
+      <a href="https://www.themoviedb.org/">TMDB</a> — this product uses the
+      TMDB API but is not endorsed or certified by TMDB.
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

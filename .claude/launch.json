@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "app",
+      "runtimeExecutable": "C:\\Users\\marko\\.venvs\\festrec\\Scripts\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "8123", "--directory", "app"],
+      "port": 8123
+    }
+  ]
+}

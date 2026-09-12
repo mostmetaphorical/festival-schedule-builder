@@ -1,0 +1,24 @@
+# Secrets — never commit these.
+tmdb_key.txt
+.env
+
+# Working data and generated output. Note the leading slash: app/data/ holds
+# the files the published app actually needs, and must stay in the repo.
+/data/
+results/
+__pycache__/
+*.pyc
+.venv/
+
+# MovieLens is licensed for research use and may not be redistributed, so the
+# dataset and anything derived from it stays out of the repo. Rebuild it with
+# the scripts in the README.
+app/fixtures/sample-ratings.csv
+
+# Other people's rating histories are theirs. Keep exports out of the repo.
+exports/
+*-ratings.csv
+!app/fixtures/demo-ratings.csv
+
+# Personal exports used for local testing
+app/fixtures/private-*

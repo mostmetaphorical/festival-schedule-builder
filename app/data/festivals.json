@@ -1,0 +1,89 @@
+{
+  "updated": "2026-09-12",
+  "note": "Festival schedules are published late and change often. Each entry points at a data file in the same format; add a festival by adding an entry here, no code change needed. Anything not listed can still be loaded from a URL or pasted in. Entries marked 'planned' have no schedule yet and their dates are the usual slot for that festival, not confirmed dates.",
+  "festivals": [
+    {
+      "id": "fantastic-fest-2026",
+      "name": "Fantastic Fest 2026",
+      "city": "Austin, TX",
+      "starts": "2026-09-17",
+      "ends": "2026-09-24",
+      "data": "data/festival.json",
+      "status": "ready",
+      "source": "Parsed from the published schedule",
+      "captured": "2026-09-12"
+    },
+    {
+      "id": "sitges-2026",
+      "name": "Sitges 2026",
+      "city": "Sitges, Spain",
+      "starts": "2026-10-08",
+      "ends": "2026-10-18",
+      "status": "planned"
+    },
+    {
+      "id": "sundance-2027",
+      "name": "Sundance 2027",
+      "city": "Park City, UT",
+      "starts": "2027-01-21",
+      "ends": "2027-01-31",
+      "status": "planned"
+    },
+    {
+      "id": "berlinale-2027",
+      "name": "Berlinale 2027",
+      "city": "Berlin, Germany",
+      "starts": "2027-02-11",
+      "ends": "2027-02-21",
+      "status": "planned"
+    },
+    {
+      "id": "sxsw-2027",
+      "name": "SXSW Film 2027",
+      "city": "Austin, TX",
+      "starts": "2027-03-12",
+      "ends": "2027-03-20",
+      "status": "planned"
+    },
+    {
+      "id": "tribeca-2027",
+      "name": "Tribeca 2027",
+      "city": "New York, NY",
+      "starts": "2027-06-09",
+      "ends": "2027-06-20",
+      "status": "planned"
+    },
+    {
+      "id": "fantasia-2027",
+      "name": "Fantasia 2027",
+      "city": "Montreal, Canada",
+      "starts": "2027-07-15",
+      "ends": "2027-08-04",
+      "status": "planned"
+    },
+    {
+      "id": "tiff-2027",
+      "name": "TIFF 2027",
+      "city": "Toronto, Canada",
+      "starts": "2027-09-09",
+      "ends": "2027-09-19",
+      "status": "planned"
+    },
+    {
+      "id": "nyff-2027",
+      "name": "New York Film Festival 2027",
+      "city": "New York, NY",
+      "starts": "2027-09-24",
+      "ends": "2027-10-10",
+      "status": "planned"
+    },
+    {
+      "id": "bfi-london-2027",
+      "name": "BFI London 2027",
+      "city": "London, UK",
+      "starts": "2027-10-06",
+      "ends": "2027-10-17",
+      "status": "planned"
+    }
+  ]
+}
