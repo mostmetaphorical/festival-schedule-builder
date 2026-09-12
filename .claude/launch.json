@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "app",
-      "runtimeExecutable": "C:\\Users\\marko\\.venvs\\festrec\\Scripts\\python.exe",
+      "runtimeExecutable": "./.venv/bin/python",
       "runtimeArgs": ["-m", "http.server", "8123", "--directory", "app"],
       "port": 8123
     }

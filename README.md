@@ -39,11 +39,16 @@ A static page. No server, no accounts, no telemetry. Someone's rating history
 is read in the browser, scored there, and never leaves the device.
 
 ```bash
-python -m http.server 8123 --directory app
+./setup.sh                                              # first run only
+./.venv/bin/python -m http.server 8123 --directory app
 ```
 
-Then open <http://localhost:8123>. To deploy, copy `app/` to any static host
-(GitHub Pages, Cloudflare Pages, Netlify).
+Then open <http://localhost:8123>. To deploy, copy `app/` to any static host —
+this repo publishes `app/` to GitHub Pages on every push to `main`.
+
+Developed on Linux, including WSL. `setup.sh` builds the virtual environment
+and installs the dependencies; on Ubuntu you may first need
+`sudo apt install -y python3-venv python3-pip`.
 
 | Step | What happens |
 |---|---|
@@ -115,7 +120,7 @@ them higher (3.9 average against MovieLens's 3.5). `eval_letterboxd.py` runs
 the identical 70/30 test on real exports:
 
 ```bash
-python eval_letterboxd.py exports/
+./.venv/bin/python eval_letterboxd.py exports/
 ```
 
 Drop in each person's export zip. This needs exports people chose to share —
@@ -133,11 +138,11 @@ without it.
 ### Rebuilding the app's data
 
 ```bash
-python export_model.py                    # model.json + idf.json
-python build_tmdb_bundle.py               # library.json, the offline credits
-python parse_festival.py <festival.html>  # festival.json
-python enrich_festival.py                 # match the lineup to TMDB
-python translate_festival.py              # optional, needs an Anthropic key
+./.venv/bin/python export_model.py                    # model.json + idf.json
+./.venv/bin/python build_tmdb_bundle.py               # library.json, the offline credits
+./.venv/bin/python parse_festival.py <festival.html>  # festival.json
+./.venv/bin/python enrich_festival.py                 # match the lineup to TMDB
+./.venv/bin/python translate_festival.py              # optional, needs an Anthropic key
 ```
 
 A TMDB key goes in `tmdb_key.txt` (gitignored). `export_bundle.py` builds the
@@ -157,12 +162,14 @@ Raters with fewer than 15 ratings are excluded.
 ## Running it
 
 ```bash
-python run_eval.py --n-users 100
-python test_sanity.py
+./.venv/bin/python run_eval.py --n-users 100
+./.venv/bin/python test_sanity.py
 ```
 
-Python lives in its own environment at `~/.venvs/festrec`, so the full command is
-`~/.venvs/festrec/Scripts/python.exe run_eval.py`.
+The evaluation needs MovieLens, which is licensed for research and cannot be
+redistributed — download `ml-latest-small.zip` from
+[grouplens.org](https://grouplens.org/datasets/movielens/) and unzip it into
+`data/`. The app itself doesn't use it.
 
 Useful flags: `--n-users`, `--seed`, `--split time` (train on what they watched
 first, test on what came later), `--mode cold|warm|both`, `--min-ratings`.
@@ -171,9 +178,9 @@ first, test on what came later), `--mode cold|warm|both`, `--min-ratings`.
 the signal that caused it rather than guessed at:
 
 ```bash
-python run_eval.py --facets genre,decade          # metadata-poor baseline
-python run_eval.py --facets director,writer,cast  # people only
-python run_eval.py --facets text                  # synopsis wording only
+./.venv/bin/python run_eval.py --facets genre,decade          # metadata-poor baseline
+./.venv/bin/python run_eval.py --facets director,writer,cast  # people only
+./.venv/bin/python run_eval.py --facets text                  # synopsis wording only
 ```
 
 ## The two conditions
