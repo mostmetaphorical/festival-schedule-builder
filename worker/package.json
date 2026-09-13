@@ -1,0 +1,11 @@
+{
+  "name": "festrec-share",
+  "private": true,
+  "type": "module",
+  "description": "Write-only share endpoint for Meta's Nifty Film Fest Scheduler",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "dev": "npx --yes wrangler@4 dev",
+    "deploy": "npm test && npx --yes wrangler@4 deploy"
+  }
+}

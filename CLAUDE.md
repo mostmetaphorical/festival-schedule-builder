@@ -17,8 +17,11 @@ explains the product and the measured results; this file is how to work on it.
 
 - Python: `./setup.sh` once, then `./.venv/bin/python …`
 - Node (for wrangler): via nvm — `source ~/.nvm/nvm.sh` in non-login shells.
-- Cloudflare: wrangler is logged in. R2 and a workers.dev subdomain are not yet
-  enabled on the account.
+- Cloudflare: wrangler is logged in. The share Worker (`worker/`) is deployed
+  as `festrec-share`, storing in the KV namespace `festrec-shares`.
+  **Never enable R2 or add a payment method** — KV on the free plan fails
+  instead of billing, and staying unchargeable is a hard requirement.
+- Worker commands run with `source ~/.nvm/nvm.sh` first; `cd worker && npm test`.
 - Local site: `./.venv/bin/python dev_server.py` → http://localhost:8124.
   **Use this, not `python -m http.server`.** The built-in server lets the
   browser cache JS modules, so an edit can appear to do nothing — this made a
@@ -74,6 +77,22 @@ explains the product and the measured results; this file is how to work on it.
 - From Windows, run WSL commands as script files rather than inline
   `wsl -e bash -lc "…"` strings; quoting breaks otherwise.
 - Don't `pkill -f` a pattern that appears in your own command line.
+- Writing a backslash-u escape (backslash, `u`, four hex digits) through the
+  file-writing tool can turn it into the raw character — this put null bytes
+  in two validators and made git treat them as binary. After writing regexes
+  or strings with such escapes, check with
+  `grep -nP '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]' <file>`; build characters with
+  `chr()` in Python if you need to generate them.
+
+### The share Worker
+- Write-only. Never add a route that reads stored data back out.
+- Never store the uploaded bytes — rebuild from validated values.
+- Never log or store anything about the sender (IP, user agent, filename).
+- Bot checks: never complete a real Turnstile challenge yourself. Test the
+  accepted path with `wrangler dev` and Cloudflare's test keys (`?share-test`).
+- Run `npm test` before every deploy (`npm run deploy` does).
+- Anything rendered into the page with `innerHTML` must go through
+  `escapeHTML` — festival data comes from strangers.
 
 ### In the product
 - Say what a score rests on. Thin evidence gets labelled, not dressed up.
@@ -94,8 +113,11 @@ explains the product and the measured results; this file is how to work on it.
 ./.venv/bin/python export_model.py                 # retrain, write model.json
 ```
 
-## In progress
+Maintaining shared data:
 
-Sharing from the app via a Cloudflare Worker: rating uploads kept private
-(storage vs email not yet decided — R2 needs enabling), and festival
-submissions validated then opened as a pull request for review.
+```bash
+worker/download-ratings.sh [--delete]              # shared ratings -> exports/
+worker/review-festival.sh                          # list festival submissions
+worker/review-festival.sh <key>                    # branch + PR link for one
+node worker/validate-festivals.mjs                 # what CI checks on PRs
+```

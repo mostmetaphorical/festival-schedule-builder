@@ -65,6 +65,8 @@ button {
   cursor: pointer;
 }
 button:hover { filter: brightness(1.08); }
+/* A disabled button must look disabled, or people press it and nothing happens. */
+button:disabled { opacity: .4; cursor: not-allowed; filter: none; }
 button.ghost { background: transparent; color: var(--bone);
                border-color: var(--line); font-weight: 500; }
 button.ghost:hover { border-color: var(--dim); }
@@ -219,9 +221,27 @@ textarea { width: 100%; font-family: ui-monospace, monospace; font-size: 12.5px;
 .missed li { color: var(--dim); font-size: 13.5px; margin-bottom: 4px; }
 
 /* Export and storage -------------------------------------------------- */
-.export, .remember { border-top: 1px solid var(--line); margin-top: 28px;
-                     padding-top: 18px; }
+.export, .remember, .share { border-top: 1px solid var(--line); margin-top: 28px;
+                             padding-top: 18px; }
 .export-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+/* Sharing: what goes, what doesn't, where it lands - before any button. */
+.share p { color: var(--dim); max-width: 70ch; font-size: 14px; }
+.share-facts { display: grid; gap: 10px; margin: 12px 0 14px; max-width: 70ch; }
+.share-facts div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; }
+.share-facts dt { color: var(--dim); font-size: 11px; letter-spacing: .1em;
+                  text-transform: uppercase; padding-top: 2px; }
+.share-facts dd { margin: 0; font-size: 14px; }
+.bot-check { margin: 6px 0 12px; min-height: 0; }
+.bot-check:not(:empty) { min-height: 65px; }
+.error-text { color: #F08D77; }
+button.linkish { background: none; border: 0; padding: 0; color: var(--gold);
+                 font: inherit; font-weight: 400; text-decoration: underline;
+                 cursor: pointer; }
+button.linkish:disabled { color: var(--dim); text-decoration: none; cursor: default; }
+@media (max-width: 620px) {
+  .share-facts div { grid-template-columns: 1fr; gap: 2px; }
+}
 .check { display: flex; gap: 9px; align-items: flex-start; font-size: 14px;
          cursor: pointer; margin: 10px 0; }
 .check input { accent-color: var(--gold); width: 17px; height: 17px; margin: 2px 0 0; }

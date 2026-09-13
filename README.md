@@ -1,11 +1,11 @@
-# Festival schedule recommender
+# Meta's Nifty Film Fest Scheduler
 
 **Alpha.** Import your film ratings, say when you're busy, and get a
 conflict-free festival schedule ranked by what you're most likely to enjoy.
 
-**Everything runs in your browser.** Your ratings are never uploaded, there is
-no account, and there is no server to send them to. The page reads your export,
-scores the festival slate on your device, and that's the end of it.
+**Everything runs in your browser.** Your ratings are never uploaded unless
+you choose to share them, and there is no account. The page reads your export
+and scores the festival slate on your device.
 
 ## Help make it better
 
@@ -13,20 +13,21 @@ The model was trained on an old public dataset of mostly mainstream films, and
 it is being tested against festival slates, where most titles are premieres
 nobody has rated yet. Real rating histories make it measurably better.
 
-To contribute yours: on a computer, open
-[letterboxd.com/settings/data](https://letterboxd.com/settings/data/), click
-**Export your data**, open the zip, and send **only `ratings.csv`** to
-`festrecommender.crucial122@passmail.net`. Please don't send the whole zip.
+**Please only share if you've rated at least 30 films** — smaller histories
+measurably can't tell the test anything, so they aren't collected.
 
-That one file holds the date, film title, film year, a film link and your star
-rating — nothing else. Your username, name, email, location, bio, reviews,
-diary and watchlist are in *other* files in that zip, which is why only this
-one is wanted. Delete the `Date` column first if you'd rather not share it; it
-isn't used. Fifteen ratings is the minimum for the test to mean anything.
+**From the app:** build a plan, and on the *Plan* step tick *I agree to share
+these ratings*. Only title, year and star rating are sent — not the date you
+watched, your username, reviews, diary or watchlist.
 
-Ratings sent this way are used only to measure how well the recommender
-predicts held-out ratings ([the test](#the-accuracy-test)), and are not
-republished.
+**Or by email:** export from
+[letterboxd.com/settings/data](https://letterboxd.com/settings/data/), open the
+zip, and send **only `ratings.csv`** to
+`festrecommender.crucial122@passmail.net`. Please don't send the whole zip —
+your profile details are in the other files.
+
+Shared ratings are used only to measure how well the recommender predicts
+held-out ratings ([the test](#the-accuracy-test)), and are never republished.
 
 ## How it's built
 
@@ -75,6 +76,48 @@ of export.
 cookies are sent to a server on every request and cap out near 4KB, neither of
 which suits a rating history. Browsers do clear this, so the app treats the
 downloaded file as the real backup and says so.
+
+### Sharing (`worker/`)
+
+Sharing is opt-in and goes to a small Cloudflare Worker, `worker/`. It is
+**write-only**: there is no route that reads anything back out.
+
+**Staying free.** Uploads are stored in Workers KV on the free plan, with no
+payment method on the account. Past the free limits (1 GB, 1,000 writes a day)
+KV refuses operations rather than billing for them. R2 is deliberately not
+used: it has no spending cap. The Worker also enforces its own lower limits —
+1 MB per upload, 900 MB total, 300 uploads a day — so sharing pauses with a
+clear message instead of failing.
+
+**Checking what arrives.** Every upload is treated as hostile. In order:
+a Cloudflare Turnstile bot check; a hard 1 MB read limit whatever the request
+claims; strict UTF-8 with no control characters (binary files fail here); an
+exact `Name,Year,Rating` header; every row checked (30-10,000 rows, half-star
+ratings, real years, sane title lengths). Any failure rejects the whole file.
+The original bytes are never stored — a new file is rebuilt from the checked
+values, with spreadsheet formulas neutralised. Festival files go through the
+same pattern with a schema check, markup refused, and posters accepted only
+from TMDB.
+
+**Nothing about the sender is kept**: no IP address, filename or browser
+details. Each upload is a random id plus the day it arrived. Cloudflare's
+bot-check script is only loaded once someone ticks a consent box.
+
+**Festival submissions never publish themselves.** They wait in storage until
+reviewed; `worker/review-festival.sh` puts one on a branch for a pull request,
+where CI re-validates it, and a person compares it with the official schedule
+before merging.
+
+```bash
+cd worker && npm test                          # 37 tests, incl. malicious uploads
+npm run deploy                                 # tests first, then deploy
+worker/download-ratings.sh [--delete]          # shared ratings -> exports/
+worker/review-festival.sh [<key>|--reject <key>]
+```
+
+For local testing, `wrangler dev` uses Cloudflare's documented always-pass
+Turnstile test keys (`worker/.dev.vars`, gitignored); open the app with
+`?share-test` on localhost to point it there.
 
 ### Making the predictions good
 

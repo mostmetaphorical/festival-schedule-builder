@@ -1,0 +1,22 @@
+# Share endpoint for Meta's Nifty Film Fest Scheduler.
+# Deploy from this directory: npm run deploy (runs the tests first).
+
+name = "festrec-share"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+# Stays on the Workers Free plan. KV on the free plan refuses operations past
+# its limits instead of billing, and no payment method is on the account.
+[[kv_namespaces]]
+binding = "SHARES"
+id = "ced137100ce8454e8fa52c7597fa2c46"
+
+[vars]
+ALLOWED_ORIGINS = "https://mostmetaphorical.github.io,http://localhost:8124"
+# Well below the free plan's 1 GB and 1,000 writes/day (see src/usage.js).
+MAX_UPLOAD_BYTES = "1000000"
+MAX_TOTAL_BYTES = "900000000"
+MAX_UPLOADS_PER_DAY = "300"
+
+# Secret, set with `wrangler secret put TURNSTILE_SECRET` - never in this file.

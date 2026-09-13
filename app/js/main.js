@@ -20,10 +20,16 @@ import { buildSchedule, formatTime, onlyChances, screeningId } from './schedule.
 import { downloadHTML, downloadICS, restoreFromHTML } from './export.js';
 import {
   downloadFestival,
-  issueURL,
   mailtoURL,
   validateFestival,
 } from './festival-io.js';
+import {
+  MIN_RATINGS_TO_SHARE,
+  botCheck,
+  shareFestival,
+  shareRatings,
+  shareStatus,
+} from './share.js';
 import { storage } from './storage.js';
 
 const $ = (selector) => document.querySelector(selector);
@@ -41,6 +47,10 @@ const state = {
   excluded: new Set(),
   schedule: null,
   tmdbKey: '',
+  // The demo profile is invented; sharing it would only pollute the test data.
+  isDemo: false,
+  // Set once a share succeeds, so the same history isn't sent twice.
+  sharedRatings: false,
 };
 
 let recommender = null;
@@ -87,7 +97,9 @@ function wireUp() {
   $('#try-demo').addEventListener('click', async () => {
     setStatus('Loading a demo profile…');
     const text = await fetch('fixtures/demo-ratings.csv').then((r) => r.text());
-    await loadRatings(new File([text], 'demo-ratings.csv', { type: 'text/csv' }));
+    await loadRatings(new File([text], 'demo-ratings.csv', { type: 'text/csv' }), {
+      demo: true,
+    });
   });
 
   $('#save-key').addEventListener('click', useTMDBKey);
@@ -108,7 +120,7 @@ function wireUp() {
     const file = event.target.files[0];
     if (!file) return;
     try {
-      useFestival(JSON.parse(await file.text()));
+      useFestival(JSON.parse(await file.text()), { external: true });
     } catch (error) {
       reportFestival(null, `That file isn't valid JSON: ${error.message}`);
     }
@@ -118,28 +130,23 @@ function wireUp() {
     const url = $('#festival-url').value.trim();
     if (!url) return;
     try {
-      useFestival(await (await fetch(url)).json());
+      useFestival(await (await fetch(url)).json(), { external: true });
     } catch (error) {
       reportFestival(null, `Could not load that: ${error.message}`);
     }
   });
   $('#load-paste').addEventListener('click', () => {
     try {
-      useFestival(JSON.parse($('#festival-paste').value));
+      useFestival(JSON.parse($('#festival-paste').value), { external: true });
     } catch (error) {
       reportFestival(null, `That isn't valid festival data: ${error.message}`);
     }
   });
 
-  // Both routes hand the file to the person and open a pre-filled message.
-  // Nothing is transmitted from the page itself.
-  $('#submit-issue').addEventListener('click', () => {
-    const file = downloadFestival(state.festival);
-    window.open(issueURL(state.festival, state.festivalCheck.stats), '_blank',
-                'noopener');
-    reportFestival(state.festivalCheck,
-      `Downloaded ${file} — attach it to the issue that just opened.`);
-  });
+  wireSharing();
+
+  // The email route hands the file to the person and opens a pre-filled
+  // message. Nothing is transmitted from the page itself.
   $('#submit-email').addEventListener('click', () => {
     const file = downloadFestival(state.festival);
     window.location.href = mailtoURL(state.festival, state.festivalCheck.stats);
@@ -186,7 +193,7 @@ function wireUp() {
 
 /* ---------- step 1: ratings ---------- */
 
-async function loadRatings(file) {
+async function loadRatings(file, { demo = false } = {}) {
   setStatus('Reading…');
   try {
     // A previously exported page can be dropped straight back in.
@@ -198,6 +205,8 @@ async function loadRatings(file) {
     }
 
     state.ratings = ratings;
+    state.isDemo = demo;
+    state.sharedRatings = false;
     setStatus(`Read <b>${ratings.length}</b> ratings from your ${source} export. Looking up who made them…`);
     await resolve();
   } catch (error) {
@@ -255,7 +264,7 @@ function renderMissing() {
   }
   const names = state.missing
     .slice(0, 40)
-    .map((film) => `${film.title}${film.year ? ` (${film.year})` : ''}`)
+    .map((film) => `${escapeHTML(film.title)}${film.year ? ` (${film.year})` : ''}`)
     .join(' · ');
   box.innerHTML = `<p class="muted">${state.missing.length} unmatched: ${names}${
     state.missing.length > 40 ? ' …' : ''
@@ -283,7 +292,8 @@ function renderFestivals(index) {
     button.type = 'button';
     if (!ready) button.disabled = true;
     button.innerHTML =
-      `<span>${festival.name}<br><span class="where">${festival.city}</span></span>` +
+      `<span>${escapeHTML(festival.name)}<br>` +
+      `<span class="where">${escapeHTML(festival.city)}</span></span>` +
       `<span class="tag ${ready ? 'ready' : ''}">${
         ready ? 'schedule ready' : 'not published yet'
       }</span>` +
@@ -298,6 +308,159 @@ function renderFestivals(index) {
   }
 }
 
+/* ---------- sharing ---------- */
+
+// The bot check loads Cloudflare's script, so it only loads once someone
+// ticks a consent box - a visitor who never shares never contacts Cloudflare.
+const bots = { ratings: null, festival: null };
+let statusCheck = null;
+
+function wireSharing() {
+  $('#share-ratings-consent').addEventListener('change', async (event) => {
+    if (event.target.checked) {
+      await startBotCheck('ratings', '#share-ratings-bot', updateRatingsShareButton);
+    }
+    updateRatingsShareButton();
+  });
+  $('#share-ratings-send').addEventListener('click', sendRatings);
+
+  $('#share-festival-consent').addEventListener('change', async (event) => {
+    if (event.target.checked) {
+      await startBotCheck('festival', '#share-festival-bot', updateFestivalShareButton);
+    }
+    updateFestivalShareButton();
+  });
+  $('#share-festival-send').addEventListener('click', sendFestival);
+}
+
+async function startBotCheck(kind, selector, onChange) {
+  if (bots[kind]) return;
+  try {
+    bots[kind] = await botCheck($(selector), onChange);
+  } catch (error) {
+    const message = `${error.message} Sharing isn't available right now.`;
+    if (kind === 'ratings') setShareNote(message, true);
+    else reportFestival(state.festivalCheck, message);
+  }
+}
+
+function setShareNote(text, isError = false) {
+  const note = $('#share-ratings-note');
+  note.textContent = text;
+  note.classList.toggle('error-text', isError);
+}
+
+function updateRatingsShareButton() {
+  $('#share-ratings-send').disabled = !(
+    $('#share-ratings-consent').checked && bots.ratings?.ready()
+  );
+}
+
+function updateFestivalShareButton() {
+  $('#share-festival-send').disabled = !(
+    state.festivalExternal &&
+    state.festival &&
+    $('#share-festival-consent').checked &&
+    bots.festival?.ready()
+  );
+}
+
+/** The share offer on the Plan step: shown only where it makes sense. */
+function renderRatingsShare() {
+  const section = $('#share-ratings');
+  const form = $('#share-ratings-form');
+  const count = state.ratings.length;
+
+  // Invented demo ratings would only pollute the data being collected.
+  if (state.isDemo || count === 0) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+
+  if (state.sharedRatings) {
+    form.hidden = true;
+    return;
+  }
+  if (count < MIN_RATINGS_TO_SHARE) {
+    form.hidden = true;
+    setShareNote(
+      `You have ${count} ratings. Sharing opens at ${MIN_RATINGS_TO_SHARE} — ` +
+        "below that a history can't tell the test anything, so it isn't " +
+        'collected. Rate a few more films and come back.'
+    );
+    return;
+  }
+
+  form.hidden = false;
+  $('#share-ratings-what').textContent =
+    `Title, year and star rating for each of your ${count} rated films.`;
+  $('#share-ratings-consent-label').textContent =
+    `I agree to share these ${count} ratings.`;
+  updateRatingsShareButton();
+
+  statusCheck ??= shareStatus();
+  statusCheck.then((status) => {
+    if (status.open || state.sharedRatings) return;
+    form.hidden = true;
+    setShareNote(
+      status.reason === 'unreachable'
+        ? "The share service can't be reached right now. Try again later."
+        : `Sharing is paused (${status.reason}). Thanks for wanting to help — ` +
+            'please try again another day.'
+    );
+  });
+}
+
+async function sendRatings() {
+  const bot = bots.ratings;
+  if (!$('#share-ratings-consent').checked || !bot?.ready()) return;
+
+  const button = $('#share-ratings-send');
+  button.disabled = true;
+  button.textContent = 'Sharing…';
+  setShareNote('');
+
+  const result = await shareRatings(state.ratings, bot.take());
+  button.textContent = 'Share my ratings';
+
+  if (result.ok) {
+    state.sharedRatings = true;
+    $('#share-ratings-form').hidden = true;
+    setShareNote(
+      `Shared ${result.rows} ratings — thank you. Only titles, years and ` +
+        'star ratings were sent.'
+    );
+  } else {
+    setShareNote(result.error || 'Sharing failed.', true);
+    updateRatingsShareButton();
+  }
+}
+
+async function sendFestival() {
+  const bot = bots.festival;
+  if (!$('#share-festival-consent').checked || !bot?.ready() || !state.festival) return;
+
+  const button = $('#share-festival-send');
+  button.disabled = true;
+  button.textContent = 'Sharing…';
+
+  const result = await shareFestival(state.festival, bot.take());
+  button.textContent = 'Share festival';
+
+  if (result.ok) {
+    $('#share-festival-form').hidden = true;
+    reportFestival(
+      state.festivalCheck,
+      `Shared "${state.festival.festival}" — thank you. It will be ` +
+        'checked against the official schedule before anyone else sees it.'
+    );
+  } else {
+    reportFestival(state.festivalCheck, result.error || 'Sharing failed.');
+    updateFestivalShareButton();
+  }
+}
+
 /** Say what was found, and what looks wrong, before anything is acted on. */
 function reportFestival(check, note = '') {
   const box = $('#festival-report');
@@ -305,7 +468,7 @@ function reportFestival(check, note = '') {
 
   if (!check) {
     box.className = 'status error';
-    box.innerHTML = note;
+    box.textContent = note;
     return;
   }
 
@@ -317,37 +480,45 @@ function reportFestival(check, note = '') {
       `${stats.days} days (${stats.from} to ${stats.to}).`
     );
   }
+  // Messages quote titles and dates from the file itself, so they are text,
+  // never markup - a festival file must not be able to inject into the page.
   if (errors.length) {
     parts.push(
       `<b>${errors.length} problem${errors.length === 1 ? '' : 's'}:</b> ` +
-      errors.slice(0, 5).join(' ')
+      escapeHTML(errors.slice(0, 5).join(' '))
     );
   }
   if (warnings.length) {
     parts.push(
-      `<b>Worth checking:</b> ${warnings.slice(0, 4).join(' ')}`
+      `<b>Worth checking:</b> ${escapeHTML(warnings.slice(0, 4).join(' '))}`
     );
   }
-  if (note) parts.push(note);
+  if (note) parts.push(escapeHTML(note));
 
   box.className = `status${errors.length ? ' error' : ''}`;
   box.innerHTML = parts.join('<br>');
 }
 
-function useFestival(data) {
+function useFestival(data, { external = false } = {}) {
   // Check before use: a missing date or a mismatched title produces a plan
   // with silent holes in it, which is worse than a refusal.
   const check = validateFestival(data);
   state.festivalCheck = check;
-  reportFestival(check);
+  // A festival already listed in the app has nothing to share.
+  state.festivalExternal = external;
+  if (external) reportFestival(check);
 
-  const submittable = check.errors.length === 0;
-  $('#submit-issue').disabled = !submittable;
+  const submittable = external && check.errors.length === 0;
   $('#submit-email').disabled = !submittable;
-  $('#submit-help').textContent = submittable
-    ? 'Both options download the file for you to attach — a web page cannot ' +
-      'attach it for you, and nothing is sent until you send it.'
-    : 'Fix the problems above before sharing this one.';
+  $('#share-festival-form').hidden = !submittable;
+  $('#share-festival-consent').checked = false;
+  updateFestivalShareButton();
+  $('#submit-help').textContent = !external
+    ? 'Load a festival above first. Nothing is sent until you choose to share.'
+    : submittable
+      ? `Ready to share "${data.festival}". Nothing is sent until you tick the ` +
+        'box and press Share.'
+      : 'Fix the problems above before sharing this one.';
 
   if (check.errors.length) return;
 
@@ -533,9 +704,12 @@ function renderPlan() {
             `across ${genre.films} films`
         )
         .join(' · ');
-      const reasons =
+      // Names, themes and genres come from film data, so they are escaped as a
+      // whole before going into the page.
+      const reasons = escapeHTML(
         [people, themes, genres].filter(Boolean).join(' · ') ||
-        'Nothing in your history connects to this one — scored on its description alone.';
+          'Nothing in your history connects to this one — scored on its description alone.'
+      );
 
       const row = document.createElement('div');
       row.className = `slot picked${pick.pinned ? ' pinned' : ''}`;
@@ -545,7 +719,7 @@ function renderPlan() {
         `<div>` +
         `<div class="title"><button class="disclose" aria-expanded="false"` +
         ` aria-label="Details for ${escapeAttribute(film.title)}"></button>` +
-        `${film.title}` +
+        `${escapeHTML(film.title)}` +
         (film.kind === 'event' ? '<span class="badge event">event</span>' : '') +
         (unrated ? '<span class="badge unrated">not rated</span>' : '') +
         (film.confidence === 'low' && !unrated
@@ -559,8 +733,8 @@ function renderPlan() {
         `</div>` +
         `<div>${unrated ? '' : stars(film.prediction)}` +
         `<div class="actions">` +
-        `<button class="ghost" data-swap="${id}">Swap</button>` +
-        `<button class="ghost" data-drop="${film.title}">Drop</button>` +
+        `<button class="ghost" data-swap>Swap</button>` +
+        `<button class="ghost" data-drop>Drop</button>` +
         `</div></div>`;
 
       row.querySelector('[data-drop]').addEventListener('click', () => {
@@ -601,6 +775,7 @@ function renderPlan() {
 
   renderMissed(plan);
   renderDropped(plan);
+  renderRatingsShare();
 }
 
 /**
@@ -668,14 +843,14 @@ function alternativesPanel(day, pick) {
   const panel = document.createElement('div');
   panel.className = 'alternatives';
   panel.innerHTML =
-    `<p class="muted">Also showing against ${pick.film.title}:</p>` +
+    `<p class="muted">Also showing against ${escapeHTML(pick.film.title)}:</p>` +
     options
       .map(
         (entry, index) => `
       <div class="alt">
         ${poster(entry.film, 38)}
         <div>
-          <b>${entry.film.title}</b>
+          <b>${escapeHTML(entry.film.title)}</b>
           ${entry.film.kind === 'event' ? '<span class="badge event">event</span>' : ''}
           ${entry.blockedBy ? '<span class="badge low">during a commitment</span>' : ''}
           <div class="detail">${formatTime(entry.start)}${
@@ -684,7 +859,7 @@ function alternativesPanel(day, pick) {
             entry.film.scoreable === false
               ? ' · not rated — your call'
               : ` · predicted ${entry.film.prediction.toFixed(1)}★`
-          }${entry.film.synopsis ? `<br>${entry.film.synopsis}` : ''}</div>
+          }${entry.film.synopsis ? `<br>${escapeHTML(entry.film.synopsis)}` : ''}</div>
         </div>
         <button class="ghost" data-pick="${index}">Use this instead</button>
       </div>`
@@ -746,7 +921,7 @@ function poster(film, size = 46) {
 function letterboxdLink(name, role) {
   const slug = String(name)
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036F]/g, '')
     .toLowerCase()
     .replace(/['’.]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
@@ -914,7 +1089,7 @@ function renderMissed(plan) {
     `<ul>${missed
       .map(
         (item) =>
-          `<li><b>${item.film.title}</b> — ${item.reason}${
+          `<li><b>${escapeHTML(item.film.title)}</b> — ${item.reason}${
             item.film.scoreable === false
               ? ''
               : ` (predicted ${item.film.prediction.toFixed(1)}★)`
@@ -932,7 +1107,11 @@ function renderDropped(plan) {
   details.innerHTML =
     `<summary>${state.excluded.size} you dropped</summary>` +
     `<ul>${[...state.excluded]
-      .map((title) => `<li>${title} <button class="ghost" data-undrop="${title}">put back</button></li>`)
+      .map(
+        (title) =>
+          `<li>${escapeHTML(title)} <button class="ghost" ` +
+          `data-undrop="${escapeAttribute(title)}">put back</button></li>`
+      )
       .join('')}</ul>`;
   details.querySelectorAll('[data-undrop]').forEach((button) =>
     button.addEventListener('click', () => {

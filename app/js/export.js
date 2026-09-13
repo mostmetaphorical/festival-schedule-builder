@@ -14,6 +14,10 @@ import { formatTime } from './schedule.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 
+// Directors live in entities for festivals shared through the app, and at the
+// top level for older festival files. Read whichever is there.
+const directorsOf = (film) => film.entities?.director || film.director || [];
+
 function download(filename, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type }));
   const link = document.createElement('a');
@@ -94,7 +98,7 @@ export function toICS(schedule, festivalName) {
       const runtime = film.runtime || pick.runtime || 120;
       const description = [
         film.synopsis,
-        film.director?.length ? `Director: ${film.director.join(', ')}` : '',
+        directorsOf(film).length ? `Director: ${directorsOf(film).join(', ')}` : '',
         film.scoreable === false
           ? 'Not rated by the recommender - your pick.'
           : film.prediction
@@ -167,8 +171,8 @@ export function toStandaloneHTML(schedule, festivalName, options = {}) {
           return `<tr>
   <td class="time">${escapeHTML(formatTime(pick.start))}</td>
   <td class="film"><b>${escapeHTML(film.title || '')}</b>${
-    film.director?.length
-      ? `<small>${escapeHTML(film.director.join(', '))}</small>`
+    directorsOf(film).length
+      ? `<small>${escapeHTML(directorsOf(film).join(', '))}</small>`
       : ''
   }${film.synopsis ? `<small>${escapeHTML(film.synopsis)}</small>` : ''}</td>
   <td class="meta">${stars}<br>${escapeHTML(

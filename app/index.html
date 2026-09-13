@@ -14,7 +14,8 @@
     <p class="sub">
       Import your film ratings, tell it when you're busy, and get a
       conflict-free plan ranked by what you're most likely to enjoy.
-      <b>Everything runs in this browser</b> — your ratings are never uploaded.
+      <b>Everything runs in this browser</b> — your ratings are never uploaded
+      unless you choose to share them.
     </p>
   </div>
 </header>
@@ -149,18 +150,24 @@
 
       <h3>Sharing it</h3>
       <p class="muted">
-        Optional, and only if you want to. A shared festival gets checked
-        against the official schedule before it's added, because a wrong
-        showtime here means someone misses a film.
+        Optional. A shared festival is checked against the official schedule
+        by a person before it's added for everyone, because a wrong showtime
+        here means someone misses a film.
       </p>
-      <div class="export-buttons">
-        <button id="submit-issue" class="ghost" disabled>Submit on GitHub</button>
-        <button id="submit-email" class="ghost" disabled>Send by email</button>
+      <div id="share-festival-form" hidden>
+        <label class="check">
+          <input type="checkbox" id="share-festival-consent">
+          <span>Share this festival with the developer for review.</span>
+        </label>
+        <div class="bot-check" id="share-festival-bot"></div>
+        <button id="share-festival-send" class="ghost" disabled>Share festival</button>
       </div>
       <p class="muted" id="submit-help">
-        Load a festival first. Both options download the file for you to
-        attach — a web page can't attach it for you, and nothing is sent
-        anywhere until you send it.
+        Load a festival above first. Nothing is sent until you choose to share.
+      </p>
+      <p class="muted">
+        Prefer email? <button id="submit-email" class="linkish" disabled>Download
+        the file and open an email</button> to attach it to.
       </p>
     </details>
   </section>
@@ -229,6 +236,49 @@
       </p>
     </div>
 
+    <section class="share" id="share-ratings" hidden>
+      <h3>Help improve the recommendations</h3>
+      <p>
+        Optional. Sharing your ratings lets the recommender be tested against
+        real Letterboxd histories instead of an old research dataset, which is
+        how it gets better.
+      </p>
+      <dl class="share-facts">
+        <div>
+          <dt>What's sent</dt>
+          <dd id="share-ratings-what">Title, year and star rating for each film.</dd>
+        </div>
+        <div>
+          <dt>What isn't</dt>
+          <dd>The dates you watched, your username, reviews, diary, watchlist,
+            or anything identifying you or your device.</dd>
+        </div>
+        <div>
+          <dt>Where it goes</dt>
+          <dd>A private store only the developer can read. Never published or
+            shown to anyone else.</dd>
+        </div>
+        <div>
+          <dt>How long</dt>
+          <dd>Until it's downloaded for testing, then deleted from the store.</dd>
+        </div>
+      </dl>
+      <p class="muted">
+        Because nothing identifying is kept, a shared file can't be traced back
+        to you — which also means it can't be found again later to delete on
+        request. If that matters to you, don't share.
+      </p>
+      <div id="share-ratings-form">
+        <label class="check">
+          <input type="checkbox" id="share-ratings-consent">
+          <span id="share-ratings-consent-label">I agree to share these ratings.</span>
+        </label>
+        <div class="bot-check" id="share-ratings-bot"></div>
+        <button id="share-ratings-send" disabled>Share my ratings</button>
+      </div>
+      <p class="muted" id="share-ratings-note"></p>
+    </section>
+
     <div class="remember">
       <label class="check">
         <input type="checkbox" id="remember">
@@ -271,11 +321,17 @@
     </p>
 
     <p>
-      If you'd like to help, send your <code>ratings.csv</code> to
+      <b>The easy way:</b> import your ratings at the top of this page and
+      build a plan. On the <i>Plan</i> step there's a <i>Share my ratings</i>
+      option — it sends only titles, years and star ratings, and nothing goes
+      anywhere until you tick the box and press the button.
+    </p>
+    <p>
+      Or, if you'd rather email it, send your <code>ratings.csv</code> to
       <a href="mailto:festrecommender.crucial122@passmail.net">festrecommender.crucial122@passmail.net</a>.
     </p>
     <details>
-      <summary>What to send, and what not to</summary>
+      <summary>Emailing instead: what to send, and what not to</summary>
       <ol>
         <li>On a computer, sign in and open
           <a href="https://letterboxd.com/settings/data/">letterboxd.com/settings/data</a>.</li>
@@ -300,7 +356,8 @@
 <footer>
   <div class="wrap">
     <p>
-      Ratings stay on your device. Film details come from
+      Ratings stay on your device unless you choose to share them. Film
+      details come from
       <a href="https://www.themoviedb.org/">TMDB</a> — this product uses the
       TMDB API but is not endorsed or certified by TMDB.
     </p>

@@ -26,6 +26,12 @@ app/fixtures/private-*
 # Scratch commit messages.
 .commit-msg
 
+# Cloudflare Worker local state and secrets.
+worker/.dev.vars
+worker/.wrangler/
+.wrangler/
+node_modules/
+
 # Volunteer shifts, work hours, appointments: personal data that says where
 # somebody will be at a given hour. Never publish these.
 app/data/my-commitments.json

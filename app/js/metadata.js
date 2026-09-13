@@ -29,7 +29,7 @@ const CAST_DEPTH = 6; // must match enrich_tmdb.py
 export function normalise(title) {
   let text = String(title)
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '') // strip accents
+    .replace(/[\u0300-\u036F]/g, '') // strip accents
     .toLowerCase()
     .trim();
 
