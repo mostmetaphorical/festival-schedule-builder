@@ -20,6 +20,10 @@ exports/
 *-ratings.csv
 !app/fixtures/demo-ratings.csv
 
+# Festival pages and data files saved by hand from a festival's site, before
+# conversion. Kept locally; only the converted festival file is published.
+/raw/
+
 # Personal exports used for local testing
 app/fixtures/private-*
 

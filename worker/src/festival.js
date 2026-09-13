@@ -5,8 +5,9 @@
  * published inside the app. So beyond "is this well-formed", the rebuild keeps
  * only known fields with known types and sensible sizes, and drops anything
  * that could turn into markup or a third-party request once rendered:
- * strings with angle brackets are refused, and posters are only accepted from
- * TMDB's image host.
+ * strings with angle brackets are refused, and posters must be plain https
+ * addresses. Where posters come from is listed in the summary so the person
+ * reviewing a festival sees every image host before it goes public.
  *
  * Also used by the pull-request check in CI, so the same rules apply whether a
  * festival arrives through the app or through a hand-made pull request.
@@ -32,7 +33,27 @@ const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 const MARKUP = /[<>]/;
 const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME = /^(\d{1,2})(?::(\d{2}))?\s*([ap]\.?m\.?)?$/i;
-const POSTER = /^https:\/\/image\.tmdb\.org\/t\/p\/w\d{2,4}\/[A-Za-z0-9_-]+\.(jpg|png)$/;
+const POSTER_MAX = 500;
+
+/**
+ * A poster address the page can safely put in an <img src>: https only, no
+ * embedded credentials, nothing that could break out of an attribute.
+ * Anything else is dropped rather than refused - a missing poster is harmless.
+ */
+export function posterURL(value) {
+  if (typeof value !== 'string' || value.length > POSTER_MAX) return undefined;
+  if (/[\s"'<>`\\]/.test(value) || CONTROL.test(value)) return undefined;
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return undefined;
+  }
+  if (url.protocol !== 'https:' || url.username || url.password || !url.hostname.includes('.')) {
+    return undefined;
+  }
+  return url.href;
+}
 const ENTITY_FACETS = ['director', 'writer', 'cast', 'keyword', 'genre'];
 
 function text(value, field, max, { required = false } = {}) {
@@ -153,11 +174,9 @@ export function validateFestival(data) {
       entities,
       scoreable: kind === 'film',
     };
-    // Posters render as images for every visitor, so only TMDB's host is
-    // accepted - anything else could be a tracking pixel.
-    if (typeof film.poster === 'string' && POSTER.test(film.poster)) {
-      rebuilt.poster = film.poster;
-    }
+    // Posters render as images for every visitor, so an image host could see
+    // who opens the plan. Hosts are listed in the summary for the reviewer.
+    rebuilt.poster = posterURL(film.poster);
     return Object.fromEntries(
       Object.entries(rebuilt).filter(([, value]) => value !== undefined)
     );
@@ -188,6 +207,9 @@ export function validateFestival(data) {
   });
 
   const days = [...dates].sort();
+  const posterHosts = [
+    ...new Set(films.filter((film) => film.poster).map((film) => new URL(film.poster).hostname)),
+  ].sort();
   return {
     festival,
     days,
@@ -198,6 +220,8 @@ export function validateFestival(data) {
       screenings: screenings.length,
       from: days[0],
       to: days[days.length - 1],
+      posters: films.filter((film) => film.poster).length,
+      posterHosts,
     },
   };
 }

@@ -4,244 +4,335 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meta's Nifty Film Fest Scheduler</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <h1>Meta's Nifty <em>Film Fest Scheduler</em></h1>
-    <p class="sub">
-      Import your film ratings, tell it when you're busy, and get a
-      conflict-free plan ranked by what you're most likely to enjoy.
-      <b>Everything runs in this browser</b> — your ratings are never uploaded
-      unless you choose to share them.
-    </p>
-  </div>
-</header>
+<header class="masthead">
+  <p class="kicker" id="masthead-kicker">Meta's Nifty</p>
+  <h1 class="title-3d">
+    <span class="solid" id="masthead-name">Film Fest</span>
+    <span class="outline" id="masthead-year">Scheduler</span>
+  </h1>
 
-<nav class="steps" aria-label="Steps">
-  <div class="wrap">
-    <button class="step" data-step="1" aria-current="true"><span>1</span> Ratings</button>
-    <button class="step" data-step="2"><span>2</span> Festival</button>
-    <button class="step" data-step="3"><span>3</span> Your time</button>
-    <button class="step" data-step="4"><span>4</span> Plan</button>
-  </div>
-</nav>
+  <nav class="steps" aria-label="Steps">
+    <button class="step" data-step="1" aria-current="step">
+      <span class="dia" aria-hidden="true"><span class="n">1</span></span><span class="label">Ratings</span>
+    </button>
+    <button class="step" data-step="2">
+      <span class="dia" aria-hidden="true"><span class="n">2</span></span><span class="label">Festival</span>
+    </button>
+    <button class="step" data-step="3">
+      <span class="dia" aria-hidden="true"><span class="n">3</span></span><span class="label">Your time</span>
+    </button>
+    <button class="step" data-step="4">
+      <span class="dia" aria-hidden="true"><span class="n">4</span></span><span class="label">Plan</span>
+    </button>
+  </nav>
+</header>
 
 <main class="wrap">
 
   <!-- 1. Ratings ------------------------------------------------------->
-  <section class="panel" id="panel-1">
-    <h2>Your ratings</h2>
-    <p>
-      Letterboxd lets you download your data from
-      <b>Settings → Data → Export your data</b>. Drop the zip in below, or just
-      the <code>ratings.csv</code> from inside it. IMDb exports work too.
-    </p>
-
-    <label class="drop" id="drop">
-      <input type="file" id="ratings-file" accept=".zip,.csv" hidden>
-      <b>Choose your export</b>
-      <small>.zip or .csv — it is read here, not uploaded</small>
-    </label>
-
-    <p class="muted">
-      No account, no sign-in. The file is read by this page and stays on your
-      device.
-    </p>
-
-    <p class="muted">
-      Just looking? <button id="try-demo" class="ghost">Try it with a demo
-      profile</button> — 125 invented ratings from a horror-leaning viewer.
-    </p>
-
-    <div id="ratings-status" class="status" hidden></div>
-
-    <details class="advanced">
-      <summary>Films it couldn't identify, and TMDB lookups</summary>
-      <p class="muted">
-        Film credits come from a list bundled with this app. Anything it
-        doesn't recognise can be looked up from TMDB if you paste a free API
-        key — the key stays in this browser and is only used to ask about
-        films, never about you.
+  <section class="panel" id="panel-1" aria-labelledby="h-ratings">
+    <div class="page-head">
+      <h2 id="h-ratings">Your ratings</h2>
+      <p class="lede">
+        Import the films you've rated and the plan is ranked by what you're most
+        likely to enjoy. <b>Everything runs in this browser</b> — your ratings
+        are never uploaded unless you choose to share them.
       </p>
-      <input type="password" id="tmdb-key" placeholder="TMDB API key (optional)"
-             autocomplete="off">
-      <button id="save-key" class="ghost">Use this key</button>
-      <div id="missing-list" class="missing"></div>
+    </div>
+
+    <div class="dropzone-grid">
+      <label class="drop" id="drop">
+        <input type="file" id="ratings-file" accept=".zip,.csv,.html" hidden>
+        <span class="drop-title">Drop your export here</span>
+        <span class="drop-row">
+          <span class="btn primary" aria-hidden="true">Choose a file</span>
+          <span class="muted">.zip or .csv · read here, not uploaded</span>
+        </span>
+        <span class="lock">No account, no sign-in. The file stays on your device.</span>
+      </label>
+      <div class="how-to">
+        <p class="eyebrow">Getting the file</p>
+        <ol class="numbered">
+          <li>On Letterboxd, open <b>Settings → Data</b></li>
+          <li>Click <b>Export your data</b></li>
+          <li>Drop the zip here, or just <code>ratings.csv</code></li>
+        </ol>
+        <p class="muted small">IMDb exports work too.</p>
+      </div>
+    </div>
+
+    <div class="inline-row">
+      <button id="try-demo" class="btn">Try it with a demo profile</button>
+      <span class="muted">Just looking? 125 invented ratings from a horror-leaning viewer.</span>
+    </div>
+
+    <div id="ratings-status" class="status" role="status" aria-live="polite" hidden></div>
+
+    <details class="fold">
+      <summary>Films it couldn't identify, and TMDB lookups</summary>
+      <div class="fold-body two-col">
+        <div>
+          <p class="eyebrow" id="missing-heading">Films it couldn't identify</p>
+          <div id="missing-list" class="missing">
+            <p class="muted">Import your ratings first.</p>
+          </div>
+        </div>
+        <div class="stack">
+          <p class="eyebrow">Look them up on TMDB</p>
+          <p>
+            Film credits come from a list bundled with this app. Paste a free TMDB
+            API key and anything missing is looked up — only films are asked
+            about, never you.
+          </p>
+          <label class="sr-only" for="tmdb-key">TMDB API key</label>
+          <input type="password" id="tmdb-key" placeholder="TMDB API key (optional)" autocomplete="off">
+          <div class="inline-row">
+            <button id="save-key" class="btn">Use this key</button>
+            <span class="lock">The key stays in this browser</span>
+          </div>
+          <p class="muted small">No key yet? <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">Get one free from TMDB</a>.</p>
+        </div>
+      </div>
     </details>
+
+    <div class="next">
+      <button class="btn primary" id="to-festival" disabled>Next: Festival <span aria-hidden="true">→</span></button>
+    </div>
   </section>
 
   <!-- 2. Festival ------------------------------------------------------>
-  <section class="panel" id="panel-2" hidden>
-    <h2>Which festival</h2>
-    <p class="muted">
-      Schedules are often published days before a festival starts, so this list
-      is updated as they appear. Not seeing yours? Load one from a URL or paste
-      the schedule data.
-    </p>
+  <section class="panel" id="panel-2" aria-labelledby="h-festival" hidden>
+    <div class="page-head">
+      <h2 id="h-festival">Which festival</h2>
+      <p class="lede">
+        Schedules are often published only days before a festival starts, so
+        this list is updated as they appear.
+      </p>
+    </div>
+
     <div id="festival-list" class="festivals"></div>
 
-    <details class="advanced">
-      <summary>Add a festival that isn't listed</summary>
+    <details class="fold" id="festival-fold">
+      <summary>Add a festival that isn't listed <span class="summary-note">· from a spreadsheet, a file, a web address, or pasted data</span></summary>
+      <div class="fold-body">
+        <p>
+          Festivals publish schedules in whatever shape their ticketing uses, so
+          this app reads a simple spreadsheet (CSV) or a JSON file. Load one here
+          and it works straight away on your device, whether or not it's ever
+          added to the list.
+        </p>
 
-      <p class="muted">
-        Festivals publish their schedules days before they start, in whatever
-        shape their ticketing platform uses, so this app reads a plain JSON
-        file instead. Drop one in below and it works immediately — on your
-        device, whether or not it ever gets added here.
-      </p>
+        <div class="methods">
+          <div class="method">
+            <p class="eyebrow">Open a file</p>
+            <label class="drop small" id="festival-drop">
+              <input type="file" id="festival-file" accept=".csv,.json,text/csv,application/json" hidden>
+              <span class="btn primary" aria-hidden="true">Choose a .csv or .json</span>
+            </label>
+            <a class="small template-link" href="data/festival-template.csv" download="festival-template.csv">Download the spreadsheet template</a>
+          </div>
+          <div class="method">
+            <p class="eyebrow"><label for="festival-url">From a web address</label></p>
+            <input type="url" id="festival-url" placeholder="https://…/festival.csv">
+            <button id="load-url" class="btn">Load</button>
+          </div>
+          <div class="method">
+            <p class="eyebrow"><label for="festival-paste">Paste the data</label></p>
+            <textarea id="festival-paste" rows="4" placeholder="CSV rows, or {&quot;festival&quot;: &quot;…&quot;, &quot;films&quot;: […]}"></textarea>
+            <button id="load-paste" class="btn">Use pasted data</button>
+          </div>
+        </div>
 
-      <label class="drop small" id="festival-drop">
-        <input type="file" id="festival-file" accept=".json" hidden>
-        <b>Open a festival file</b>
-        <small>a .json file in the format below</small>
-      </label>
+        <div id="festival-report" class="report" role="status" aria-live="polite" hidden></div>
 
-      <p class="muted">Or load one from a web address:</p>
-      <input type="url" id="festival-url" placeholder="https://…/festival.json">
-      <button id="load-url" class="ghost">Load</button>
+        <hr>
 
-      <p class="muted">Or paste the data directly:</p>
-      <textarea id="festival-paste" rows="4" placeholder='{"festival": "…", "films": [...], "screenings": [...]}'></textarea>
-      <button id="load-paste" class="ghost">Use pasted data</button>
-
-      <div id="festival-report" class="status" hidden></div>
-
-      <h3>Making the file</h3>
-      <p class="muted">
-        The repository has scripts that build one from a festival's published
-        schedule, and <code>enrich_festival.py</code> fills in credits and
-        posters from TMDB. If you'd rather assemble it by hand, this is the
-        whole format — everything else is optional:
-      </p>
-<pre><code>{
+        <div class="making">
+          <div class="stack">
+            <h3>Making the file</h3>
+            <p>
+              <b>The easy way is a spreadsheet.</b> Start from the
+              <a href="data/festival-template.csv" download="festival-template.csv">template</a>:
+              one row per screening, with <b>title</b>, <b>date</b> and <b>time</b>
+              required. Save it as CSV. A film's details only need filling in on
+              one of its rows, and lists like cast go in one cell separated by
+              semicolons.
+            </p>
+            <ol class="numbered">
+              <li>A screening's title must match the same film's other rows exactly.</li>
+              <li>Dates like <code>2027-03-04</code>; times like <code>7:30 PM</code> or <code>19:30</code>.</li>
+              <li>Put <code>event</code> in the kind column for parties and secret screenings — listed, not rated.</li>
+              <li>The more director, cast, genre and keywords you fill in, the better the recommendations.</li>
+              <li>For posters, put the image's full <code>https://</code> link in the poster column — the festival's own listing is usually the best source.</li>
+            </ol>
+            <p class="muted small">
+              Prefer JSON? This is the whole format, and the repository has
+              scripts that build it from a festival's published schedule.
+            </p>
+          </div>
+<pre class="code"><code>{
   "festival": "Some Fest 2027",
   "days": ["2027-03-04", "2027-03-05"],
-  "films": [
-    {
-      "title": "A Film",
-      "year": 2027,
-      "runtime": 94,
-      "synopsis": "One or two sentences.",
-      "section": "Main Competition",
-      "kind": "film",
-      "entities": {
-        "director": ["A Director"],
-        "cast": ["An Actor"],
-        "keyword": ["revenge", "small town"],
-        "genre": ["horror"]
-      }
+  "films": [{
+    "title": "A Film",
+    "year": 2027,
+    "runtime": 94,
+    "synopsis": "One or two sentences.",
+    "poster": "https://…/a-film.jpg",
+    "kind": "film",
+    "entities": {
+      "director": ["A Director"],
+      "cast": ["An Actor"],
+      "keyword": ["revenge"],
+      "genre": ["horror"]
     }
-  ],
-  "screenings": [
-    { "film": "A Film", "date": "2027-03-04", "time": "7:30 PM", "runtime": 94 }
-  ]
+  }],
+  "screenings": [{
+    "film": "A Film",
+    "date": "2027-03-04",
+    "time": "7:30 PM"
+  }]
 }</code></pre>
-      <p class="muted">
-        Two things matter: a screening's <code>film</code> has to match a
-        lineup <code>title</code> exactly, and dates are
-        <code>YYYY-MM-DD</code>. Use <code>"kind": "event"</code> for parties,
-        secret screenings and live shows — those get listed but not rated.
-        The more of <code>entities</code> you fill in, the better the
-        recommendations; with none, every film scores the same.
-      </p>
+        </div>
 
-      <h3>Sharing it</h3>
-      <p class="muted">
-        Optional. A shared festival is checked against the official schedule
-        by a person before it's added for everyone, because a wrong showtime
-        here means someone misses a film.
-      </p>
-      <div id="share-festival-form" hidden>
-        <label class="check">
-          <input type="checkbox" id="share-festival-consent">
-          <span>Share this festival with the developer for review.</span>
-        </label>
-        <div class="bot-check" id="share-festival-bot"></div>
-        <button id="share-festival-send" class="ghost" disabled>Share festival</button>
+        <hr>
+
+        <div class="stack">
+          <h3>Sharing it <span class="badge">Optional</span></h3>
+          <p>
+            A shared festival is checked against the official schedule by a
+            person before it's added for everyone — a wrong showtime means
+            someone misses a film.
+          </p>
+          <div class="consent" id="share-festival-form" hidden>
+            <label class="check">
+              <input type="checkbox" id="share-festival-consent">
+              <span>Share this festival with the developer for review</span>
+            </label>
+            <div class="bot-check" id="share-festival-bot"></div>
+            <button id="share-festival-send" class="btn primary" disabled>Share festival</button>
+          </div>
+          <p class="muted small" id="submit-help">
+            Load a festival above first. Nothing is sent until you choose to share.
+          </p>
+          <p class="muted small">
+            Prefer email? <button id="submit-email" class="linkish" disabled>Download
+            the file and open an email</button> to attach it to.
+          </p>
+        </div>
       </div>
-      <p class="muted" id="submit-help">
-        Load a festival above first. Nothing is sent until you choose to share.
-      </p>
-      <p class="muted">
-        Prefer email? <button id="submit-email" class="linkish" disabled>Download
-        the file and open an email</button> to attach it to.
-      </p>
     </details>
+
+    <div class="next">
+      <button class="btn primary" id="to-time" disabled>Next: Your time <span aria-hidden="true">→</span></button>
+    </div>
   </section>
 
   <!-- 3. Constraints --------------------------------------------------->
-  <section class="panel" id="panel-3" hidden>
-    <h2>When you're not free</h2>
-    <p class="muted">
-      Volunteer shifts, work, a dentist appointment — anything the plan should
-      schedule around.
-    </p>
+  <section class="panel" id="panel-3" aria-labelledby="h-time" hidden>
+    <div class="page-head">
+      <h2 id="h-time">When you're not free</h2>
+      <p class="lede">Work, volunteer shifts, a dinner — anything the plan should schedule around.</p>
+    </div>
 
-    <div id="commitments"></div>
-    <button id="add-commitment" class="ghost">Add a commitment</button>
+    <div class="surface commitments-box">
+      <div class="commitment head" aria-hidden="true">
+        <span>Day</span><span>Time</span><span>What</span><span></span>
+      </div>
+      <div id="commitments"></div>
+      <p class="muted small empty-note" id="commitments-empty">Nothing yet — add anything the plan should avoid.</p>
+      <div class="inline-row">
+        <button id="add-commitment" class="btn"><span aria-hidden="true">+</span> Add a commitment</button>
+      </div>
 
-    <details class="advanced">
-      <summary>Import from a file</summary>
-      <p class="muted">
-        A calendar <code>.ics</code> export or a CSV with date, start and end
-        columns.
-      </p>
-      <input type="file" id="commitments-file" accept=".ics,.csv">
-    </details>
+      <details class="fold inner">
+        <summary>Import from a file</summary>
+        <div class="fold-body two-col">
+          <div class="stack">
+            <p>
+              A calendar <code>.ics</code> export, or a CSV with <b>date</b>,
+              <b>start</b> and <b>end</b> columns.
+            </p>
+            <label class="drop small">
+              <input type="file" id="commitments-file" accept=".ics,.csv" hidden>
+              <span class="btn" aria-hidden="true">Choose a calendar file</span>
+            </label>
+            <span class="lock">Read here, not uploaded</span>
+          </div>
+          <div id="commitments-report" class="report" role="status" aria-live="polite" hidden></div>
+        </div>
+      </details>
+    </div>
 
-    <h3>Preferences</h3>
+    <h3 class="section-title">Preferences</h3>
     <div class="prefs">
-      <label>
-        Most films per day
-        <input type="number" id="max-per-day" min="1" max="10" value="4">
-      </label>
-      <label>
-        Gap between screenings
-        <input type="number" id="buffer" min="0" max="120" step="5" value="20">
-        <small>minutes, for queueing and getting between venues</small>
-      </label>
+      <div class="pref">
+        <label for="max-per-day">Most films per day</label>
+        <div class="stepper">
+          <button class="step-btn" data-for="max-per-day" data-delta="-1" aria-label="Fewer films per day">−</button>
+          <input type="number" id="max-per-day" min="1" max="10" value="4" inputmode="numeric">
+          <button class="step-btn" data-for="max-per-day" data-delta="1" aria-label="More films per day">+</button>
+        </div>
+      </div>
+      <div class="pref">
+        <label for="buffer">Gap between screenings</label>
+        <div class="inline-row">
+          <div class="stepper">
+            <button class="step-btn" data-for="buffer" data-delta="-5" aria-label="Shorter gap">−</button>
+            <input type="number" id="buffer" min="0" max="120" step="5" value="20" inputmode="numeric">
+            <button class="step-btn" data-for="buffer" data-delta="5" aria-label="Longer gap">+</button>
+          </div>
+          <span class="muted small">minutes, for queueing and getting between venues</span>
+        </div>
+      </div>
     </div>
 
     <div class="next">
-      <button id="to-plan">See my plan</button>
-      <span class="muted">You can come back and change any of this.</span>
+      <span class="muted small">You can come back and change any of this.</span>
+      <button class="btn primary" id="to-plan">See my plan <span aria-hidden="true">→</span></button>
     </div>
   </section>
 
   <!-- 4. Plan ---------------------------------------------------------->
-  <section class="panel" id="panel-4" hidden>
-    <h2>Your plan</h2>
-    <div id="strength" class="strength"></div>
+  <section class="panel" id="panel-4" aria-labelledby="h-plan" hidden>
+    <h2 id="h-plan" class="sr-only">Your plan</h2>
+    <p id="strength" class="strength"></p>
     <div id="plan"></div>
 
-    <div class="export">
-      <h3>Take it with you</h3>
+    <section class="block" aria-labelledby="h-export">
+      <div class="block-head">
+        <h3 id="h-export">Take it with you</h3>
+      </div>
       <div class="export-buttons">
-        <button id="export-ics">Add to calendar (.ics)</button>
-        <button id="export-html" class="ghost">Save as a web page</button>
-        <button id="export-pdf" class="ghost">Print / save as PDF</button>
+        <button id="export-ics" class="btn primary">Add to calendar (.ics)</button>
+        <button id="export-html" class="btn">Save as a web page</button>
+        <button id="export-pdf" class="btn">Print / save as PDF</button>
       </div>
       <label class="check">
         <input type="checkbox" id="include-profile">
-        Include my ratings in the saved page, so I can load it back later
+        <span>Include my ratings in the saved web page, so I can load it back later</span>
       </label>
       <p class="warn" id="share-warning">
-        Without that box ticked, the saved page holds only your schedule and is
-        safe to share or host publicly. Tick it and the file also contains your
-        rating history — useful as a backup, but it is personal, so don't post
-        it anywhere public.
+        Unticked, the page holds only your schedule and is safe to share or post.
+        Ticked, it also holds your rating history — a handy backup, but personal,
+        so don't post it anywhere public.
       </p>
-    </div>
+    </section>
 
-    <section class="share" id="share-ratings" hidden>
-      <h3>Help improve the recommendations</h3>
+    <section class="block share" id="share-ratings" aria-labelledby="h-share" hidden>
+      <div class="block-head">
+        <h3 id="h-share">Help improve the recommendations</h3>
+        <span class="badge">Optional</span>
+      </div>
       <p>
-        Optional. Sharing your ratings lets the recommender be tested against
-        real Letterboxd histories instead of an old research dataset, which is
-        how it gets better.
+        Sharing your ratings lets the recommender be tested against real
+        Letterboxd histories instead of an old research dataset. That's how it
+        gets better.
       </p>
       <dl class="share-facts">
         <div>
@@ -250,13 +341,12 @@
         </div>
         <div>
           <dt>What isn't</dt>
-          <dd>The dates you watched, your username, reviews, diary, watchlist,
-            or anything identifying you or your device.</dd>
+          <dd>Watch dates, username, reviews, diary, watchlist — anything that
+            identifies you or your device.</dd>
         </div>
         <div>
           <dt>Where it goes</dt>
-          <dd>A private store only the developer can read. Never published or
-            shown to anyone else.</dd>
+          <dd>A private store only the developer can read. Never published.</dd>
         </div>
         <div>
           <dt>How long</dt>
@@ -265,101 +355,100 @@
       </dl>
       <p class="muted">
         Because nothing identifying is kept, a shared file can't be traced back
-        to you — which also means it can't be found again later to delete on
-        request. If that matters to you, don't share.
+        to you — which also means it can't be found later to delete on request.
+        If that matters to you, don't share.
       </p>
-      <div id="share-ratings-form">
+      <div class="consent" id="share-ratings-form">
         <label class="check">
           <input type="checkbox" id="share-ratings-consent">
-          <span id="share-ratings-consent-label">I agree to share these ratings.</span>
+          <span id="share-ratings-consent-label">I agree to share these ratings</span>
         </label>
+        <span class="muted small consent-hint">A quick bot check appears after you tick the box</span>
         <div class="bot-check" id="share-ratings-bot"></div>
-        <button id="share-ratings-send" disabled>Share my ratings</button>
+        <button id="share-ratings-send" class="btn primary" disabled>Share my ratings</button>
       </div>
       <p class="muted" id="share-ratings-note"></p>
     </section>
 
-    <div class="remember">
-      <label class="check">
-        <input type="checkbox" id="remember">
-        Remember this on this device
-      </label>
-      <p class="muted" id="remember-detail">
-        Stores your ratings and plan in this browser only, so you don't have to
-        import them again. Nothing is sent anywhere and there's no account.
-        Browsers do clear this sometimes — the downloaded file is the reliable
-        backup.
-      </p>
-      <button id="forget" class="ghost danger" hidden>Erase what's stored</button>
-    </div>
+    <section class="remember surface" aria-label="Remember on this device">
+      <div class="stack">
+        <label class="check strong">
+          <input type="checkbox" id="remember">
+          <span>Remember this on this device</span>
+        </label>
+        <p class="muted" id="remember-detail">
+          Your ratings and plan are kept in this browser only, so you don't have
+          to import them again. Nothing is sent anywhere and there's no account.
+          Browsers do clear this sometimes — the saved web page is the reliable
+          backup.
+        </p>
+      </div>
+      <button id="forget" class="btn danger" hidden>Erase what's stored</button>
+    </section>
   </section>
 
 </main>
 
 <section class="contribute">
-  <div class="wrap">
-    <h2>Help make the recommendations better</h2>
-    <p>
-      This is an alpha. The model behind it was trained on an old public
-      dataset of mostly mainstream films, and it's being tested against real
-      film-festival slates — where most titles are premieres nobody has rated
-      yet. More real rating histories make it measurably better, and there's
-      an honest test in the repository that scores how well it predicts
-      ratings it has never seen.
-    </p>
-
-    <p class="threshold">
-      <b>Please only send yours if you've rated at least 30 films.</b>
-      This isn't gatekeeping — it's that smaller histories can't answer the
-      question being asked. The test hides 30% of someone's ratings and checks
-      whether the recommender predicts them. With 20 ratings that means
-      learning from 14 films and being graded on 6, which is mostly luck:
-      measured across hundreds of people, profiles under 30 scored barely
-      better than assuming someone likes everything equally. Sending a small
-      one means handing over your viewing history for no useful result, which
-      isn't a fair trade. Rate more films and come back — it stays useful.
-    </p>
-
-    <p>
-      <b>The easy way:</b> import your ratings at the top of this page and
-      build a plan. On the <i>Plan</i> step there's a <i>Share my ratings</i>
-      option — it sends only titles, years and star ratings, and nothing goes
-      anywhere until you tick the box and press the button.
-    </p>
-    <p>
-      Or, if you'd rather email it, send your <code>ratings.csv</code> to
-      <a href="mailto:festrecommender.crucial122@passmail.net">festrecommender.crucial122@passmail.net</a>.
-    </p>
-    <details>
-      <summary>Emailing instead: what to send, and what not to</summary>
-      <ol>
-        <li>On a computer, sign in and open
-          <a href="https://letterboxd.com/settings/data/">letterboxd.com/settings/data</a>.</li>
-        <li>Click <b>Export your data</b>. A .zip downloads.</li>
-        <li>Open the .zip and take out <b>ratings.csv</b> only.</li>
-        <li>Send that one file. <b>Please don't send the whole .zip.</b></li>
-      </ol>
-      <p class="muted">
-        <code>ratings.csv</code> holds only the date, film title, film year, a
-        link to the film, and your star rating. Your username, real name,
-        email, location, bio, reviews, diary and watchlist are in
-        <i>other</i> files in that zip, which is exactly why only this one is
-        wanted. If you'd rather not share when you watched things, delete the
-        Date column first — it isn't used. And again: 30 ratings or more,
-        please. Below that your history can't answer the question the test
-        asks, so sending it costs you privacy for nothing.
+  <div class="wrap contribute-grid">
+    <div class="stack">
+      <h2>Help make the recommendations better</h2>
+      <p>
+        This is an alpha. The model behind it was trained on an old public
+        dataset of mostly mainstream films, and festival slates are mostly
+        premieres nobody has rated yet. More real rating histories make it
+        measurably better, and there's an honest test in the repository that
+        scores how well it predicts ratings it has never seen.
       </p>
-    </details>
+      <p>
+        <b>The easy way:</b> build a plan, then use <b>Share my ratings</b> on
+        the Plan tab. It sends only titles, years and star ratings, and nothing
+        goes anywhere until you tick the box and press the button. Or email your
+        <code>ratings.csv</code> to
+        <a href="mailto:festrecommender.crucial122@passmail.net">festrecommender.crucial122@passmail.net</a>.
+      </p>
+    </div>
+    <div class="threshold stack">
+      <p class="threshold-title">Please only share if you've rated at least 30 films.</p>
+      <p class="muted">
+        The test hides 30% of someone's ratings and checks whether the
+        recommender predicts them. With 20 ratings that means learning from 14
+        films and being graded on 6, which is mostly luck: measured across
+        hundreds of people, profiles under 30 scored barely better than assuming
+        someone likes everything equally. Sending a small one costs you privacy
+        for no useful result.
+      </p>
+      <details class="fold inner">
+        <summary>Emailing instead: what to send, and what not to</summary>
+        <div class="fold-body stack">
+          <ol class="numbered">
+            <li>On a computer, sign in and open
+              <a href="https://letterboxd.com/settings/data/">letterboxd.com/settings/data</a>.</li>
+            <li>Click <b>Export your data</b>. A .zip downloads.</li>
+            <li>Open the .zip and take out <b>ratings.csv</b> only.</li>
+            <li>Send that one file. <b>Please don't send the whole .zip.</b></li>
+          </ol>
+          <p class="muted small">
+            <code>ratings.csv</code> holds only the date, film title, film year, a
+            link to the film, and your star rating. Your username, real name,
+            email, location, bio, reviews, diary and watchlist are in
+            <i>other</i> files in that zip, which is exactly why only this one is
+            wanted. If you'd rather not share when you watched things, delete the
+            Date column first — it isn't used.
+          </p>
+        </div>
+      </details>
+    </div>
   </div>
 </section>
 
 <footer>
-  <div class="wrap">
+  <div class="wrap footer-row">
+    <a class="tmdb-credit" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>
     <p>
-      Ratings stay on your device unless you choose to share them. Film
-      details come from
-      <a href="https://www.themoviedb.org/">TMDB</a> — this product uses the
-      TMDB API but is not endorsed or certified by TMDB.
+      Film credits, keywords and posters come from TMDB. This product uses TMDB
+      and the TMDB APIs but is not endorsed, certified, or otherwise approved by
+      TMDB. Your ratings stay on your device unless you choose to share them.
     </p>
   </div>
 </footer>

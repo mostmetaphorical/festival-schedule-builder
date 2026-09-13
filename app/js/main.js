@@ -16,13 +16,20 @@ import {
   resolveLibrary,
 } from './metadata.js';
 import { Recommender, profileStrength } from './recommend.js';
-import { buildSchedule, formatTime, onlyChances, screeningId } from './schedule.js';
+import {
+  buildSchedule,
+  formatTime,
+  onlyChances,
+  parseCommitment,
+  screeningId,
+} from './schedule.js';
 import { downloadHTML, downloadICS, restoreFromHTML } from './export.js';
 import {
   downloadFestival,
   mailtoURL,
   validateFestival,
 } from './festival-io.js';
+import { festivalFromCSV, isPosterURL, looksLikeCSV } from './festival-csv.js';
 import {
   MIN_RATINGS_TO_SHARE,
   botCheck,
@@ -41,11 +48,18 @@ const state = {
   missing: [],
   profile: null,
   festival: null,
+  festivalIndex: null,
+  festivalCheck: null,
+  festivalNotes: [],
   scored: [],
   commitments: [],
   pinned: new Set(),
   excluded: new Set(),
+  // Film cards the person has opened, kept open across re-renders so a swap
+  // or a preference change doesn't snap everything shut.
+  openCards: new Set(),
   schedule: null,
+  step: 1,
   tmdbKey: '',
   // The demo profile is invented; sharing it would only pollute the test data.
   isDemo: false,
@@ -68,31 +82,46 @@ async function boot() {
   ]);
 
   recommender = new Recommender(model, idf, stopwords);
-  renderFestivals(festivals);
+  state.festivalIndex = festivals;
+  renderFestivals();
   wireUp();
+  updateChrome();
   restoreSession();
 }
 
-function wireUp() {
-  $('#drop').addEventListener('click', () => $('#ratings-file').click());
-  $('#ratings-file').addEventListener('change', (event) => {
-    if (event.target.files[0]) loadRatings(event.target.files[0]);
+/** A file dropped onto a zone, or chosen through it, goes to `onFile`. */
+function fileZone(zone, input, onFile) {
+  input.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    // Reset so choosing the same file again still fires a change.
+    event.target.value = '';
+    if (file) onFile(file);
   });
-
-  const drop = $('#drop');
-  ['dragover', 'dragleave', 'drop'].forEach((type) => {
-    drop.addEventListener(type, (event) => {
+  ['dragenter', 'dragover'].forEach((type) =>
+    zone.addEventListener(type, (event) => {
       event.preventDefault();
-      drop.classList.toggle('over', type === 'dragover');
+      zone.classList.add('over');
+    })
+  );
+  ['dragleave', 'drop'].forEach((type) =>
+    zone.addEventListener(type, (event) => {
+      event.preventDefault();
+      zone.classList.remove('over');
       if (type === 'drop' && event.dataTransfer.files[0]) {
-        loadRatings(event.dataTransfer.files[0]);
+        onFile(event.dataTransfer.files[0]);
       }
-    });
-  });
+    })
+  );
+}
+
+function wireUp() {
+  fileZone($('#drop'), $('#ratings-file'), (file) => loadRatings(file));
 
   $$('.step').forEach((button) =>
     button.addEventListener('click', () => showStep(Number(button.dataset.step)))
   );
+  $('#to-festival').addEventListener('click', () => showStep(2));
+  $('#to-time').addEventListener('click', () => showStep(3));
 
   $('#try-demo').addEventListener('click', async () => {
     setStatus('Loading a demo profile…');
@@ -105,9 +134,19 @@ function wireUp() {
   $('#save-key').addEventListener('click', useTMDBKey);
   $('#add-commitment').addEventListener('click', () => addCommitmentRow());
   $('#commitments-file').addEventListener('change', (event) => {
-    if (event.target.files[0]) importCommitments(event.target.files[0]);
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (file) importCommitments(file);
   });
 
+  $$('.step-btn').forEach((button) =>
+    button.addEventListener('click', () => {
+      const input = document.getElementById(button.dataset.for);
+      const next = Number(input.value || 0) + Number(button.dataset.delta);
+      input.value = String(Math.min(Number(input.max), Math.max(Number(input.min), next)));
+      input.dispatchEvent(new Event('change'));
+    })
+  );
   $('#max-per-day').addEventListener('change', rebuild);
   $('#buffer').addEventListener('change', rebuild);
   $('#to-plan').addEventListener('click', () => {
@@ -115,32 +154,25 @@ function wireUp() {
     showStep(4);
   });
 
-  $('#festival-drop').addEventListener('click', () => $('#festival-file').click());
-  $('#festival-file').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    try {
-      useFestival(JSON.parse(await file.text()), { external: true });
-    } catch (error) {
-      reportFestival(null, `That file isn't valid JSON: ${error.message}`);
-    }
+  fileZone($('#festival-drop'), $('#festival-file'), async (file) => {
+    loadFestivalText(await file.text(), { name: file.name });
   });
 
   $('#load-url').addEventListener('click', async () => {
     const url = $('#festival-url').value.trim();
     if (!url) return;
     try {
-      useFestival(await (await fetch(url)).json(), { external: true });
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`the server answered ${response.status}`);
+      loadFestivalText(await response.text(), { name: url.split('/').pop() });
     } catch (error) {
       reportFestival(null, `Could not load that: ${error.message}`);
     }
   });
   $('#load-paste').addEventListener('click', () => {
-    try {
-      useFestival(JSON.parse($('#festival-paste').value), { external: true });
-    } catch (error) {
-      reportFestival(null, `That isn't valid festival data: ${error.message}`);
-    }
+    const text = $('#festival-paste').value;
+    if (!text.trim()) return;
+    loadFestivalText(text, { name: 'Pasted festival' });
   });
 
   wireSharing();
@@ -176,7 +208,7 @@ function wireUp() {
     remember.disabled = true;
     $('#remember-detail').textContent =
       'This browser is blocking local storage (private windows usually do), ' +
-      'so nothing can be remembered here. Use the saved page instead.';
+      'so nothing can be remembered here. Use the saved web page instead.';
   }
   remember.addEventListener('change', (event) => {
     storage.enable(event.target.checked);
@@ -187,7 +219,8 @@ function wireUp() {
     storage.clear();
     $('#remember').checked = false;
     $('#forget').hidden = true;
-    setStatus('Erased everything this app had stored in this browser.');
+    $('#remember-detail').textContent =
+      'Erased everything this app had stored in this browser.';
   });
 }
 
@@ -210,7 +243,7 @@ async function loadRatings(file, { demo = false } = {}) {
     setStatus(`Read <b>${ratings.length}</b> ratings from your ${source} export. Looking up who made them…`);
     await resolve();
   } catch (error) {
-    setStatus(`Could not read that file: ${error.message}`, true);
+    setStatus(`Could not read that file: ${escapeHTML(error.message)}`, true);
   }
 }
 
@@ -246,29 +279,45 @@ async function resolve() {
     `Matched <b>${state.library.length}</b> of ${state.ratings.length} films. ` +
       `<b>${strength.headline}.</b> ${strength.detail}` +
       (state.missing.length
-        ? ` ${state.missing.length} weren't recognised — a TMDB key would find most of them.`
+        ? ` ${state.missing.length} weren't recognised — open the section below to look them up.`
         : '')
   );
   renderMissing();
   saveSession();
+  score();
+  updateChrome();
 
-  $('.step[data-step="2"]').removeAttribute('disabled');
-  if (state.library.length) showStep(2);
+  if (state.library.length && state.step === 1) showStep(2);
 }
 
 function renderMissing() {
   const box = $('#missing-list');
-  if (!state.missing.length) {
+  const count = state.missing.length;
+  $('#missing-heading').textContent = count
+    ? `${count} ${count === 1 ? 'film' : 'films'} it couldn't identify`
+    : "Films it couldn't identify";
+
+  if (!state.ratings.length) {
+    box.innerHTML = '<p class="muted">Import your ratings first.</p>';
+    return;
+  }
+  if (!count) {
     box.innerHTML = '<p class="muted">Everything matched.</p>';
     return;
   }
-  const names = state.missing
+  const rows = state.missing
     .slice(0, 40)
-    .map((film) => `${escapeHTML(film.title)}${film.year ? ` (${film.year})` : ''}`)
-    .join(' · ');
-  box.innerHTML = `<p class="muted">${state.missing.length} unmatched: ${names}${
-    state.missing.length > 40 ? ' …' : ''
-  }</p>`;
+    .map(
+      (film) =>
+        `<div class="missing-row"><span>${escapeHTML(film.title)}</span>` +
+        `<span class="year">${film.year || ''}</span></div>`
+    )
+    .join('');
+  box.innerHTML =
+    '<p class="intro">They\'re still in your ratings, but add nothing to what it ' +
+    "learns about your taste until they're found.</p>" +
+    rows +
+    (count > 40 ? `<p class="muted small">…and ${count - 40} more.</p>` : '');
 }
 
 function useTMDBKey() {
@@ -281,31 +330,98 @@ function useTMDBKey() {
 
 /* ---------- step 2: festival ---------- */
 
-function renderFestivals(index) {
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "Sep 17–24", or "Oct 30–Nov 2" across a month end. */
+function dateRange(from, to) {
+  const [, m1, d1] = String(from).split('-').map(Number);
+  const [, m2, d2] = String(to || from).split('-').map(Number);
+  if (!m1) return '';
+  const start = `${MONTHS[m1 - 1]} ${d1}`;
+  if (!m2 || (m1 === m2 && d1 === d2)) return start;
+  return m1 === m2 ? `${start}–${d2}` : `${start}–${MONTHS[m2 - 1]} ${d2}`;
+}
+
+function renderFestivals() {
   const list = $('#festival-list');
   list.innerHTML = '';
+  const festivals = state.festivalIndex?.festivals || [];
+  const ready = festivals.filter((f) => f.status === 'ready');
+  const planned = festivals.filter((f) => f.status !== 'ready');
 
-  for (const festival of index.festivals) {
-    const ready = festival.status === 'ready';
+  for (const festival of ready) {
+    const selected = state.festival?.festival === festival.name;
+    const stats = selected ? state.festivalCheck?.stats : null;
     const button = document.createElement('button');
-    button.className = 'festival';
     button.type = 'button';
-    if (!ready) button.disabled = true;
+    button.className = 'festival';
+    button.setAttribute('aria-pressed', String(selected));
     button.innerHTML =
-      `<span>${escapeHTML(festival.name)}<br>` +
-      `<span class="where">${escapeHTML(festival.city)}</span></span>` +
-      `<span class="tag ${ready ? 'ready' : ''}">${
-        ready ? 'schedule ready' : 'not published yet'
+      `<span class="when">${dateRange(festival.starts, festival.ends)}` +
+      `<small>${escapeHTML(festival.starts.slice(0, 4))}</small></span>` +
+      `<span><span class="name">${escapeHTML(festival.name)}</span>` +
+      `<span class="meta">${escapeHTML(festival.city)}${
+        stats ? ` · ${stats.films} films and events · ${stats.screenings} screenings` : ''
       }</span>` +
-      `<span class="when">${festival.starts}</span>`;
-    if (ready) {
-      button.addEventListener('click', async () => {
-        setStatus(`Loading ${festival.name}…`);
-        useFestival(await fetch(festival.data).then((r) => r.json()));
-      });
-    }
+      (festival.source
+        ? `<span class="source">${escapeHTML(festival.source)}${
+            festival.captured ? ` on ${dateRange(festival.captured)}` : ''
+          }</span>`
+        : '') +
+      `</span>` +
+      `<span class="pick">${selected ? 'Selected' : 'Choose'}</span>`;
+    button.addEventListener('click', async () => {
+      if (selected) return showStep(3);
+      button.querySelector('.pick').textContent = 'Loading…';
+      try {
+        const data = await fetch(festival.data).then((r) => r.json());
+        useFestival(data);
+        if (!state.festivalCheck.errors.length) showStep(3);
+      } catch (error) {
+        button.querySelector('.pick').textContent = 'Try again';
+      }
+    });
     list.appendChild(button);
   }
+
+  if (planned.length) {
+    const coming = document.createElement('div');
+    coming.className = 'coming';
+    coming.innerHTML =
+      '<p class="eyebrow">Coming up · schedule not published yet</p>' +
+      planned
+        .map(
+          (festival) =>
+            `<div class="coming-row"><span class="when">${dateRange(festival.starts, festival.ends)}</span>` +
+            `<span><span class="name">${escapeHTML(festival.name)}</span>` +
+            `<span class="city">${escapeHTML(festival.city)}</span></span>` +
+            '<span class="tag">Usual dates</span></div>'
+        )
+        .join('');
+    list.appendChild(coming);
+  }
+}
+
+/** Read a festival from spreadsheet or JSON text, whichever it is. */
+function loadFestivalText(text, { name = '' } = {}) {
+  const fallbackName = String(name)
+    .replace(/\.(csv|json|txt)$/i, '')
+    .replace(/[-_]+/g, ' ')
+    .trim();
+  let parsed;
+  try {
+    parsed = looksLikeCSV(text)
+      ? festivalFromCSV(text, { fallbackName })
+      : { data: JSON.parse(text), notes: [], problems: [] };
+  } catch (error) {
+    state.festivalNotes = [];
+    const message = error instanceof SyntaxError
+      ? "It isn't a spreadsheet with title, date and time columns, or a JSON festival file."
+      : error.message;
+    reportFestival(null, message);
+    return;
+  }
+  useFestival(parsed.data, { external: true, notes: parsed.notes, problems: parsed.problems });
 }
 
 /* ---------- sharing ---------- */
@@ -396,7 +512,7 @@ function renderRatingsShare() {
   $('#share-ratings-what').textContent =
     `Title, year and star rating for each of your ${count} rated films.`;
   $('#share-ratings-consent-label').textContent =
-    `I agree to share these ${count} ratings.`;
+    `I agree to share these ${count} ratings`;
   updateRatingsShareButton();
 
   statusCheck ??= shareStatus();
@@ -465,45 +581,51 @@ async function sendFestival() {
 function reportFestival(check, note = '') {
   const box = $('#festival-report');
   box.hidden = false;
+  // Messages quote titles and dates from the file itself, so they are text,
+  // never markup - a festival file must not be able to inject into the page.
+  const item = (text, bad = false) =>
+    `<li${bad ? ' class="bad"' : ''}>${escapeHTML(text)}</li>`;
 
   if (!check) {
-    box.className = 'status error';
-    box.textContent = note;
+    box.className = 'report error';
+    box.innerHTML =
+      '<p class="report-title">Couldn\'t load that</p>' + `<p>${escapeHTML(note)}</p>`;
     return;
   }
 
   const { errors, warnings, stats } = check;
-  const parts = [];
-  if (stats.films) {
-    parts.push(
-      `<b>${stats.films} films</b>, ${stats.screenings} screenings, ` +
-      `${stats.days} days (${stats.from} to ${stats.to}).`
-    );
-  }
-  // Messages quote titles and dates from the file itself, so they are text,
-  // never markup - a festival file must not be able to inject into the page.
-  if (errors.length) {
-    parts.push(
-      `<b>${errors.length} problem${errors.length === 1 ? '' : 's'}:</b> ` +
-      escapeHTML(errors.slice(0, 5).join(' '))
-    );
-  }
-  if (warnings.length) {
-    parts.push(
-      `<b>Worth checking:</b> ${escapeHTML(warnings.slice(0, 4).join(' '))}`
-    );
-  }
-  if (note) parts.push(escapeHTML(note));
+  const notes = state.festivalNotes || [];
+  const name = state.festivalLoadedName || 'the festival';
+  const title = errors.length
+    ? `Not usable yet — ${plural(errors.length, 'problem')} to fix`
+    : `Loaded ${name} · ${plural(stats.films, 'film')}, ${plural(stats.screenings, 'screening')}`;
+  const lead = errors.length
+    ? 'Fix these in the file and load it again:'
+    : `It works on this device now${
+        stats.days ? `: ${plural(stats.days, 'day')}, ${dateRange(stats.from, stats.to)}` : ''
+      }.${warnings.length || notes.length ? ' Worth checking:' : ''}`;
+  const list = [
+    ...errors.slice(0, 6).map((text) => item(text, true)),
+    ...notes.map((text) => item(text)),
+    ...warnings.slice(0, 5).map((text) => item(text)),
+  ].join('');
 
-  box.className = `status${errors.length ? ' error' : ''}`;
-  box.innerHTML = parts.join('<br>');
+  box.className = `report${errors.length ? ' error' : ''}`;
+  box.innerHTML =
+    `<p class="report-title">${escapeHTML(title)}</p>` +
+    `<p>${escapeHTML(lead)}</p>` +
+    (list ? `<ul>${list}</ul>` : '') +
+    (note ? `<p>${escapeHTML(note)}</p>` : '');
 }
 
-function useFestival(data, { external = false } = {}) {
+function useFestival(data, { external = false, notes = [], problems = [] } = {}) {
   // Check before use: a missing date or a mismatched title produces a plan
   // with silent holes in it, which is worse than a refusal.
   const check = validateFestival(data);
+  check.errors.push(...problems);
   state.festivalCheck = check;
+  state.festivalNotes = notes;
+  state.festivalLoadedName = data?.festival;
   // A festival already listed in the app has nothing to share.
   state.festivalExternal = external;
   if (external) reportFestival(check);
@@ -525,6 +647,7 @@ function useFestival(data, { external = false } = {}) {
   state.festival = data;
   state.pinned = new Set();
   state.excluded = new Set();
+  state.openCards = new Set();
 
   // Commitments already on the festival file are a starting point, not a
   // decision - the person can delete them.
@@ -532,8 +655,9 @@ function useFestival(data, { external = false } = {}) {
     state.commitments = data.sample_commitments.map((c) => ({ ...c }));
   }
   renderCommitments();
+  renderFestivals();
   score();
-  showStep(3);
+  updateChrome();
 }
 
 /* ---------- step 3: commitments ---------- */
@@ -543,26 +667,36 @@ function addCommitmentRow(commitment = null) {
     commitment || { date: state.festival?.days?.[0] || '', window: '', label: '' }
   );
   renderCommitments();
+  // Focus the new row's time, the field people most often need to type.
+  $('#commitments').lastElementChild?.querySelector('[data-field=window]')?.focus();
 }
 
 function renderCommitments() {
   const box = $('#commitments');
   box.innerHTML = '';
+  const days = state.festival?.days || [];
 
   state.commitments.forEach((commitment, index) => {
     const row = document.createElement('div');
     row.className = 'commitment';
     row.innerHTML =
-      `<input type="date" value="${commitment.date || ''}" data-field="date">` +
-      `<input type="text" value="${commitment.window || ''}" data-field="window"
-              placeholder="2:00 PM - 9:00 PM">` +
-      `<input type="text" value="${commitment.label || ''}" data-field="label"
-              placeholder="what is it?">` +
-      `<button class="ghost danger" data-remove>Remove</button>`;
+      `<input type="date" value="${escapeAttribute(commitment.date || '')}" data-field="date"` +
+      (days.length ? ` min="${days[0]}" max="${days[days.length - 1]}"` : '') +
+      ' aria-label="Day">' +
+      `<input type="text" value="${escapeAttribute(commitment.window || '')}" data-field="window"` +
+      ' placeholder="e.g. 6:00 PM - 8:00 PM" aria-label="Time">' +
+      `<input type="text" value="${escapeAttribute(commitment.label || '')}" data-field="label"` +
+      ' placeholder="e.g. Dentist" aria-label="What">' +
+      '<button class="remove" data-remove aria-label="Remove this commitment">×</button>';
 
     row.querySelectorAll('input').forEach((input) =>
       input.addEventListener('change', () => {
         commitment[input.dataset.field] = input.value;
+        const unreadable =
+          input.dataset.field === 'window' && input.value && !parseCommitment(commitment);
+        input.setCustomValidity(unreadable ? 'Use a range like 6:00 PM - 8:00 PM' : '');
+        input.classList.toggle('invalid', Boolean(unreadable));
+        if (unreadable) input.reportValidity();
         rebuild();
       })
     );
@@ -578,6 +712,7 @@ function renderCommitments() {
 /** Accepts a calendar export or a simple CSV. */
 async function importCommitments(file) {
   const text = await file.text();
+  const found = [];
 
   if (/BEGIN:VCALENDAR/i.test(text)) {
     const events = text.split(/BEGIN:VEVENT/i).slice(1);
@@ -587,7 +722,7 @@ async function importCommitments(file) {
       const summary = event.match(/SUMMARY:(.*)/i);
       if (!start) continue;
       const date = `${start[1].slice(0, 4)}-${start[1].slice(4, 6)}-${start[1].slice(6, 8)}`;
-      state.commitments.push({
+      found.push({
         date,
         window: `${start[2] || '00'}:${start[3] || '00'} - ${end?.[2] || '23'}:${
           end?.[3] || '59'
@@ -600,10 +735,32 @@ async function importCommitments(file) {
     for (const line of lines) {
       const [date, start, end, label] = line.split(',').map((v) => v?.trim());
       if (date && start && end) {
-        state.commitments.push({ date, window: `${start} - ${end}`, label: label || 'busy' });
+        found.push({ date, window: `${start} - ${end}`, label: label || 'busy' });
       }
     }
   }
+
+  // A whole work calendar is mostly irrelevant; only festival days matter.
+  const days = new Set(state.festival?.days || []);
+  const kept = days.size ? found.filter((c) => days.has(c.date)) : found;
+  state.commitments.push(...kept);
+
+  const report = $('#commitments-report');
+  report.hidden = false;
+  report.className = `report${kept.length ? '' : ' error'}`;
+  const skipped = found.length - kept.length;
+  report.innerHTML =
+    `<p class="report-title">${
+      kept.length
+        ? `Added ${kept.length} ${kept.length === 1 ? 'commitment' : 'commitments'} from ${escapeHTML(file.name)}`
+        : `Nothing added from ${escapeHTML(file.name)}`
+    }</p>` +
+    (skipped
+      ? `<p class="muted small">${skipped} ${skipped === 1 ? 'event' : 'events'} outside the festival's dates ${
+          skipped === 1 ? 'was' : 'were'
+        } left out.</p>`
+      : '') +
+    (!found.length ? '<p class="muted small">No events with a date and time were found in it.</p>' : '');
 
   renderCommitments();
   rebuild();
@@ -648,20 +805,50 @@ function rebuild() {
 
   renderPlan();
   saveSession();
-  $('.step[data-step="4"]').removeAttribute('disabled');
+  updateChrome();
 }
 
-function stars(value) {
-  const filled = Math.round(value);
-  return `<span class="stars">${'★'.repeat(filled)}<span class="off">${'★'.repeat(
-    Math.max(0, 5 - filled)
-  )}</span></span>`;
+/** Five diamonds, filled to the rounded prediction. */
+function diamonds(value) {
+  const filled = Math.max(0, Math.min(5, Math.round(value)));
+  return (
+    `<span class="diamonds" role="img" aria-label="Predicted ${value.toFixed(1)} out of 5">` +
+    '<i></i>'.repeat(filled) +
+    '<i class="off"></i>'.repeat(5 - filled) +
+    '</span>'
+  );
+}
+
+const plural = (count, word) => `${count} ${count === 1 ? word : `${word}s`}`;
+
+const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/** "Thriller · Drama · 89 min", the facts that decide a glance. */
+function filmFacts(film) {
+  const genres = film.entities?.genre?.length
+    ? film.entities.genre.slice(0, 2).map(capitalise)
+    : film.genre
+      ? [film.genre]
+      : [];
+  return [...genres, film.runtime ? `${film.runtime} min` : ''].filter(Boolean).join(' · ');
+}
+
+function clock(minutes) {
+  const [time, ampm] = formatTime(minutes).split(' ');
+  return `<span class="clock">${time}</span><span class="ampm">${ampm}</span>`;
+}
+
+function hoursText(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const rest = Math.round(minutes % 60);
+  if (!hours) return `${rest} min`;
+  return rest ? `${hours}h ${rest}m` : `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
 }
 
 function renderPlan() {
   const strength = profileStrength(state.library.length);
   $('#strength').className = `strength ${strength.level}`;
-  $('#strength').innerHTML = `<b>${strength.headline}</b><span>${strength.detail}</span>`;
+  $('#strength').innerHTML = `<b>${escapeHTML(strength.headline)}.</b>${escapeHTML(strength.detail)}`;
 
   const single = onlyChances(state.schedule);
   const plan = $('#plan');
@@ -672,104 +859,26 @@ function renderPlan() {
 
     const section = document.createElement('section');
     section.className = 'day';
-    const heading = new Date(`${day.date}T12:00:00`).toLocaleDateString(undefined, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    });
-    section.innerHTML = `<h3>${heading}</h3>`;
+    const when = new Date(`${day.date}T12:00:00`);
+    const weekday = when.toLocaleDateString(undefined, { weekday: 'long' });
+    const date = when.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+    const gaps = findGaps(day);
+    const free = gaps.reduce((sum, gap) => sum + (gap.end - gap.start), 0);
+    section.innerHTML =
+      `<div class="day-head"><h3 class="weekday">${escapeHTML(weekday)}</h3>` +
+      `<span class="date">${escapeHTML(date)}</span>` +
+      `<span class="summary">${day.picks.length} ${day.picks.length === 1 ? 'film' : 'films'}` +
+      `${free ? ` · ${hoursText(free)} free` : ''}</span></div>`;
 
-    for (const pick of day.picks) {
-      const film = pick.film;
-      const id = screeningId(pick);
-      const unrated = film.scoreable === false;
-
-      // Say what the score was actually built on. "Themes" on its own tells
-      // someone nothing about whether to trust it.
-      const people = film.reasons?.people
-        ?.map(
-          (person) =>
-            `you rated ${person.films} ${
-              person.films === 1 ? 'film' : 'films'
-            } with ${person.name} ${person.average.toFixed(1)}★`
-        )
-        .join(' · ');
-      const themes = film.reasons?.keywords?.length
-        ? `themes you've rated before: ${film.reasons.keywords.join(', ')}`
-        : '';
-      const genres = film.reasons?.genres
-        ?.map(
-          (genre) =>
-            `you rate ${genre.name} ${genre.average.toFixed(1)}★ on average ` +
-            `across ${genre.films} films`
-        )
-        .join(' · ');
-      // Names, themes and genres come from film data, so they are escaped as a
-      // whole before going into the page.
-      const reasons = escapeHTML(
-        [people, themes, genres].filter(Boolean).join(' · ') ||
-          'Nothing in your history connects to this one — scored on its description alone.'
-      );
-
-      const row = document.createElement('div');
-      row.className = `slot picked${pick.pinned ? ' pinned' : ''}`;
-      row.innerHTML =
-        `<div class="time">${formatTime(pick.start)}</div>` +
-        poster(film) +
-        `<div>` +
-        `<div class="title"><button class="disclose" aria-expanded="false"` +
-        ` aria-label="Details for ${escapeAttribute(film.title)}"></button>` +
-        `${escapeHTML(film.title)}` +
-        (film.kind === 'event' ? '<span class="badge event">event</span>' : '') +
-        (unrated ? '<span class="badge unrated">not rated</span>' : '') +
-        (film.confidence === 'low' && !unrated
-          ? '<span class="badge low">little to go on</span>'
-          : '') +
-        (single.has(film.title) ? '<span class="badge only">only chance</span>' : '') +
-        `</div>` +
-        `<div class="detail">${
-          unrated ? 'No ratings history can predict this one — your call.' : reasons
-        }${film.runtime ? ` · ${film.runtime} min` : ''}</div>` +
-        `</div>` +
-        `<div>${unrated ? '' : stars(film.prediction)}` +
-        `<div class="actions">` +
-        `<button class="ghost" data-swap>Swap</button>` +
-        `<button class="ghost" data-drop>Drop</button>` +
-        `</div></div>`;
-
-      row.querySelector('[data-drop]').addEventListener('click', () => {
-        state.excluded.add(film.title);
-        state.pinned.delete(id);
-        rebuild();
-      });
-      row.querySelector('[data-swap]').addEventListener('click', () =>
-        showAlternatives(row, day, pick)
-      );
-
-      // The synopsis is what decides a toss-up between two films, but it is
-      // too long to sit in every row - so it opens on demand.
-      const details = document.createElement('div');
-      details.className = 'synopsis';
-      details.hidden = true;
-      details.innerHTML = filmDetails(film, pick);
-
-      const toggle = row.querySelector('.disclose');
-      const open = () => {
-        const showing = details.hidden;
-        details.hidden = !showing;
-        toggle.setAttribute('aria-expanded', String(showing));
-        row.classList.toggle('open', showing);
-      };
-      toggle.addEventListener('click', open);
-      // The whole row is a target too, except where it would steal a click.
-      row.addEventListener('click', (event) => {
-        if (!event.target.closest('button')) open();
-      });
-
-      section.appendChild(row);
-      section.appendChild(details);
+    // Picks and gaps interleave by start time, so the day reads top to bottom.
+    const entries = [
+      ...day.picks.map((pick) => ({ start: pick.start, row: () => pickRow(day, pick, single) })),
+      ...gaps.map((gap) => ({ start: gap.start, row: () => gapRow(day, gap) })),
+    ].sort((a, b) => a.start - b.start);
+    for (const entry of entries) {
+      const row = entry.row();
+      if (row) section.appendChild(row);
     }
-    renderGaps(section, day);
     plan.appendChild(section);
   }
 
@@ -778,32 +887,68 @@ function renderPlan() {
   renderRatingsShare();
 }
 
+function pickRow(day, pick, single) {
+  const film = pick.film;
+  const id = screeningId(pick);
+  const unrated = film.scoreable === false;
+  const bodyId = `card-${id.replace(/[^a-z0-9]/gi, '-')}`;
+
+  const badges =
+    (film.kind === 'event' ? '<span class="badge">Event</span>' : '') +
+    (unrated ? '<span class="badge">Not rated</span>' : '') +
+    (film.confidence === 'low' && !unrated ? '<span class="badge">Little to go on</span>' : '') +
+    (single.has(film.title) ? '<span class="badge hot">Only chance</span>' : '') +
+    (pick.pinned ? '<span class="badge">Your pick</span>' : '');
+
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML =
+    `<div class="time">${clock(pick.start)}</div>` +
+    '<div class="rail"><i class="marker"></i></div>' +
+    `<article class="card">` +
+    `<button class="card-head" aria-expanded="false" aria-controls="${bodyId}">` +
+    poster(film) +
+    `<span class="card-title"><span class="name">${escapeHTML(film.title)}</span>` +
+    `<span class="meta">${escapeHTML(filmFacts(film))}${badges}</span></span>` +
+    `<span class="card-side">${unrated ? '' : diamonds(film.prediction)}<span class="chev" aria-hidden="true"></span></span>` +
+    `</button>` +
+    `<div class="card-body" id="${bodyId}"><div class="clip">` +
+    `<div class="card-detail">${filmDetails(film, pick, badges)}</div>` +
+    `</div></div></article>`;
+
+  const card = row.querySelector('.card');
+  const head = row.querySelector('.card-head');
+  const clip = row.querySelector('.clip');
+  const setOpen = (open) => {
+    card.classList.toggle('open', open);
+    head.setAttribute('aria-expanded', String(open));
+    // Closed detail stays out of the tab order and away from screen readers.
+    clip.inert = !open;
+    if (open) state.openCards.add(id);
+    else state.openCards.delete(id);
+  };
+  setOpen(state.openCards.has(id));
+  head.addEventListener('click', () => setOpen(!card.classList.contains('open')));
+
+  row.querySelector('[data-drop]').addEventListener('click', () => {
+    state.excluded.add(film.title);
+    state.pinned.delete(id);
+    state.openCards.delete(id);
+    rebuild();
+  });
+  row.querySelector('[data-swap]').addEventListener('click', () => {
+    const existing = clip.querySelector('.alternatives');
+    if (existing) return existing.remove();
+    clip.appendChild(alternativesPanel(day, pick));
+  });
+  return row;
+}
+
 /**
  * What else was showing at that time, so a pick can be overruled knowingly.
  * Shown inline rather than in a dialog: choosing between films means reading
  * what they are, and a one-line prompt can't show that.
- */
-/**
- * Where a panel for this row belongs: after the row's own synopsis if that is
- * showing, so a film and its description are never split by something else.
- */
-function anchorFor(row) {
-  const next = row.nextElementSibling;
-  return next?.classList.contains('synopsis') ? next : row;
-}
-
-/** Open a panel under a row, or close it if it is already open. */
-function togglePanel(row, build) {
-  const anchor = anchorFor(row);
-  const existing = anchor.nextElementSibling;
-  if (existing?.classList.contains('alternatives')) {
-    existing.remove();
-    return;
-  }
-  anchor.after(build());
-}
-
-/**
+ *
  * Make `chosen` the pick for its time slot.
  *
  * This replaces whatever was pinned in that slot rather than marking the
@@ -815,18 +960,34 @@ function pinInstead(day, chosen) {
   for (const entry of day.all) {
     if (entry.film && entry.start < chosen.end && chosen.start < entry.end) {
       state.pinned.delete(screeningId(entry));
+      state.openCards.delete(screeningId(entry));
     }
   }
   state.excluded.delete(chosen.film.title);
   state.pinned.add(screeningId(chosen));
 }
 
-function showAlternatives(row, day, pick) {
-  togglePanel(row, () => alternativesPanel(day, pick));
+function altRow(entry, { label, action, primary = false, extraBadge = '' }) {
+  const film = entry.film;
+  return (
+    `<div class="alt"><div>` +
+    `<div class="alt-title">${escapeHTML(film.title)}` +
+    (film.kind === 'event' ? '<span class="badge">Event</span>' : '') +
+    (entry.blockedBy ? '<span class="badge">During a commitment</span>' : '') +
+    extraBadge +
+    `</div>` +
+    `<p class="detail"><span class="when">${formatTime(entry.start)}</span>` +
+    `${film.runtime ? ` · ${film.runtime} min` : ''}` +
+    (film.scoreable === false
+      ? ' · Not rated — your call'
+      : ` · Predicted ${film.prediction.toFixed(1)}★`) +
+    (film.synopsis ? `<span class="syn">${escapeHTML(film.synopsis)}</span>` : '') +
+    `</p></div>` +
+    `<button class="btn${primary ? ' primary' : ''}" data-${action}>${label}</button></div>`
+  );
 }
 
 function alternativesPanel(day, pick) {
-
   const options = day.all
     .filter(
       (entry) =>
@@ -838,48 +999,23 @@ function alternativesPanel(day, pick) {
     )
     .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0));
 
-  if (!options.length) return emptyAlternatives();
-
   const panel = document.createElement('div');
   panel.className = 'alternatives';
+  if (!options.length) {
+    panel.innerHTML = '<p class="intro">Nothing else is showing in that slot.</p>';
+    return panel;
+  }
   panel.innerHTML =
-    `<p class="muted">Also showing against ${escapeHTML(pick.film.title)}:</p>` +
-    options
-      .map(
-        (entry, index) => `
-      <div class="alt">
-        ${poster(entry.film, 38)}
-        <div>
-          <b>${escapeHTML(entry.film.title)}</b>
-          ${entry.film.kind === 'event' ? '<span class="badge event">event</span>' : ''}
-          ${entry.blockedBy ? '<span class="badge low">during a commitment</span>' : ''}
-          <div class="detail">${formatTime(entry.start)}${
-            entry.film.runtime ? ` · ${entry.film.runtime} min` : ''
-          }${
-            entry.film.scoreable === false
-              ? ' · not rated — your call'
-              : ` · predicted ${entry.film.prediction.toFixed(1)}★`
-          }${entry.film.synopsis ? `<br>${escapeHTML(entry.film.synopsis)}` : ''}</div>
-        </div>
-        <button class="ghost" data-pick="${index}">Use this instead</button>
-      </div>`
-      )
-      .join('');
+    `<p class="intro">Also showing against ${escapeHTML(pick.film.title)}</p>` +
+    options.map((entry) => altRow(entry, { label: 'Use this instead', action: 'pick' })).join('');
 
-  panel.querySelectorAll('[data-pick]').forEach((button) =>
+  panel.querySelectorAll('[data-pick]').forEach((button, index) =>
     button.addEventListener('click', () => {
-      pinInstead(day, options[Number(button.dataset.pick)]);
+      pinInstead(day, options[index]);
+      state.openCards.add(screeningId(options[index]));
       rebuild();
     })
   );
-
-  return panel;
-}
-
-function emptyAlternatives() {
-  const panel = document.createElement('div');
-  panel.className = 'alternatives';
-  panel.innerHTML = '<p class="muted">Nothing else is showing in that slot.</p>';
   return panel;
 }
 
@@ -890,26 +1026,47 @@ const escapeHTML = (value) =>
   );
 
 const escapeAttribute = (value) =>
-  String(value ?? '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /**
- * Poster, or a labelled placeholder. A premiere often has no artwork anywhere
- * yet, and initials explain themselves better than a broken-image icon.
+ * Poster, or a labelled placeholder. Posters come from the festival file, and
+ * a premiere often has no artwork anywhere yet - initials explain themselves
+ * better than a broken-image icon. The image host is told nothing about which
+ * page asked for it, and a link that fails to load falls back to initials.
  */
-function poster(film, size = 46) {
-  if (film.poster) {
+function poster(film) {
+  if (isPosterURL(film.poster)) {
     return `<img class="poster" src="${escapeAttribute(film.poster)}" alt=""
-      loading="lazy" width="${size}" height="${Math.round(size * 1.5)}">`;
+      loading="lazy" decoding="async" referrerpolicy="no-referrer" width="56" height="84"
+      data-initials="${escapeAttribute(initials(film))}">`;
   }
-  const initials = String(film.title || '?')
+  return `<span class="poster empty" aria-hidden="true">${escapeHTML(initials(film))}</span>`;
+}
+
+function initials(film) {
+  return String(film.title || '?')
     .replace(/^(the|a|an) /i, '')
     .split(/\s+/)
     .slice(0, 2)
     .map((word) => word[0] || '')
     .join('')
     .toUpperCase();
-  return `<span class="poster empty" aria-hidden="true">${escapeHTML(initials)}</span>`;
 }
+
+// A poster link that has moved or expired shows initials instead of a hole.
+document.addEventListener(
+  'error',
+  (event) => {
+    const img = event.target;
+    if (!(img instanceof HTMLImageElement) || !img.classList.contains('poster')) return;
+    const fallback = document.createElement('span');
+    fallback.className = 'poster empty';
+    fallback.setAttribute('aria-hidden', 'true');
+    fallback.textContent = img.dataset.initials || '';
+    img.replaceWith(fallback);
+  },
+  true
+);
 
 /**
  * Letterboxd organises people by a slug of their name. Building it from the
@@ -921,7 +1078,7 @@ function poster(film, size = 46) {
 function letterboxdLink(name, role) {
   const slug = String(name)
     .normalize('NFD')
-    .replace(/[\u0300-\u036F]/g, '')
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .replace(/['’.]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
@@ -936,38 +1093,64 @@ function letterboxdLink(name, role) {
 const peopleLinks = (names, role) =>
   names.map((name) => letterboxdLink(name, role)).join(', ');
 
-/** What's worth knowing before deciding: the synopsis, then the credits. */
-function filmDetails(film, pick) {
+/** Say what the score was actually built on. */
+function reasonText(film) {
+  const people = film.reasons?.people
+    ?.map(
+      (person) =>
+        `you rated ${person.films} ${person.films === 1 ? 'film' : 'films'} with ` +
+        `${person.name} ${person.average.toFixed(1)}★`
+    )
+    .join('; ');
+  const themes = film.reasons?.keywords?.length
+    ? `themes you've rated before: ${film.reasons.keywords.join(', ')}`
+    : '';
+  const genres = film.reasons?.genres
+    ?.map(
+      (genre) =>
+        `you rate ${genre.name} ${genre.average.toFixed(1)}★ on average across ${genre.films} films`
+    )
+    .join('; ');
+  return (
+    [people, themes, genres].filter(Boolean).join('; ') ||
+    'nothing in your history connects to this one, so it was scored on its description alone'
+  );
+}
+
+/** What's worth knowing before deciding: why, the synopsis, then the credits. */
+function filmDetails(film, pick, badges) {
   const rows = [];
   const people = film.entities || {};
-  if (people.director?.length) {
-    rows.push(['Director', peopleLinks(people.director, 'director')]);
-  }
-  if (people.writer?.length) {
-    rows.push(['Writer', peopleLinks(people.writer.slice(0, 3), 'writer')]);
-  }
-  if (people.cast?.length) {
-    rows.push(['Cast', peopleLinks(people.cast.slice(0, 5), 'actor')]);
-  }
+  if (people.director?.length) rows.push(['Director', peopleLinks(people.director, 'director')]);
+  if (people.writer?.length) rows.push(['Writer', peopleLinks(people.writer.slice(0, 3), 'writer')]);
+  if (people.cast?.length) rows.push(['Cast', peopleLinks(people.cast.slice(0, 5), 'actor')]);
   if (film.country) rows.push(['Country', escapeHTML(film.country)]);
-  if (film.section) rows.push(['Programme', escapeHTML(film.section)]);
-  if (film.runtime) rows.push(['Runtime', `${film.runtime} min`]);
-  rows.push(['Showing', `${formatTime(pick.start)}, ${pick.date}`]);
+  if (film.section) rows.push(['Section', escapeHTML(film.section)]);
+  const ends = pick.start + (film.runtime || 0);
+  rows.push(['Showing', `${formatTime(pick.start)}${film.runtime ? `–${formatTime(ends)}` : ''}`]);
 
-  const facts = rows
-    .map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`)
-    .join('');
-
+  const unrated = film.scoreable === false;
   const hasLinks = people.director?.length || people.cast?.length;
+  // Names, themes and genres come from film data, so everything is escaped.
   return (
+    `<div class="stack">` +
+    `<p class="meta mobile-meta">${escapeHTML(filmFacts(film))}${badges}</p>` +
+    `<p class="why"><b>Why it's here:</b>${
+      unrated ? 'No ratings history can predict this one — your call.' : `${escapeHTML(capitalise(reasonText(film)))}.`
+    }</p>` +
     (film.synopsis
-      ? `<p>${escapeHTML(film.synopsis)}</p>`
-      : '<p class="muted">No synopsis published.</p>') +
-    `<dl>${facts}</dl>` +
+      ? `<p class="synopsis">${escapeHTML(film.synopsis)}</p>`
+      : '<p class="synopsis none">No synopsis published.</p>') +
+    `<div class="card-actions"><button class="btn" data-swap>Swap for another film</button>` +
+    `<button class="btn quiet" data-drop>Drop</button></div>` +
+    `</div>` +
+    `<div class="stack"><dl class="credits">${rows
+      .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
+      .join('')}</dl>` +
     (hasLinks
-      ? '<p class="caveat">Name links go to Letterboxd. They are built from' +
-        ' the name, so a first-time director may not have a page yet.</p>'
-      : '')
+      ? '<p class="caveat">Name links go to Letterboxd. A first-time director may not have a page yet.</p>'
+      : '') +
+    `</div>`
   );
 }
 
@@ -975,18 +1158,16 @@ function filmDetails(film, pick) {
 const SHORTEST_USEFUL_GAP = 45;
 
 /**
- * Free time in a day, offered as something to fill.
+ * Free stretches of a day that something could fill.
  *
  * This is also how a film comes back after being dropped by accident: the
  * gap it left is visible, and everything that fits it - including the thing
  * just dropped - is one click away.
  */
-function renderGaps(section, day) {
+function findGaps(day) {
   const picks = [...day.picks].sort((a, b) => a.start - b.start);
-  const candidates = day.all.filter(
-    (entry) => entry.film && !entry.blockedBy
-  );
-  if (!candidates.length) return;
+  const candidates = day.all.filter((entry) => entry.film && !entry.blockedBy);
+  if (!candidates.length) return [];
 
   const dayStart = Math.min(...candidates.map((entry) => entry.start));
   const dayEnd = Math.max(...candidates.map((entry) => entry.end));
@@ -994,88 +1175,79 @@ function renderGaps(section, day) {
   const gaps = [];
   let cursor = dayStart;
   for (const pick of picks) {
-    if (pick.start - cursor >= SHORTEST_USEFUL_GAP) {
-      gaps.push({ start: cursor, end: pick.start });
-    }
+    if (pick.start - cursor >= SHORTEST_USEFUL_GAP) gaps.push({ start: cursor, end: pick.start });
     cursor = Math.max(cursor, pick.end);
   }
-  if (dayEnd - cursor >= SHORTEST_USEFUL_GAP) {
-    gaps.push({ start: cursor, end: dayEnd });
-  }
+  if (dayEnd - cursor >= SHORTEST_USEFUL_GAP) gaps.push({ start: cursor, end: dayEnd });
 
-  for (const gap of gaps) {
-    const fits = day.all
-      .filter(
-        (entry) =>
-          entry.film &&
-          !entry.blockedBy &&
-          entry.start >= gap.start &&
-          entry.end <= gap.end &&
-          !picks.some((pick) => pick.film.title === entry.film.title)
-      )
-      .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0));
-    if (!fits.length) continue;
-
-    const row = document.createElement('div');
-    row.className = 'slot gap';
-    row.innerHTML =
-      `<div class="time">${formatTime(gap.start)}</div>` +
-      `<span class="poster empty" aria-hidden="true">+</span>` +
-      `<div><div class="title">Nothing planned` +
-      `<span class="detail">${Math.round((gap.end - gap.start) / 60)} hours ` +
-      `free · ${fits.length} ${fits.length === 1 ? 'film' : 'films'} ` +
-      `fit here</span></div></div>` +
-      `<div class="actions"><button class="ghost">Add a film</button></div>`;
-
-    row.querySelector('button').addEventListener('click', (event) => {
-      event.stopPropagation();
-      togglePanel(row, () => gapPanel(day, gap, fits));
-    });
-
-    section.appendChild(row);
-  }
+  return gaps
+    .map((gap) => ({
+      ...gap,
+      fits: day.all
+        .filter(
+          (entry) =>
+            entry.film &&
+            !entry.blockedBy &&
+            entry.start >= gap.start &&
+            entry.end <= gap.end &&
+            !picks.some((pick) => pick.film.title === entry.film.title)
+        )
+        .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0)),
+    }))
+    .filter((gap) => gap.fits.length);
 }
 
-/** Everything that fits a free stretch of the day, best first. */
-function gapPanel(day, gap, fits) {
-  const panel = document.createElement('div');
-  panel.className = 'alternatives';
-  panel.innerHTML =
-    `<p class="muted">Fits between ${formatTime(gap.start)} and ` +
-    `${formatTime(gap.end)}:</p>` +
-    fits
-      .map(
-        (entry, index) => `
-      <div class="alt">
-        ${poster(entry.film, 38)}
-        <div>
-          <b>${escapeHTML(entry.film.title)}</b>
-          ${state.excluded.has(entry.film.title)
-            ? '<span class="badge low">you dropped this</span>'
-            : ''}
-          <div class="detail">${formatTime(entry.start)}${
-            entry.film.runtime ? ` · ${entry.film.runtime} min` : ''
-          }${
-            entry.film.scoreable === false
-              ? ' · not rated — your call'
-              : ` · predicted ${entry.film.prediction.toFixed(1)}★`
-          }${entry.film.synopsis
-            ? `<br>${escapeHTML(entry.film.synopsis)}`
-            : ''}</div>
-        </div>
-        <button class="ghost" data-add="${index}">Add</button>
-      </div>`
-      )
-      .join('');
+const FITS_SHOWN = 3;
 
-  panel.querySelectorAll('[data-add]').forEach((button) =>
+function gapRow(day, gap) {
+  const { fits } = gap;
+  // At the daily limit, adding a film pushes the weakest pick out. Say so
+  // before it happens rather than letting a film silently vanish.
+  const limit = Number($('#max-per-day').value) || Infinity;
+  const full = day.picks.length >= limit;
+  const row = document.createElement('div');
+  row.className = 'row free';
+  row.innerHTML =
+    `<div class="time">${clock(gap.start)}</div>` +
+    '<div class="rail"><i class="marker hollow"></i></div>' +
+    `<div class="free-box">` +
+    `<div class="free-head"><div><p class="name">Nothing planned</p>` +
+    `<p class="meta">${hoursText(gap.end - gap.start)} free, until ${formatTime(gap.end)} · ` +
+    `${fits.length} ${fits.length === 1 ? 'film fits' : 'films fit'}</p>` +
+    (full
+      ? `<p class="meta full-note">This day already has ${limit} films, your limit — adding one ` +
+        'replaces your lowest-rated pick. Raise the limit on Your time to keep both.</p>'
+      : '') +
+    `</div></div>` +
+    `<div class="alternatives">${fits
+      .map((entry, index) =>
+        altRow(entry, {
+          label: 'Add',
+          action: 'add',
+          primary: true,
+          extraBadge: state.excluded.has(entry.film.title)
+            ? '<span class="badge">You dropped this</span>'
+            : '',
+        }).replace('<div class="alt"', `<div class="alt"${index >= FITS_SHOWN ? ' hidden' : ''}`)
+      )
+      .join('')}` +
+    (fits.length > FITS_SHOWN
+      ? `<p><button class="linkish" data-more>Show ${fits.length - FITS_SHOWN} more</button></p>`
+      : '') +
+    `</div></div>`;
+
+  row.querySelectorAll('[data-add]').forEach((button, index) =>
     button.addEventListener('click', () => {
       // Adding something back is also how a drop is undone.
-      pinInstead(day, fits[Number(button.dataset.add)]);
+      pinInstead(day, fits[index]);
       rebuild();
     })
   );
-  return panel;
+  row.querySelector('[data-more]')?.addEventListener('click', (event) => {
+    row.querySelectorAll('.alt[hidden]').forEach((alt) => (alt.hidden = false));
+    event.target.closest('p').remove();
+  });
+  return row;
 }
 
 function renderMissed(plan) {
@@ -1083,19 +1255,19 @@ function renderMissed(plan) {
   if (!missed.length) return;
 
   const details = document.createElement('details');
-  details.className = 'missed';
+  details.className = 'fold plan-extra';
   details.innerHTML =
     `<summary>${state.schedule.missed.length} films you're missing, and why</summary>` +
-    `<ul>${missed
+    `<div class="fold-body"><ul>${missed
       .map(
         (item) =>
-          `<li><b>${escapeHTML(item.film.title)}</b> — ${item.reason}${
+          `<li><span><b>${escapeHTML(item.film.title)}</b> <span class="why">— ${escapeHTML(item.reason)}${
             item.film.scoreable === false
               ? ''
               : ` (predicted ${item.film.prediction.toFixed(1)}★)`
-          }</li>`
+          }</span></span></li>`
       )
-      .join('')}</ul>`;
+      .join('')}</ul></div>`;
   plan.appendChild(details);
 }
 
@@ -1103,16 +1275,16 @@ function renderDropped(plan) {
   if (!state.excluded.size) return;
 
   const details = document.createElement('details');
-  details.className = 'missed';
+  details.className = 'fold plan-extra';
   details.innerHTML =
     `<summary>${state.excluded.size} you dropped</summary>` +
-    `<ul>${[...state.excluded]
+    `<div class="fold-body"><ul>${[...state.excluded]
       .map(
         (title) =>
-          `<li>${escapeHTML(title)} <button class="ghost" ` +
-          `data-undrop="${escapeAttribute(title)}">put back</button></li>`
+          `<li><b>${escapeHTML(title)}</b><button class="btn" ` +
+          `data-undrop="${escapeAttribute(title)}">Put back</button></li>`
       )
-      .join('')}</ul>`;
+      .join('')}</ul></div>`;
   details.querySelectorAll('[data-undrop]').forEach((button) =>
     button.addEventListener('click', () => {
       state.excluded.delete(button.dataset.undrop);
@@ -1172,13 +1344,40 @@ function setStatus(html, isError = false) {
   box.innerHTML = html;
 }
 
+/** The title shows the festival once there is one; the steps show progress. */
+function updateChrome() {
+  const name = state.festival?.festival;
+  const match = name?.match(/^(.*\S)\s+(\d{4})$/);
+  $('#masthead-kicker').textContent = name ? "Meta's Nifty Film Fest Scheduler" : "Meta's Nifty";
+  $('#masthead-name').textContent = name ? (match ? match[1] : name) : 'Film Fest';
+  $('#masthead-year').textContent = name ? (match ? match[2] : '') : 'Scheduler';
+  $('#masthead-year').hidden = Boolean(name && !match);
+  document.title = name ? `${name} · Meta's Nifty Film Fest Scheduler` : "Meta's Nifty Film Fest Scheduler";
+
+  const done = {
+    1: state.library.length > 0,
+    2: Boolean(state.festival),
+    3: Boolean(state.schedule),
+    4: false,
+  };
+  $$('.step').forEach((button) => {
+    const step = Number(button.dataset.step);
+    const current = step === state.step;
+    if (current) button.setAttribute('aria-current', 'step');
+    else button.removeAttribute('aria-current');
+    button.classList.toggle('done', done[step] && !current);
+    button.classList.toggle('lit', step > 1 && done[step - 1]);
+  });
+  $('#to-festival').disabled = !done[1];
+  $('#to-time').disabled = !done[2];
+}
+
 function showStep(step) {
+  state.step = step;
   $$('.panel').forEach((panel) => {
     panel.hidden = panel.id !== `panel-${step}`;
   });
-  $$('.step').forEach((button) =>
-    button.setAttribute('aria-current', String(Number(button.dataset.step) === step))
-  );
+  updateChrome();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

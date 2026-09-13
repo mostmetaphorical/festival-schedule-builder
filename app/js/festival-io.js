@@ -71,14 +71,14 @@ export function validateFestival(data) {
 
   if (orphans) {
     errors.push(
-      `${orphans} screenings name a film that isn't in the lineup. ` +
-      `Titles have to match exactly.`
+      `${orphans === 1 ? '1 screening names' : `${orphans} screenings name`} a film ` +
+      `that isn't in the lineup. Titles have to match exactly.`
     );
   }
   if (missingRuntime) {
     warnings.push(
-      `${missingRuntime} screenings have no runtime, so the scheduler will ` +
-      `assume two hours and may overlap them.`
+      `${missingRuntime === 1 ? '1 screening has' : `${missingRuntime} screenings have`} ` +
+      `no runtime, so the scheduler will assume two hours and may overlap them.`
     );
   }
 
@@ -92,7 +92,8 @@ export function validateFestival(data) {
   if (withPeople / data.films.length < 0.3) {
     warnings.push(
       `Only ${withPeople} of ${data.films.length} films list a director or ` +
-      `cast. Recommendations will be weak - run enrich_festival.py if you can.`
+      `cast, so recommendations will be weak. Fill in director, cast, genre ` +
+      `and keywords where you can.`
     );
   }
 

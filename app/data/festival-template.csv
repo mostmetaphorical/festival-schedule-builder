@@ -1,0 +1,5 @@
+festival,title,date,time,runtime,year,director,writer,cast,genre,keywords,section,country,venue,kind,poster,synopsis
+Some Fest 2027,A Film,2027-03-04,7:30 PM,94,2027,A Director,A Writer; Another Writer,An Actor; Another Actor,horror; thriller,revenge; small town,Main Competition,Canada,Theatre 1,film,https://example.org/posters/a-film.jpg,"One or two sentences about the film. Commas are fine inside quotes."
+Some Fest 2027,A Film,2027-03-06,1:00 PM,94,,,,,,,,,Theatre 2,film,,
+Some Fest 2027,Another Film,2027-03-04,21:45,102,2026,Someone Else,,Third Actor,drama,,Midnight,France,Theatre 1,film,https://example.org/posters/another-film.jpg,A second film. Its details only need to appear on one of its rows.
+Some Fest 2027,Opening Night Party,2027-03-04,11:00 PM,120,,,,,,,,,The Bar,event,,Parties and live shows are listed but not rated.

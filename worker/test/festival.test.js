@@ -62,13 +62,36 @@ test('markup in any text field is refused', () => {
   rejects(titled, /aren't allowed/);
 });
 
-test('posters only from TMDB', () => {
-  const data = minimal();
-  data.films[0].poster = 'https://tracker.example/pixel.gif';
-  assert.equal(validateFestival(data).films[0].poster, undefined);
+test('posters must be plain https addresses', () => {
+  const poster = (value) => {
+    const data = minimal();
+    data.films[0].poster = value;
+    return validateFestival(data).films[0].poster;
+  };
+  const festivalCdn = 'https://images.somefest.example/posters/a-film.jpg?w=400';
+  assert.equal(poster(festivalCdn), festivalCdn);
 
-  data.films[0].poster = 'https://image.tmdb.org/t/p/w154/abc123.jpg';
-  assert.equal(validateFestival(data).films[0].poster, data.films[0].poster);
+  for (const bad of [
+    'http://images.somefest.example/a.jpg',
+    'javascript:alert(1)',
+    'data:image/png;base64,AAAA',
+    'https://user:pass@images.somefest.example/a.jpg',
+    'https://images.somefest.example/a.jpg" onerror="alert(1)',
+    'https://images.somefest.example/<a>.jpg',
+    `https://images.somefest.example/${'a'.repeat(600)}.jpg`,
+    'https://localhost/a.jpg',
+    '/relative/a.jpg',
+  ]) {
+    assert.equal(poster(bad), undefined, bad);
+  }
+});
+
+test('the summary lists where posters come from, for the reviewer', () => {
+  const data = minimal();
+  data.films[0].poster = 'https://images.somefest.example/a.jpg';
+  const { summary } = validateFestival(data);
+  assert.equal(summary.posters, 1);
+  assert.deepEqual(summary.posterHosts, ['images.somefest.example']);
 });
 
 test('screenings must name a film in the lineup', () => {

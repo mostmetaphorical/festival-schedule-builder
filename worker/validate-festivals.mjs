@@ -31,7 +31,8 @@ for (const entry of index.festivals) {
     }
     console.log(
       `ok   ${entry.id}: ${summary.films} films, ${summary.screenings} screenings, ` +
-        `${summary.from} to ${summary.to}`
+        `${summary.from} to ${summary.to}, ${summary.posters} posters` +
+        (summary.posterHosts.length ? ` from ${summary.posterHosts.join(', ')}` : '')
     );
   } catch (error) {
     console.error(`FAIL ${entry.id}: ${error.message}`);
