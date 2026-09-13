@@ -608,12 +608,49 @@ function renderPlan() {
  * Shown inline rather than in a dialog: choosing between films means reading
  * what they are, and a one-line prompt can't show that.
  */
-function showAlternatives(row, day, pick) {
-  const existing = row.nextElementSibling;
+/**
+ * Where a panel for this row belongs: after the row's own synopsis if that is
+ * showing, so a film and its description are never split by something else.
+ */
+function anchorFor(row) {
+  const next = row.nextElementSibling;
+  return next?.classList.contains('synopsis') ? next : row;
+}
+
+/** Open a panel under a row, or close it if it is already open. */
+function togglePanel(row, build) {
+  const anchor = anchorFor(row);
+  const existing = anchor.nextElementSibling;
   if (existing?.classList.contains('alternatives')) {
     existing.remove();
     return;
   }
+  anchor.after(build());
+}
+
+/**
+ * Make `chosen` the pick for its time slot.
+ *
+ * This replaces whatever was pinned in that slot rather than marking the
+ * displaced film as dropped - a swap is "this instead of that, here", not
+ * "never show me that again". The displaced film stays available, so it
+ * appears among the alternatives and can be swapped straight back.
+ */
+function pinInstead(day, chosen) {
+  for (const entry of day.all) {
+    if (entry.film && entry.start < chosen.end && chosen.start < entry.end) {
+      state.pinned.delete(screeningId(entry));
+    }
+  }
+  state.excluded.delete(chosen.film.title);
+  state.pinned.add(screeningId(chosen));
+}
+
+function showAlternatives(row, day, pick) {
+  togglePanel(row, () => alternativesPanel(day, pick));
+}
+
+function alternativesPanel(day, pick) {
 
   const options = day.all
     .filter(
@@ -626,10 +663,7 @@ function showAlternatives(row, day, pick) {
     )
     .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0));
 
-  if (!options.length) {
-    row.after(emptyAlternatives());
-    return;
-  }
+  if (!options.length) return emptyAlternatives();
 
   const panel = document.createElement('div');
   panel.className = 'alternatives';
@@ -659,14 +693,12 @@ function showAlternatives(row, day, pick) {
 
   panel.querySelectorAll('[data-pick]').forEach((button) =>
     button.addEventListener('click', () => {
-      const chosen = options[Number(button.dataset.pick)];
-      state.excluded.add(pick.film.title);
-      state.pinned.add(screeningId(chosen));
+      pinInstead(day, options[Number(button.dataset.pick)]);
       rebuild();
     })
   );
 
-  row.after(panel);
+  return panel;
 }
 
 function emptyAlternatives() {
@@ -822,56 +854,53 @@ function renderGaps(section, day) {
 
     row.querySelector('button').addEventListener('click', (event) => {
       event.stopPropagation();
-      const existing = row.nextElementSibling;
-      if (existing?.classList.contains('alternatives')) {
-        existing.remove();
-        return;
-      }
-
-      const panel = document.createElement('div');
-      panel.className = 'alternatives';
-      panel.innerHTML =
-        `<p class="muted">Fits between ${formatTime(gap.start)} and ` +
-        `${formatTime(gap.end)}:</p>` +
-        fits
-          .map(
-            (entry, index) => `
-          <div class="alt">
-            ${poster(entry.film, 38)}
-            <div>
-              <b>${escapeHTML(entry.film.title)}</b>
-              ${state.excluded.has(entry.film.title)
-                ? '<span class="badge low">you dropped this</span>'
-                : ''}
-              <div class="detail">${formatTime(entry.start)}${
-                entry.film.runtime ? ` · ${entry.film.runtime} min` : ''
-              }${
-                entry.film.scoreable === false
-                  ? ' · not rated — your call'
-                  : ` · predicted ${entry.film.prediction.toFixed(1)}★`
-              }${entry.film.synopsis
-                ? `<br>${escapeHTML(entry.film.synopsis)}`
-                : ''}</div>
-            </div>
-            <button class="ghost" data-add="${index}">Add</button>
-          </div>`
-          )
-          .join('');
-
-      panel.querySelectorAll('[data-add]').forEach((button) =>
-        button.addEventListener('click', () => {
-          const chosen = fits[Number(button.dataset.add)];
-          // Adding something back is also how a drop is undone.
-          state.excluded.delete(chosen.film.title);
-          state.pinned.add(screeningId(chosen));
-          rebuild();
-        })
-      );
-      row.after(panel);
+      togglePanel(row, () => gapPanel(day, gap, fits));
     });
 
     section.appendChild(row);
   }
+}
+
+/** Everything that fits a free stretch of the day, best first. */
+function gapPanel(day, gap, fits) {
+  const panel = document.createElement('div');
+  panel.className = 'alternatives';
+  panel.innerHTML =
+    `<p class="muted">Fits between ${formatTime(gap.start)} and ` +
+    `${formatTime(gap.end)}:</p>` +
+    fits
+      .map(
+        (entry, index) => `
+      <div class="alt">
+        ${poster(entry.film, 38)}
+        <div>
+          <b>${escapeHTML(entry.film.title)}</b>
+          ${state.excluded.has(entry.film.title)
+            ? '<span class="badge low">you dropped this</span>'
+            : ''}
+          <div class="detail">${formatTime(entry.start)}${
+            entry.film.runtime ? ` · ${entry.film.runtime} min` : ''
+          }${
+            entry.film.scoreable === false
+              ? ' · not rated — your call'
+              : ` · predicted ${entry.film.prediction.toFixed(1)}★`
+          }${entry.film.synopsis
+            ? `<br>${escapeHTML(entry.film.synopsis)}`
+            : ''}</div>
+        </div>
+        <button class="ghost" data-add="${index}">Add</button>
+      </div>`
+      )
+      .join('');
+
+  panel.querySelectorAll('[data-add]').forEach((button) =>
+    button.addEventListener('click', () => {
+      // Adding something back is also how a drop is undone.
+      pinInstead(day, fits[Number(button.dataset.add)]);
+      rebuild();
+    })
+  );
+  return panel;
 }
 
 function renderMissed(plan) {

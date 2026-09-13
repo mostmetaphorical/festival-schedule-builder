@@ -23,6 +23,9 @@ exports/
 # Personal exports used for local testing
 app/fixtures/private-*
 
+# Scratch commit messages.
+.commit-msg
+
 # Volunteer shifts, work hours, appointments: personal data that says where
 # somebody will be at a given hour. Never publish these.
 app/data/my-commitments.json
