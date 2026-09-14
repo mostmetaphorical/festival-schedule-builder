@@ -72,7 +72,9 @@ list says so before choosing. Dropping a film leaves its slot free and lists
 what fits there, rather than quietly moving the next-best film in; the dropped
 film stays in those lists, marked, so it can be put straight back. Changing
 the daily limit, the gap between films or commitments re-plans around the
-films you picked yourself.
+films you picked yourself. Nothing is ruled out for you: every film stays
+reachable, whether in free time, a swap list, or on a day with nothing
+planned, with clashes and commitments labelled rather than hidden.
 
 **Exports** — `.ics` for the phone's calendar, a self-contained HTML page, and
 print-to-PDF. The HTML export has two flavours: schedule only, which is safe to

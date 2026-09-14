@@ -258,17 +258,14 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
       );
     }
 
-    let picks = [...fixed, ...chosen.picks].sort((a, b) => a.start - b.start);
-    if (picks.length > maxPerDay) {
-      // Keep the person's own picks first, then the best-rated, then restore
-      // chronological order.
-      picks = [...picks]
-        .sort(
-          (a, b) => b.value - a.value || (b.film.prediction || 0) - (a.film.prediction || 0)
-        )
-        .slice(0, maxPerDay)
-        .sort((a, b) => a.start - b.start);
-    }
+    // The daily limit caps what the planner chooses, never what the person
+    // chose: their own picks always stay, and the planner fills what's left
+    // of the limit with its best-rated suggestions.
+    const room = Math.max(0, maxPerDay - fixed.length);
+    const suggested = [...chosen.picks]
+      .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0))
+      .slice(0, room);
+    const picks = [...fixed, ...suggested].sort((a, b) => a.start - b.start);
     for (const pick of picks) seen.add(pick.film.title);
 
     plan.push({
@@ -279,7 +276,7 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
     });
   }
 
-  return { days: plan, rejected, missed: findMissed(days, seen, byTitle) };
+  return { days: plan, rejected };
 }
 
 /**
@@ -296,38 +293,6 @@ function findClashes(picks) {
   return found;
 }
 
-/**
- * Films the plan never gets to, and why - the part a festival-goer most needs
- * to see, because "unreachable" and "you chose something better" are very
- * different problems.
- */
-function findMissed(days, seen, byTitle) {
-  const status = new Map();
-
-  for (const entries of days.values()) {
-    for (const entry of entries) {
-      if (!entry.film || seen.has(entry.film.title)) continue;
-      const current = status.get(entry.film.title) || {
-        film: entry.film,
-        screenings: 0,
-        blocked: 0,
-      };
-      current.screenings += 1;
-      if (entry.blockedBy) current.blocked += 1;
-      status.set(entry.film.title, current);
-    }
-  }
-
-  return [...status.values()]
-    .map((item) => ({
-      ...item,
-      reason:
-        item.blocked === item.screenings
-          ? 'every screening falls inside a commitment'
-          : 'lost a clash with something rated higher',
-    }))
-    .sort((a, b) => b.film.prediction - a.film.prediction);
-}
 
 /** Films whose only reachable screening is a single slot - book these first. */
 export function onlyChances(schedule) {

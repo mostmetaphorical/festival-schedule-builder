@@ -1202,9 +1202,9 @@ function renderPlan() {
   const plan = $('#plan');
   plan.innerHTML = '';
 
+  // Every day is shown, even one with nothing planned: every film has to be
+  // reachable from the plan, so the person decides what they miss.
   for (const day of state.schedule.days) {
-    if (!day.picks.length) continue;
-
     const section = document.createElement('section');
     section.className = 'day';
     const when = new Date(`${day.date}T12:00:00`);
@@ -1235,7 +1235,6 @@ function renderPlan() {
     plan.appendChild(section);
   }
 
-  renderMissed(plan);
   renderDropped(plan);
   renderRatingsShare();
 }
@@ -1322,8 +1321,8 @@ function dropPick(day, pick) {
  * touch. The displaced film isn't marked as dropped - a swap is "this instead
  * of that", not "never show me that again" - so it can be swapped straight back.
  *
- * Without `replacing` (adding a film to free time), whatever was pinned in
- * the same slot gives way.
+ * Without `replacing` (adding a film to free time), nothing gives way either:
+ * a film that runs into a neighbour is kept alongside it, flagged as a clash.
  */
 function pinInstead(day, chosen, replacing = null) {
   const chosenId = screeningId(chosen);
@@ -1346,14 +1345,6 @@ function pinInstead(day, chosen, replacing = null) {
     state.pinned.delete(replacedId);
     state.kept.delete(replacedId);
     state.openCards.delete(replacedId);
-  } else {
-    for (const entry of day.all) {
-      if (entry.film && entry.start < chosen.end && chosen.start < entry.end) {
-        state.pinned.delete(screeningId(entry));
-        state.kept.delete(screeningId(entry));
-        state.openCards.delete(screeningId(entry));
-      }
-    }
   }
   // A film is only planned once: choosing it here moves it from any other
   // screening it had.
@@ -1403,10 +1394,6 @@ const NEAR_MARGIN = 60;
 function alternativesPanel(day, pick) {
   const pickId = screeningId(pick);
   const others = day.picks.filter((other) => screeningId(other) !== pickId);
-  const plannedOn = new Map();
-  for (const planned of state.schedule.days) {
-    for (const each of planned.picks) plannedOn.set(each.film.title, planned.date);
-  }
 
   // Dropped films stay in the list, marked, so a drop can be undone from the
   // slot where the film was. They sort below the rest.
@@ -1431,29 +1418,15 @@ function alternativesPanel(day, pick) {
     )
     .sort((a, b) => a.start - b.start || byPreference(a, b));
 
+  // Choosing a film that runs into another pick keeps both, flagged.
   const row = (entry, isNear) => {
-    // Say before choosing what a choice runs into. Choosing it anyway keeps
-    // both, flagged, rather than removing the other film.
-    const runsInto = others.filter((other) => other.start < entry.end && entry.start < other.end);
-    const elsewhere = plannedOn.get(entry.film.title);
-    const notes = [
-      ...runsInto.map(
-        (other) =>
-          `Runs into ${escapeHTML(other.film.title)} at ${formatTime(other.start)}, ` +
-          'which stays in your plan and is flagged as a clash.'
-      ),
-      elsewhere && elsewhere !== day.date
-        ? `Already planned on ${escapeHTML(weekdayName(elsewhere))}; choosing it moves it here.`
-        : '',
-    ].filter(Boolean);
+    const warnings = optionWarnings(day, entry, others);
     return altRow(entry, {
       label: 'Use this instead',
       action: 'pick',
       near: isNear,
-      note: notes.join(' '),
-      extraBadge:
-        (state.excluded.has(entry.film.title) ? '<span class="badge">Dropped</span>' : '') +
-        (runsInto.length ? '<span class="badge warn-badge">Clash</span>' : ''),
+      note: warnings.note,
+      extraBadge: warnings.badge,
     });
   };
 
@@ -1680,7 +1653,7 @@ const SHORTEST_USEFUL_GAP = 45;
  */
 function findGaps(day) {
   const picks = [...day.picks].sort((a, b) => a.start - b.start);
-  const candidates = day.all.filter((entry) => entry.film && !entry.blockedBy);
+  const candidates = day.all.filter((entry) => entry.film);
   if (!candidates.length) return [];
 
   const dayStart = Math.min(...candidates.map((entry) => entry.start));
@@ -1694,31 +1667,68 @@ function findGaps(day) {
   }
   if (dayEnd - cursor >= SHORTEST_USEFUL_GAP) gaps.push({ start: cursor, end: dayEnd });
 
+  // Everything showing during the gap is offered, not only what fits inside
+  // it: a film that runs into a neighbouring pick is still the person's call,
+  // so it's listed after the ones that fit, with the clash spelled out.
+  const byPrediction = (a, b) => (b.film.prediction || 0) - (a.film.prediction || 0);
   return gaps
-    .map((gap) => ({
-      ...gap,
-      fits: day.all
-        .filter(
-          (entry) =>
-            entry.film &&
-            !entry.blockedBy &&
-            entry.start >= gap.start &&
-            entry.end <= gap.end &&
-            !picks.some((pick) => pick.film.title === entry.film.title)
-        )
-        .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0)),
-    }))
+    .map((gap) => {
+      const showing = day.all.filter(
+        (entry) =>
+          entry.film &&
+          entry.start < gap.end &&
+          gap.start < entry.end &&
+          !picks.some((pick) => pick.film.title === entry.film.title)
+      );
+      const inside = (entry) =>
+        entry.start >= gap.start && entry.end <= gap.end && !entry.blockedBy;
+      return {
+        ...gap,
+        fitting: showing.filter(inside).length,
+        fits: [
+          ...showing.filter(inside).sort(byPrediction),
+          ...showing.filter((entry) => !inside(entry)).sort(byPrediction),
+        ],
+      };
+    })
     .filter((gap) => gap.fits.length);
+}
+
+/**
+ * What choosing `entry` would run into on its day, and whether it's already
+ * planned elsewhere - said before choosing, so nothing surprises afterwards.
+ */
+function optionWarnings(day, entry, others) {
+  const runsInto = others.filter((other) => other.start < entry.end && entry.start < other.end);
+  let elsewhere = null;
+  for (const planned of state.schedule.days) {
+    if (planned.date !== day.date && planned.picks.some((pick) => pick.film.title === entry.film.title)) {
+      elsewhere = planned.date;
+    }
+  }
+  const notes = [
+    ...runsInto.map(
+      (other) =>
+        `Runs into ${escapeHTML(other.film.title)} at ${formatTime(other.start)}, ` +
+        'which stays in your plan and is flagged as a clash.'
+    ),
+    elsewhere
+      ? `Already planned on ${escapeHTML(weekdayName(elsewhere))}; choosing it moves it here.`
+      : '',
+  ].filter(Boolean);
+  return {
+    clashes: runsInto.length > 0,
+    note: notes.join(' '),
+    badge:
+      (state.excluded.has(entry.film.title) ? '<span class="badge">Dropped</span>' : '') +
+      (runsInto.length ? '<span class="badge warn-badge">Clash</span>' : ''),
+  };
 }
 
 const FITS_SHOWN = 3;
 
 function gapRow(day, gap) {
   const { fits } = gap;
-  // At the daily limit, adding a film pushes the weakest pick out. Say so
-  // before it happens rather than letting a film silently vanish.
-  const limit = Number($('#max-per-day').value) || Infinity;
-  const full = day.picks.length >= limit;
   const row = document.createElement('div');
   row.className = 'row free';
   row.innerHTML =
@@ -1727,23 +1737,26 @@ function gapRow(day, gap) {
     `<div class="free-box">` +
     `<div class="free-head"><div><p class="name">Nothing planned</p>` +
     `<p class="meta">${hoursText(gap.end - gap.start)} free, until ${formatTime(gap.end)} · ` +
-    `${fits.length} ${fits.length === 1 ? 'film fits' : 'films fit'}</p>` +
-    (full
-      ? `<p class="meta full-note">This day already has ${limit} films, your limit — adding one ` +
-        'replaces your lowest-rated pick. Raise the limit on Your time to keep both.</p>'
-      : '') +
+    [
+      gap.fitting ? `${gap.fitting} ${gap.fitting === 1 ? 'film fits' : 'films fit'}` : '',
+      fits.length > gap.fitting ? `${fits.length - gap.fitting} more clash with your plan or commitments` : '',
+    ]
+      .filter(Boolean)
+      .join(' · ') +
+    `</p>` +
     `</div></div>` +
     `<div class="alternatives">${fits
-      .map((entry, index) =>
-        altRow(entry, {
+      .map((entry, index) => {
+        const warnings = optionWarnings(day, entry, day.picks);
+        return altRow(entry, {
           label: 'Add',
           action: 'add',
-          primary: true,
-          extraBadge: state.excluded.has(entry.film.title)
-            ? '<span class="badge">Dropped</span>'
-            : '',
-        }).replace('<div class="alt"', `<div class="alt"${index >= FITS_SHOWN ? ' hidden' : ''}`)
-      )
+          primary: !warnings.clashes && !entry.blockedBy,
+          near: warnings.clashes || Boolean(entry.blockedBy),
+          note: warnings.note,
+          extraBadge: warnings.badge,
+        }).replace('<div class="alt', `<div${index >= FITS_SHOWN ? ' hidden' : ''} class="alt`);
+      })
       .join('')}` +
     (fits.length > FITS_SHOWN
       ? `<p><button class="linkish" data-more>Show ${fits.length - FITS_SHOWN} more</button></p>`
@@ -1762,27 +1775,6 @@ function gapRow(day, gap) {
     event.target.closest('p').remove();
   });
   return row;
-}
-
-function renderMissed(plan) {
-  const missed = state.schedule.missed.slice(0, 12);
-  if (!missed.length) return;
-
-  const details = document.createElement('details');
-  details.className = 'fold plan-extra';
-  details.innerHTML =
-    `<summary>${state.schedule.missed.length} films you're missing, and why</summary>` +
-    `<div class="fold-body"><ul>${missed
-      .map(
-        (item) =>
-          `<li><span><b>${escapeHTML(item.film.title)}</b> <span class="why">— ${escapeHTML(item.reason)}${
-            item.film.scoreable === false
-              ? ''
-              : ` (predicted ${item.film.prediction.toFixed(1)}★)`
-          }</span></span></li>`
-      )
-      .join('')}</ul></div>`;
-  plan.appendChild(details);
 }
 
 function renderDropped(plan) {

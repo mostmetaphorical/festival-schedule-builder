@@ -82,7 +82,7 @@ hr { border: 0; height: 1px; background: var(--line); margin: 0; }
   text-align: center; padding: 38px 16px 64px;
   background: linear-gradient(to bottom, #000 0, #000 calc(100% - 70px), var(--page) 100%);
 }
-.kicker { font-size: 13px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+.kicker { font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase;
           color: var(--dim); }
 .title-3d { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline;
             column-gap: .2em; font-size: clamp(64px, 9.2vw, 132px); line-height: .9;
@@ -431,7 +431,6 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .alt .when { font-family: var(--mono); font-weight: 700; color: var(--soft); }
 .alt .syn { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
   overflow: hidden; }
-.full-note { color: var(--yellow); font-size: 14px; margin-top: 4px; }
 /* Films just outside the slot: offered, but visibly a step removed. */
 .alt.near { opacity: .5; transition: opacity .2s var(--ease); }
 .alt.near:hover, .alt.near:focus-within { opacity: 1; }
