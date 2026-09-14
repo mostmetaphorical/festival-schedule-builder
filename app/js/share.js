@@ -37,6 +37,16 @@ export const TURNSTILE_SITE_KEY = config.siteKey;
 
 export const MIN_RATINGS_TO_SHARE = 30;
 
+/**
+ * Add one to today's visit count. The request carries nothing - no id, no
+ * cookie, no body - so the count can't tell one visitor from another. Only
+ * the published site counts, and a failure is ignored.
+ */
+export function countVisit() {
+  if (typeof location === 'undefined' || location.hostname !== 'mostmetaphorical.github.io') return;
+  fetch(`${PRODUCTION.endpoint}/hit`, { method: 'POST', keepalive: true, credentials: 'omit' }).catch(() => {});
+}
+
 let turnstileReady = null;
 
 /** Load Cloudflare's bot check the first time something needs it. */

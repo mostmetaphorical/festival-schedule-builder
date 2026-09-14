@@ -5,6 +5,7 @@
  *   POST /ratings    a Name,Year,Rating CSV, stored privately for evaluation
  *   POST /festival   a festival schedule, stored for review before publishing
  *   POST /report     a bug report: a description and optional details
+ *   POST /hit        a page load, added to that day's count (see visits.js)
  *
  * Write-only by design: there is no route that reads anything back out. Shared
  * files are retrieved by the maintainer with wrangler, never over the web.
@@ -17,6 +18,7 @@ import { decodeText, RejectedUpload, rebuildRatings, validateRatings } from './r
 import { validateFestival } from './festival.js';
 import { validateReport } from './report.js';
 import { checkRoom, limitsFrom, readUsage, reserve, status, today } from './usage.js';
+import { countVisit } from './visits.js';
 
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
@@ -201,6 +203,10 @@ export default {
       }
       if (request.method === 'POST' && pathname === '/report') {
         return reply(request, env, 201, await acceptReport(request, env, limits));
+      }
+      if (request.method === 'POST' && pathname === '/hit') {
+        await countVisit(env.VISITS, today());
+        return new Response(null, { status: 204, headers: corsHeaders(request, env) });
       }
       return reply(request, env, 404, { ok: false, error: 'Not found.' });
     } catch (error) {

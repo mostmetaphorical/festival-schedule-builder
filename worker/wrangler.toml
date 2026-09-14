@@ -12,6 +12,13 @@ workers_dev = true
 binding = "SHARES"
 id = "ced137100ce8454e8fa52c7597fa2c46"
 
+# Daily page-load totals only (src/visits.js, schema/visits.sql). Free-plan D1
+# refuses writes past its limit rather than billing.
+[[d1_databases]]
+binding = "VISITS"
+database_name = "festrec-visits"
+database_id = "71b5c14a-606f-4341-8bc8-f51a01b1744f"
+
 [vars]
 ALLOWED_ORIGINS = "https://mostmetaphorical.github.io,http://localhost:8124"
 # Well below the free plan's 1 GB and 1,000 writes/day (see src/usage.js).

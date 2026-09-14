@@ -134,12 +134,19 @@ before merging.
 Bug reports use the same pattern: a bot check, a 16 KB cap, a description of
 10–3,000 characters, and only known fields rebuilt into storage.
 
+**Counting visits.** The published page sends one empty request to `/hit` when
+it loads, and the Worker adds one to that day's total in D1 (free plan; writes
+past the limit are refused, not billed). That number is all that is kept: no
+IP address, browser details, referrer, cookie or id, so it counts page loads,
+not people. Like everything else, it is read with wrangler, not over the web.
+
 ```bash
-cd worker && npm test                          # 44 tests, incl. malicious uploads
+cd worker && npm test                          # 48 tests, incl. malicious uploads
 npm run deploy                                 # tests first, then deploy
 worker/download-ratings.sh [--delete]          # shared ratings -> exports/
 worker/review-festival.sh [<key>|--reject <key>]
 worker/download-reports.sh [--delete]         # bug reports -> reports/ (gitignored)
+worker/visits.sh [days]                        # page loads per day
 ```
 
 For local testing, `wrangler dev` uses Cloudflare's documented always-pass

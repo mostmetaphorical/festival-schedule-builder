@@ -34,6 +34,7 @@ import { mailto, revealContact } from './contact.js';
 import {
   MIN_RATINGS_TO_SHARE,
   botCheck,
+  countVisit,
   sendReport,
   shareFestival,
   shareRatings,
@@ -2180,4 +2181,5 @@ function showStep(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+countVisit();
 boot();
