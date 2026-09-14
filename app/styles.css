@@ -152,7 +152,7 @@ hr { border: 0; height: 1px; background: var(--line); margin: 0; }
 .step:focus-visible { outline: none; }
 .step:focus-visible .label { outline: 2px solid var(--lime); outline-offset: 3px; }
 
-main { padding: 12px 0 90px; }
+main { padding: 12px 0 48px; }
 .panel { display: flex; flex-direction: column; gap: 28px; animation: panel-in .35s var(--ease); }
 .panel[hidden] { display: none; }
 @keyframes panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -498,7 +498,7 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .plan-extra li .why { color: var(--dim); }
 .plan-extra .btn { min-height: 38px; padding: 0 14px; font-size: 14px; }
 
-.block { display: flex; flex-direction: column; gap: 18px; margin-top: 64px; }
+.block { display: flex; flex-direction: column; gap: 18px; margin-top: 24px; }
 .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   border-bottom: 2px solid var(--line-2); padding-bottom: 12px; }
 .export-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -511,7 +511,7 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .share-facts dt { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
 .share-facts dd { margin: 0; font-size: 15px; line-height: 1.5; color: var(--soft); }
 .remember { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center;
-  margin-top: 48px; padding: 24px 28px; }
+  margin-top: 0; padding: 22px 28px; }
 .remember .muted { padding-left: 40px; }
 
 /* Contribute and footer --------------------------------------------- */
@@ -671,13 +671,13 @@ select:focus { outline: none; border-color: var(--pink); }
   .free-head .name { font-size: 26px; }
   .free-box .alternatives { padding: 0 14px 4px; }
 
-  .block { margin-top: 44px; }
+  .block { margin-top: 20px; }
   .export-buttons { flex-direction: column; }
   .export-buttons .btn { width: 100%; }
   .warn, .remember .muted { padding-left: 0; margin-top: 0; }
   .share-facts { grid-template-columns: 1fr; }
   .share-facts div { padding: 12px 14px; gap: 4px; }
-  .remember { grid-template-columns: 1fr; padding: 18px 16px; margin-top: 36px; }
+  .remember { grid-template-columns: 1fr; padding: 18px 16px; margin-top: 0; }
   .remember .btn { width: 100%; }
 
   .contribute { padding: 32px 0 34px; }
