@@ -272,6 +272,8 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
   border-top: 1px solid var(--line); font-size: 15px; font-weight: 600; color: var(--text); }
 .missing-row .year { font-family: var(--mono); font-weight: 400; color: var(--dim); }
 
+/* A fold-out just above already draws the dividing line. */
+.fold + .next { border-top: 0; padding-top: 4px; }
 .next { display: flex; align-items: center; justify-content: flex-end; gap: 18px; flex-wrap: wrap;
   padding-top: 20px; border-top: 1px solid var(--line); }
 
