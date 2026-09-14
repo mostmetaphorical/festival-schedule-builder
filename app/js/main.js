@@ -395,19 +395,25 @@ function renderFestivals() {
   const currency = $('#festival-currency');
   list.innerHTML = '';
   const festivals = state.festivalIndex?.festivals || [];
-  const ready = festivals.filter((f) => f.status === 'ready');
-  const planned = festivals.filter((f) => f.status !== 'ready');
+  // Over is over by the person's own calendar: a festival that ended before
+  // today moves to Past festivals, and a placeholder whose dates have passed
+  // has nothing left to say.
+  const today = new Date().toLocaleDateString('en-CA');
+  const over = (f) => Boolean(f.ends) && f.ends < today;
+  const ready = festivals.filter((f) => f.status === 'ready' && !over(f));
+  const past = festivals.filter((f) => f.status === 'ready' && over(f));
+  const planned = festivals.filter((f) => f.status !== 'ready' && !over(f));
   // A festival loaded from a file gets a card too, so it can be seen and updated.
   const loaded =
-    state.festival && !ready.some((festival) => festival.name === state.festival.festival)
+    state.festival && ![...ready, ...past].some((festival) => festival.name === state.festival.festival)
       ? {
           name: state.festival.festival,
           source: 'Loaded from your file, on this device only',
         }
       : null;
-  const cards = [...(loaded ? [loaded] : []), ...ready];
+  const cards = [...(loaded ? [loaded] : []), ...ready, ...past];
 
-  for (const festival of cards) {
+  const card = (festival) => {
     const selected = state.festival?.festival === festival.name;
     const stats = selected ? state.festivalCheck?.stats : null;
     const age = selected && state.festivalAge ? state.festivalAge : {};
@@ -443,8 +449,9 @@ function renderFestivals() {
         button.querySelector('.pick').textContent = 'Try again';
       }
     });
-    list.appendChild(button);
-  }
+    return button;
+  };
+  for (const festival of [...(loaded ? [loaded] : []), ...ready]) list.appendChild(card(festival));
   list.appendChild(currency);
 
   // Everything that has a schedule can be updated.
@@ -471,6 +478,20 @@ function renderFestivals() {
         )
         .join('');
     list.appendChild(coming);
+  }
+
+  // Festivals that have ended stay usable - their films are still worth
+  // knowing about - but out of the way, most recent first.
+  if (past.length) {
+    const fold = document.createElement('details');
+    fold.className = 'fold past-festivals';
+    fold.open = past.some((festival) => festival.name === state.festival?.festival);
+    fold.innerHTML = `<summary>Past festivals <span class="summary-note">· ${past.length}</span></summary>`;
+    const body = document.createElement('div');
+    body.className = 'past-list';
+    [...past].sort((a, b) => b.ends.localeCompare(a.ends)).forEach((festival) => body.appendChild(card(festival)));
+    fold.appendChild(body);
+    list.appendChild(fold);
   }
 }
 

@@ -125,6 +125,7 @@ node diagnose_js.mjs exports/                      # browser model: parity with 
 ./.venv/bin/python eval_letterboxd.py exports/     # test on real exports
 ./.venv/bin/python convert_eventive.py raw/<fest> --name "<Festival Year>" --previous app/data/festival.json
                                                    # festival.json from saved Eventive films/events responses
+./.venv/bin/python convert_tiff.py raw/tiff/films.json --name "TIFF 2026"  # from TIFF's saved festivalfilmlist response
 ./.venv/bin/python parse_festival.py <page.html>   # build festival.json
 ./.venv/bin/python enrich_festival.py              # credits for known films, from Wikidata
 ./.venv/bin/python enrich_wikidata.py              # training-film metadata (resumable)

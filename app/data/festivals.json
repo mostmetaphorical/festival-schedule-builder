@@ -3,6 +3,17 @@
   "note": "Festival schedules are published late and change often. Each entry points at a data file in the same format; add a festival by adding an entry here, no code change needed. Anything not listed can still be loaded from a URL or pasted in. Entries marked 'planned' have no schedule yet and their dates are the usual slot for that festival, not confirmed dates.",
   "festivals": [
     {
+      "id": "tiff-2026",
+      "name": "TIFF 2026",
+      "city": "Toronto, Canada",
+      "starts": "2026-09-09",
+      "ends": "2026-09-20",
+      "data": "data/festivals/tiff-2026.json",
+      "status": "ready",
+      "source": "From the festival's own film list",
+      "captured": "2026-09-14"
+    },
+    {
       "id": "fantastic-fest-2026",
       "name": "Fantastic Fest 2026",
       "city": "Austin, TX",
@@ -19,6 +30,14 @@
       "city": "Sitges, Spain",
       "starts": "2026-10-08",
       "ends": "2026-10-18",
+      "status": "planned"
+    },
+    {
+      "id": "austin-film-festival-2026",
+      "name": "Austin Film Festival 2026",
+      "city": "Austin, TX",
+      "starts": "2026-10-22",
+      "ends": "2026-10-29",
       "status": "planned"
     },
     {
