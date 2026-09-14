@@ -36,7 +36,7 @@ from festrec_eval.models import ContentRidge, GlobalMean, Model, UserMean
 from festrec_eval.titles import key, normalise
 from run_eval import HEADLINE, evaluate, print_by_profile_size, print_deltas
 
-EVIDENCE_SHRINKAGE = 0.5
+from export_model import EVIDENCE_SHRINKAGE, PRIOR_WEIGHT  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -200,7 +200,7 @@ def main() -> None:
     models: list[Model] = [
         GlobalMean(),
         UserMean(),
-        ContentRidge(evidence_shrinkage=EVIDENCE_SHRINKAGE),
+        ContentRidge(evidence_shrinkage=EVIDENCE_SHRINKAGE, prior_weight=PRIOR_WEIGHT),
     ]
     results: dict[str, list[dict]] = {}
     for model in models:

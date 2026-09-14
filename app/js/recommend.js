@@ -240,7 +240,17 @@ export class Recommender {
       deviation *= evidence / (evidence + shrinkage);
     }
 
-    return Math.min(Math.max(profile.mean + deviation, range[0]), range[1]);
+    return Math.min(Math.max(this.base(profile) + deviation, range[0]), range[1]);
+  }
+
+  /**
+   * The person's average, steadied when it rests on few ratings: a handful of
+   * ratings says little about how someone rates films in general.
+   */
+  base(profile) {
+    const k = this.model.prior_weight || 0;
+    if (k <= 0 || this.model.prior_mean == null) return profile.mean;
+    return (profile.count * profile.mean + k * this.model.prior_mean) / (profile.count + k);
   }
 
   /**

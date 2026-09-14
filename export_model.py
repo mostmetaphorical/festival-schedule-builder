@@ -21,10 +21,15 @@ from festrec_eval.features import (
 )
 from festrec_eval.models import ContentRidge
 
-# Measured neutral on MovieLens (see README), because almost every film there
-# has some metadata. It exists for the festival case, where a shorts programme
-# with no credits at all was outranking films the person would love.
-EVIDENCE_SHRINKAGE = 0.5
+# Evidence shrinkage used to scale every prediction by how many of the
+# person's rated films share credits or keywords with the candidate. At a
+# festival most films share none, so it flattened them all to the person's
+# average - synopsis similarity included. Without it, MovieLens accuracy is
+# marginally better (RMSE 0.8810 -> 0.8794) and predictions for films with no
+# shared people spread 35% more. See README.
+EVIDENCE_SHRINKAGE = 0.0
+# Pseudo-ratings at the training average blended into a person's own average.
+PRIOR_WEIGHT = 5.0
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,7 +60,7 @@ def main() -> None:
     space = FeatureSpace(dataset.films, metadata=metadata,
                          include_facets=RECOMMENDED_FACETS)
     profiles = {s.user_id: space.build_profile(s.user_id, s.train) for s in splits}
-    model = ContentRidge(evidence_shrinkage=EVIDENCE_SHRINKAGE)
+    model = ContentRidge(evidence_shrinkage=EVIDENCE_SHRINKAGE, prior_weight=PRIOR_WEIGHT)
     model.fit(splits, space, profiles)
 
     payload = {
@@ -70,6 +75,9 @@ def main() -> None:
         # back to the person's own average instead of to wherever the
         # standardised zero point happens to land.
         "evidence_shrinkage": EVIDENCE_SHRINKAGE,
+        # The person's average is (n * mean + prior_weight * prior_mean) / (n + prior_weight).
+        "prior_weight": PRIOR_WEIGHT,
+        "prior_mean": model.prior_mean,
         "rating_range": [0.5, 5.0],
         "features": space.feature_names,
         "center": model.center.tolist(),
@@ -99,7 +107,7 @@ def main() -> None:
 
     print(f"Wrote {out} ({out.stat().st_size / 1024:.1f} KB)")
     print(f"trained on {len(users)} raters, alpha={model.alpha_}, "
-          f"evidence shrinkage {EVIDENCE_SHRINKAGE}")
+          f"evidence shrinkage {EVIDENCE_SHRINKAGE}, prior {PRIOR_WEIGHT} at {model.prior_mean:.3f}")
     print("\nWhat the model learned (standardised weights):")
     for name, weight in sorted(
         model.coefficients().items(), key=lambda kv: -abs(kv[1])

@@ -329,8 +329,8 @@ async function resolve() {
   saveSession();
   score();
   updateChrome();
-
-  if (state.library.length && state.step === 1) showStep(2);
+  // No automatic move to the next step: the films that couldn't be matched,
+  // and the option to look them up, are on this one. Next moves on.
 }
 
 function renderMissing() {
@@ -1125,7 +1125,7 @@ function score() {
     ...recommender.scoreSlate(state.profile, scoreable),
     ...rest.map((film) => ({
       ...film,
-      prediction: state.profile.mean,
+      prediction: recommender.base(state.profile),
       confidence: 'none',
       reasons: { people: [], keywords: [] },
     })),

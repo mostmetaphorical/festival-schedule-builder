@@ -67,6 +67,7 @@ class FeatureSpace:
         metadata: dict[int, dict] | None = None,
         item_stats: pd.DataFrame | None = None,
         include_facets: tuple[str, ...] | None = None,
+        genre_from_metadata: bool = False,
     ):
         """`item_stats` is crowd data: supply it only for the warm comparison.
 
@@ -76,6 +77,10 @@ class FeatureSpace:
         self.films = films
         self.metadata = metadata or {}
         self.item_stats = item_stats
+        # The app describes films with Wikidata's genres (mapped by genres.py),
+        # not MovieLens's own labels. A model that uses genre must learn from
+        # the vocabulary it will be served.
+        self.genre_from_metadata = genre_from_metadata
         self.facets = list(BASE_FACETS)
         if self.metadata:
             self.facets += list(RICH_FACETS)
@@ -115,8 +120,13 @@ class FeatureSpace:
 
     def _film_entities(self, movie_id: int) -> dict[str, frozenset[str]]:
         row = self.films.loc[movie_id]
+        genres = (
+            (self.metadata.get(movie_id) or {}).get("genre") or []
+            if self.genre_from_metadata
+            else row.genres
+        )
         entities: dict[str, frozenset[str]] = {
-            "genre": frozenset(row.genres),
+            "genre": frozenset(genres),
             "decade": frozenset(
                 [str(int(row.year // 10 * 10))] if pd.notna(row.year) else []
             ),

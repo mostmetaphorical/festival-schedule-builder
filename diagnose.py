@@ -38,7 +38,7 @@ from festrec_eval.models import BiasModel, ContentRidge, GlobalMean, UserMean
 
 RELEVANT = 4.0
 K = 10
-SHIPPED_SHRINKAGE = 0.5
+from export_model import EVIDENCE_SHRINKAGE as SHIPPED_SHRINKAGE, PRIOR_WEIGHT  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -180,8 +180,8 @@ def fit_all(dataset, metadata, splits):
         "user_mean": UserMean(),
         "popularity": Popularity(train_ratings.groupby("movieId").size()),
         "bias (crowd, not usable at a festival)": BiasModel(stats, global_mean),
-        "content_ridge (shipped, shrink 0.5)": ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE),
-        "content_ridge (no shrink)": ContentRidge(),
+        "content_ridge (shipped)": ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE, prior_weight=PRIOR_WEIGHT),
+        "content_ridge (shrink 0.5, previous)": ContentRidge(evidence_shrinkage=0.5),
     }
     timings = {"profiles_s": profile_s}
     for name, model in models.items():
@@ -254,7 +254,7 @@ def main() -> None:
         for name, rows in accuracy.items()
     }
     splits, space, profiles, models = first
-    ridge = models["content_ridge (shipped, shrink 0.5)"]
+    ridge = models["content_ridge (shipped)"]
     report["ridge"] = {"alpha": ridge.alpha_, "coefficients": ridge.coefficients()}
 
     # ------------------------------------------------ 3a. leakage probes
@@ -270,8 +270,8 @@ def main() -> None:
     probe["predictions_ignore_test_ratings"] = bool(all(np.allclose(a, b) for a, b in zip(before, after)))
     # (ii) Refit with scrambled test ratings: weights must be identical.
     small_profiles = {s.user_id: profiles[s.user_id] for s in sample}
-    a = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE); a.fit(sample, space, small_profiles)
-    b = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE); b.fit(scrambled, space, small_profiles)
+    a = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE, prior_weight=PRIOR_WEIGHT); a.fit(sample, space, small_profiles)
+    b = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE, prior_weight=PRIOR_WEIGHT); b.fit(scrambled, space, small_profiles)
     probe["fit_ignores_test_ratings"] = bool(np.allclose(a.weights, b.weights) and a.alpha_ == b.alpha_)
     # (iii) Profiles are built from train only: a test film is never in the profile.
     probe["test_films_absent_from_profiles"] = bool(all(
@@ -286,7 +286,7 @@ def main() -> None:
     shuffled = [UserSplit(s.user_id, s.train.assign(rating=rng.permutation(s.train.rating.to_numpy())), s.test)
                 for s in splits[:150]]
     sh_profiles = {s.user_id: space.build_profile(s.user_id, s.train) for s in shuffled}
-    noise = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE); noise.fit(shuffled, space, sh_profiles)
+    noise = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE, prior_weight=PRIOR_WEIGHT); noise.fit(shuffled, space, sh_profiles)
     probe["shuffled_labels"] = {
         "ridge_ndcg": evaluate(noise, shuffled, sh_profiles)["ndcg@10"],
         "user_mean_ndcg": evaluate(UserMean(), shuffled, sh_profiles)["ndcg@10"],
@@ -299,10 +299,10 @@ def main() -> None:
         cut = int(round(len(h) * 0.8))
         time_splits.append(UserSplit(int(user), h.iloc[:cut].reset_index(drop=True), h.iloc[cut:].reset_index(drop=True)))
     t_profiles = {s.user_id: space.build_profile(s.user_id, s.train) for s in time_splits}
-    t_ridge = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE); t_ridge.fit(time_splits, space, t_profiles)
+    t_ridge = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE, prior_weight=PRIOR_WEIGHT); t_ridge.fit(time_splits, space, t_profiles)
     random_200 = [s for s in splits if s.user_id in set(int(u) for u in users[:200])]
     r_profiles = {s.user_id: profiles[s.user_id] for s in random_200}
-    r_ridge = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE); r_ridge.fit(random_200, space, r_profiles)
+    r_ridge = ContentRidge(evidence_shrinkage=SHIPPED_SHRINKAGE, prior_weight=PRIOR_WEIGHT); r_ridge.fit(random_200, space, r_profiles)
     probe["temporal"] = {
         "random_split": {"ridge": evaluate(r_ridge, random_200, r_profiles),
                          "user_mean": evaluate(UserMean(), random_200, r_profiles)},
@@ -324,17 +324,17 @@ def main() -> None:
             truncated.append(UserSplit(s.user_id, train.reset_index(drop=True), s.test))
         k_profiles = {s.user_id: space.build_profile(s.user_id, s.train) for s in truncated}
         row = {"train_ratings": k}
-        for name in ("global_mean", "user_mean", "content_ridge (shipped, shrink 0.5)"):
+        for name in ("global_mean", "user_mean", "content_ridge (shipped)"):
             row[name] = evaluate(models[name], truncated, k_profiles)
         cold_rows.append(row)
-        log(f"  k={k!s:>3}  ridge RMSE {row['content_ridge (shipped, shrink 0.5)']['rmse']:.3f} "
+        log(f"  k={k!s:>3}  ridge RMSE {row['content_ridge (shipped)']['rmse']:.3f} "
             f"vs user_mean {row['user_mean']['rmse']:.3f} vs global {row['global_mean']['rmse']:.3f}  "
-            f"ridge P@10 {row['content_ridge (shipped, shrink 0.5)']['precision@10']:.3f} "
+            f"ridge P@10 {row['content_ridge (shipped)']['precision@10']:.3f} "
             f"vs user_mean {row['user_mean']['precision@10']:.3f}")
     # Zero ratings: what does the Python model do?
     try:
         empty = space.build_profile(0, rich[0].train.iloc[:0])
-        zero = models["content_ridge (shipped, shrink 0.5)"].predict(rich[0], empty, rich[0].test.movieId.astype(int).tolist()[:5])
+        zero = models["content_ridge (shipped)"].predict(rich[0], empty, rich[0].test.movieId.astype(int).tolist()[:5])
         zero_result = {"predictions": [float(x) for x in zero], "mean": float(empty.mean)}
     except Exception as error:  # noqa: BLE001 - reporting the failure is the point
         zero_result = {"error": f"{type(error).__name__}: {error}"}
@@ -360,31 +360,31 @@ def main() -> None:
     for s in splits:
         rows = space.transform(profiles[s.user_id], s.test.movieId.astype(int).tolist())
         no_evidence[s.user_id] = ridge._evidence(rows) == 0
-    no_shrink = models["content_ridge (no shrink)"]
+    no_shrink = models["content_ridge (shrink 0.5, previous)"]
     report["cold_start_films"] = {
         "share_of_test_with_no_evidence": float(np.mean(np.concatenate(list(no_evidence.values())))),
         "no_evidence": {
             "user_mean": evaluate(models["user_mean"], splits, profiles, only=no_evidence),
-            "content_ridge (shipped, shrink 0.5)": evaluate(ridge, splits, profiles, only=no_evidence),
-            "content_ridge (no shrink)": evaluate(no_shrink, splits, profiles, only=no_evidence),
+            "content_ridge (shipped)": evaluate(ridge, splits, profiles, only=no_evidence),
+            "content_ridge (shrink 0.5, previous)": evaluate(no_shrink, splits, profiles, only=no_evidence),
         },
         "share_of_test_with_no_shared_people": thin_share,
         "no_shared_people": {n: evaluate(models[n], splits, profiles, only=masks)
-                              for n in ("user_mean", "content_ridge (shipped, shrink 0.5)")},
+                              for n in ("user_mean", "content_ridge (shipped)")},
         "no_metadata_at_all": {n: evaluate(models[n], splits, profiles, only=no_meta)
-                               for n in ("user_mean", "content_ridge (shipped, shrink 0.5)")},
+                               for n in ("user_mean", "content_ridge (shipped)")},
         "no_synopsis": {n: evaluate(models[n], splits, profiles, only=no_text)
-                        for n in ("user_mean", "content_ridge (shipped, shrink 0.5)")},
+                        for n in ("user_mean", "content_ridge (shipped)")},
     }
     log(f"  {thin_share:.0%} of test ratings share no people with the profile; "
         f"{report['cold_start_films']['share_of_test_with_no_evidence']:.1%} share no people or keywords")
     for name, r in report["cold_start_films"]["no_evidence"].items():
-        spread = "flat by construction" if "shrink 0.5" in name else ""
+        spread = ""
         log(f"  no evidence: {name:<38} RMSE {r['rmse']:.4f} nDCG@10 {r['ndcg@10']:.4f} "
             f"(n={r['n_ratings']}) {spread}")
     for label in ("no_shared_people", "no_metadata_at_all", "no_synopsis"):
         r = report["cold_start_films"][label]
-        log(f"  {label:<20} ridge nDCG {r['content_ridge (shipped, shrink 0.5)']['ndcg@10']:.3f} "
+        log(f"  {label:<20} ridge nDCG {r['content_ridge (shipped)']['ndcg@10']:.3f} "
             f"vs user_mean {r['user_mean']['ndcg@10']:.3f} (n={r['user_mean']['n_ratings']})")
 
     # ------------------------------------------------ 3d. train/serve skew: synopses
@@ -411,7 +411,7 @@ def main() -> None:
     pick = np.random.default_rng(3).choice(len(splits), min(args.catalogue_users, len(splits)), replace=False)
     catalogue = [int(m) for m in dataset.films.index if int(m) in metadata]
     counts = pd.concat([s.train for s in splits]).groupby("movieId").size()
-    cat_rows = {"content_ridge (shipped, shrink 0.5)": [], "popularity": [], "random": []}
+    cat_rows = {"content_ridge (shipped)": [], "popularity": [], "random": []}
     latencies = []
     rng = np.random.default_rng(4)
     for i in pick:
@@ -428,7 +428,7 @@ def main() -> None:
         latencies.append((time.perf_counter() - t) * 1000)
         pop_top = [m for m, _ in sorted(((m, counts.get(m, 0)) for m in candidates), key=lambda x: -x[1])[:K]]
         rand_top = list(rng.choice(candidates, K, replace=False))
-        for name, chosen in (("content_ridge (shipped, shrink 0.5)", top), ("popularity", pop_top), ("random", rand_top)):
+        for name, chosen in (("content_ridge (shipped)", top), ("popularity", pop_top), ("random", rand_top)):
             hits = len(set(chosen) & relevant)
             cat_rows[name].append({"precision@10": hits / K, "recall@10": hits / len(relevant)})
     report["catalogue_top10"] = {
@@ -472,7 +472,9 @@ def main() -> None:
             record["rating"] = float(rating)
         return record
     shipped = json.loads(Path("app/data/model.json").read_text(encoding="utf-8"))
-    parity_model = ContentRidge(evidence_shrinkage=shipped["evidence_shrinkage"])
+    parity_model = ContentRidge(evidence_shrinkage=shipped["evidence_shrinkage"],
+                                prior_weight=shipped.get("prior_weight", 0.0))
+    parity_model.prior_mean = shipped.get("prior_mean")
     parity_model.space = space
     parity_model.center = np.array(shipped["center"]); parity_model.scale = np.array(shipped["scale"])
     parity_model.weights = np.array(shipped["weights"]); parity_model.alpha_ = shipped["alpha"]

@@ -140,7 +140,9 @@ export async function resolveLibrary(ratings, provider, onProgress = () => {}) {
                 keyword: meta.keyword || [],
                 genre: (meta.genre || []).map((g) => g.toLowerCase()),
               },
-              synopsis: meta.overview || '',
+              // The bundled library carries a synopsis's key terms rather than
+              // the text, which is all the recommender reads of it.
+              synopsis: meta.overview || meta.terms || '',
             });
           } else missing.push(entry);
         } catch (error) {

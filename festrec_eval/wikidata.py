@@ -317,6 +317,31 @@ class FilmCache:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(self.records, ensure_ascii=False), encoding="utf-8")
 
+    def fill_overviews(self, qids: list[str], step: int = 1000, log=print) -> None:
+        """Add Wikipedia synopses to cached films fetched without them.
+
+        Resumable: films already holding a synopsis are skipped, and progress
+        is saved after each step. A film whose article has no extract is marked
+        with an empty string so it isn't asked for again.
+        """
+        todo = [
+            q for q in dict.fromkeys(qids)
+            if (record := self.records.get(q))
+            and record.get("wikipedia")
+            and not record.get("overview")
+            and not record.get("overview_checked")
+        ]
+        log(f"fetching synopses for {len(todo)} films")
+        for start in range(0, len(todo), step):
+            batch = todo[start:start + step]
+            texts = extracts([self.records[q]["wikipedia"] for q in batch])
+            for qid in batch:
+                record = self.records[qid]
+                record["overview"] = trim_overview(texts.get(record["wikipedia"], ""))
+                record["overview_checked"] = True
+            self.save()
+            log(f"  {min(start + step, len(todo))}/{len(todo)}")
+
     def fill(self, qids: list[str], overviews: bool = True, step: int = 2000,
              log=print) -> None:
         """Fetch whatever isn't cached yet, saving after each step."""

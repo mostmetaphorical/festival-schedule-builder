@@ -157,18 +157,38 @@ were quietly breaking that:
 | MovieLens writes "Big Lebowski, The"; Letterboxd writes "The Big Lebowski" | `festrec_eval/titles.py`, matched on both sides | library coverage 56% → 83% |
 | The bundled film list stopped at 2018, missing every recent favourite | `build_bundle.py` takes the most widely written-about films of every year, and more of them from 2018 on | 83% → **95%** on a real 674-film export and 87% on a 502-film one (the TMDB-built list reached 96% on the first). Most of what's left is from the 2020s, which the in-app Wikidata lookup covers on request |
 | Festival films described in festival wording ("Dream-logic slasher") | `enrich_festival.py` matches the lineup to Wikidata | repertory and known titles gain real credits and themes |
-| Films with no metadata scored *highest* | evidence shrinkage (below) | unknown shorts no longer top the list |
+| Films with no metadata scored *highest* | evidence shrinkage (later removed, below) | unknown shorts no longer top the list |
 
 On a real 674-rating Letterboxd export (with the earlier TMDB-built data),
 this took the profile from 380 matched films with no genre data at all, to 645
 matched films knowing 430 directors, 2,025 actors, 2,369 themes and 18 genres.
 
-**Evidence shrinkage.** Standardised features make "nothing is known about this
-film" a specific point in feature space, not a neutral one — so films with no
-credits and no themes were landing near the top. Predictions are now scaled by
-how much the person's history actually says: no evidence, no opinion. Measured
-neutral on MovieLens (where nearly every film has some metadata) and it fixes
-a visible ordering failure at a festival.
+**Evidence shrinkage, tried and removed.** Scaling each prediction by how
+many of the person's rated films share credits or keywords with the candidate
+was meant to stop unknown shorts topping the list. At a festival, though, most
+films share none, so it flattened them all to the person's own average — the
+synopsis signal included. Removed: on MovieLens accuracy is marginally better
+(RMSE 0.8810 → 0.8792) and predictions for films with no shared people spread
+35% more. A film with nothing in common with someone's history now lands a
+little below their average, which matches how such films were rated.
+
+**Synopses in the app.** The film library used to ship without synopses, so
+the synopsis comparison — one of the model's two strongest signals — was zero
+for every festival film. Each library film now carries its 30 most distinctive
+synopsis words (`build_bundle.py --terms`, weighted as the model weighs them),
+which on MovieLens keep most of what full text gives (nDCG 0.9030 against
+0.9045 for full text and 0.9016 for none). The library grows from 1.9 MB to
+4.1 MB compressed.
+
+**Small profiles.** A person's average is blended with five pseudo-ratings at
+the training average, so a handful of ratings can't drag every prediction to
+an extreme: RMSE with one rating 1.53 → 0.99, with ten 0.97 → 0.95, no change
+past thirty.
+
+On the Fantastic Fest slate these three changes more than double the spread of
+predictions for the demo profile (standard deviation 0.037 → 0.085 stars) and
+widen it by a third to a half for two real exports (0.060 → 0.093, 0.081 →
+0.110). `diagnose.py` and `diagnose_js.mjs` reproduce these figures.
 
 **Two things that sounded good and measured worse.** Both are kept in the
 codebase as recorded negatives rather than deleted:

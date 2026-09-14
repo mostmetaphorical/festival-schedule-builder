@@ -9,10 +9,13 @@ the model was trained on.
     python build_bundle.py --per-year 250
 
 "Widely seen" is measured by how many Wikipedias have an article on the film,
-which needs no ratings data. Credits are CC0 from Wikidata. Synopses are left
-out by default - they roughly triple the download for a signal that matters
-little on someone's own rated films (see README) - and if included they carry
-their Wikipedia article title for attribution.
+which needs no ratings data. Credits are CC0 from Wikidata.
+
+Synopses matter: the recommender compares a festival film's synopsis with those
+of the films someone rated, and without them that signal is zero in the app.
+Full text would triple the download, so by default each film carries only its
+`--terms` most distinctive words (weighted as the model weighs them, from
+app/data/idf.json). On MovieLens, 30 terms keep most of the signal (see README).
 
 Resumable: fetched films are cached in data/wikidata_films.json, shared with
 enrich_wikidata.py.
@@ -35,6 +38,28 @@ CAST_DEPTH = 5
 MAX_WRITERS = 3
 
 
+def synopsis_terms(idf_path: str, limit: int):
+    """A function giving a synopsis's `limit` highest-weighted words, space-separated.
+
+    Weighted as festrec_eval/text.py weighs them (sublinear term frequency
+    times idf), and restricted to the model's vocabulary, since any other word
+    is ignored when the app scores. Each word is kept once.
+    """
+    import math
+
+    from festrec_eval.text import MIN_LEN, STOPWORDS, TOKEN
+
+    idf = json.loads(Path(idf_path).read_text(encoding="utf-8"))["idf"]
+
+    def top(text: str) -> str:
+        words = [t for t in TOKEN.findall(text.lower()) if len(t) >= MIN_LEN and t not in STOPWORDS]
+        counts = Counter(w for w in words if w in idf)
+        weighted = sorted(counts, key=lambda w: -(1 + math.log(counts[w])) * idf[w])
+        return " ".join(weighted[:limit])
+
+    return top
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -53,7 +78,11 @@ def parse_args() -> argparse.Namespace:
                    help="the training films, which are always included")
     p.add_argument("--out", default="app/data/library.json")
     p.add_argument("--overviews", action="store_true",
-                   help="include Wikipedia synopses (much larger file)")
+                   help="include full Wikipedia synopses (much larger file)")
+    p.add_argument("--terms", type=int, default=30,
+                   help="synopsis words kept per film for the recommender (0 = none)")
+    p.add_argument("--idf", default="app/data/idf.json",
+                   help="word weights exported with the model; run export_model.py first")
     p.add_argument("--discover-only", action="store_true",
                    help="just list each year's films, without fetching them")
     return p.parse_args()
@@ -90,9 +119,13 @@ def main() -> None:
             if r and r.get("qid")
         )
 
-    cache.fill(qids, overviews=args.overviews)
+    cache.fill(qids, overviews=args.overviews or args.terms > 0)
+    if args.overviews or args.terms > 0:
+        cache.fill_overviews(qids)
     cache.remap()  # apply the current genre rules to films fetched earlier
     records = [cache.records[q] for q in dict.fromkeys(qids) if cache.records.get(q)]
+
+    top_terms = synopsis_terms(args.idf, args.terms) if args.terms > 0 else None
 
     # A keyword only helps if it recurs; one used once can never match.
     usage = Counter(k for r in records for k in r.get("keyword") or [])
@@ -113,6 +146,10 @@ def main() -> None:
         if args.overviews and film.get("overview"):
             record["overview"] = film["overview"]
             record["wikipedia"] = film.get("wikipedia", "")
+        elif top_terms and film.get("overview"):
+            terms = top_terms(film["overview"])
+            if terms:
+                record["terms"] = terms
 
         index = len(films)
         films.append(record)
