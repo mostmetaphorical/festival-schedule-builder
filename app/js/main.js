@@ -26,6 +26,7 @@ import {
   validateFestival,
 } from './festival-io.js';
 import { festivalFromCSV, isPosterURL, looksLikeCSV } from './festival-csv.js';
+import { mailto, revealContact } from './contact.js';
 import {
   MIN_RATINGS_TO_SHARE,
   botCheck,
@@ -179,6 +180,14 @@ function wireUp() {
 
   wireSharing();
   wireReport();
+
+  // The contact address is only assembled once someone opens the emailing
+  // instructions, so it isn't sitting in the page for harvesters.
+  $$('details').forEach((fold) =>
+    fold.addEventListener('toggle', () => {
+      if (fold.open && fold.querySelector('[data-contact]')) revealContact(fold);
+    })
+  );
 
   // The email route hands the file to the person and opens a pre-filled
   // message. Nothing is transmitted from the page itself.
@@ -522,9 +531,7 @@ function wireReport() {
       message.value.trim(),
       includeDetails.checked ? `\n---\n${$('#report-preview').textContent}` : '',
     ].join('');
-    $('#report-email').href =
-      'mailto:festrecommender.crucial122@passmail.net?subject=' +
-      encodeURIComponent('Bug report') + '&body=' + encodeURIComponent(body);
+    $('#report-email').href = mailto({ subject: 'Bug report', body });
   };
 
   $$('[data-report]').forEach((button) =>

@@ -398,27 +398,18 @@
         This is an alpha. The model behind it was trained on an old public
         dataset of mostly mainstream films, and festival slates are mostly
         premieres nobody has rated yet. More real rating histories make it
-        measurably better, and there's an honest test in the repository that
-        scores how well it predicts ratings it has never seen.
+        measurably better, and there's a test in the repository that scores how
+        well it predicts ratings it has never seen.
       </p>
       <p>
         <b>The easy way:</b> build a plan, then use <b>Share my ratings</b> on
         the Plan tab. It sends only titles, years and star ratings, and nothing
-        goes anywhere until you tick the box and press the button. Or email your
-        <code>ratings.csv</code> to
-        <a href="mailto:festrecommender.crucial122@passmail.net">festrecommender.crucial122@passmail.net</a>.
+        goes anywhere until you tick the box and press the button.
       </p>
     </div>
     <div class="threshold stack">
       <p class="threshold-title">Please only share if you've rated at least 30 films.</p>
-      <p class="muted">
-        The test hides 30% of someone's ratings and checks whether the
-        recommender predicts them. With 20 ratings that means learning from 14
-        films and being graded on 6, which is mostly luck: measured across
-        hundreds of people, profiles under 30 scored barely better than assuming
-        someone likes everything equally. Sending a small one costs you privacy
-        for no useful result.
-      </p>
+      <p class="muted">Fewer than that is too little for the test to learn anything from.</p>
       <details class="fold inner">
         <summary>Emailing instead: what to send, and what not to</summary>
         <div class="fold-body stack">
@@ -427,7 +418,9 @@
               <a href="https://letterboxd.com/settings/data/">letterboxd.com/settings/data</a>.</li>
             <li>Click <b>Export your data</b>. A .zip downloads.</li>
             <li>Open the .zip and take out <b>ratings.csv</b> only.</li>
-            <li>Send that one file. <b>Please don't send the whole .zip.</b></li>
+            <li>Email that one file to
+              <a data-contact data-subject="My ratings" href="#">the address shown here</a>.
+              <b>Please don't send the whole .zip.</b></li>
           </ol>
           <p class="muted small">
             <code>ratings.csv</code> holds only the date, film title, film year, a
@@ -455,7 +448,7 @@
   </div>
 </footer>
 
-<dialog class="report" id="report-dialog" aria-labelledby="report-title">
+<dialog class="report-dialog" id="report-dialog" aria-labelledby="report-title">
   <form method="dialog" class="stack" id="report-form">
     <div class="block-head">
       <h3 id="report-title">Report a bug</h3>
@@ -499,7 +492,7 @@
 
     <div class="inline-row">
       <button class="btn primary" type="button" id="report-send" disabled>Send report</button>
-      <span class="muted small">or <a id="report-email" href="mailto:festrecommender.crucial122@passmail.net?subject=Bug%20report">email it instead</a></span>
+      <span class="muted small">or <a id="report-email" href="#">email it instead</a></span>
     </div>
   </form>
 </dialog>

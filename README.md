@@ -22,9 +22,10 @@ watched, your username, reviews, diary or watchlist.
 
 **Or by email:** export from
 [letterboxd.com/settings/data](https://letterboxd.com/settings/data/), open the
-zip, and send **only `ratings.csv`** to
-`festrecommender.crucial122@passmail.net`. Please don't send the whole zip —
-your profile details are in the other files.
+zip, and send **only `ratings.csv`** to the address in the app's *Emailing
+instead* section (it isn't written here, to keep it away from address
+harvesters). Please don't send the whole zip — your profile details are in
+the other files.
 
 Shared ratings are used only to measure how well the recommender predicts
 held-out ratings ([the test](#the-accuracy-test)), and are never republished.

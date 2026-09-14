@@ -49,6 +49,9 @@ explains the product and the measured results; this file is how to work on it.
 - **Do not use TMDB.** Its API terms forbid use "in connection with" a machine
   learning application, which this is. IMDb's datasets can't be republished
   and OMDb's posters aren't its to license, so neither is a substitute.
+- Never write the contact email address out in full in the site, scripts or
+  README. The app assembles it in `app/js/contact.js` only when someone opens
+  an emailing section, to keep it away from address harvesters.
 - Don't automate collection from festival or ticketing sites (Eventive's terms
   forbid bots and data-gathering tools). Converters read files a person saved.
 - `app/fixtures/demo-ratings.csv` is invented, not anyone's real history.

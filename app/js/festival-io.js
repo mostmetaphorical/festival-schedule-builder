@@ -12,6 +12,8 @@
  * the pull request.
  */
 
+import { contactAddress } from './contact.js';
+
 const REQUIRED_FILM_FIELDS = ['title'];
 const MAX_SENSIBLE_RUNTIME = 600;
 const MIN_SENSIBLE_RUNTIME = 3;
@@ -150,7 +152,11 @@ export function downloadFestival(data) {
 /** Where to send a festival so it can be reviewed and added to the app. */
 export const SUBMIT = {
   repo: 'mostmetaphorical/festival-schedule-builder',
-  email: 'festrecommender.crucial122@passmail.net',
+  // Assembled in contact.js rather than written out here, to stay out of
+  // reach of address harvesters.
+  get email() {
+    return contactAddress();
+  },
 };
 
 export function issueURL(data, stats) {

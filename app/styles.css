@@ -35,6 +35,8 @@
 * { box-sizing: border-box; }
 /* Components set their own display, which would otherwise beat `hidden`. */
 [hidden] { display: none !important; }
+/* The same goes for a closed dialog: it must never show inline on the page. */
+dialog:not([open]) { display: none !important; }
 
 html { background: var(--page); }
 body {
@@ -452,14 +454,14 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); font-size: 13p
   box-shadow: 3px 3px 0 var(--lime); transform: translate(-2px, -2px); }
 .report-link:hover::before { background: var(--page); }
 .report-link:active { box-shadow: none; transform: none; }
-dialog.report { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow: auto; padding: 24px;
+dialog.report-dialog { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow: auto; padding: 24px;
   background: var(--surface); color: var(--text); border: 2px solid var(--line-2); box-shadow: 8px 9px 0 var(--pink); }
-dialog.report[open] { animation: panel-in .25s var(--ease); }
-dialog.report::backdrop { background: rgba(4, 3, 12, .75); }
-dialog.report .block-head { align-items: center; }
-dialog.report .close { background: none; border: 0; color: var(--dim); font-size: 28px; line-height: 1; cursor: pointer;
+dialog.report-dialog[open] { animation: panel-in .25s var(--ease); }
+dialog.report-dialog::backdrop { background: rgba(4, 3, 12, .75); }
+dialog.report-dialog .block-head { align-items: center; }
+dialog.report-dialog .close { background: none; border: 0; color: var(--dim); font-size: 28px; line-height: 1; cursor: pointer;
   padding: 0 4px; }
-dialog.report .close:hover { color: var(--text); }
+dialog.report-dialog .close:hover { color: var(--text); }
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; }
 .field em { font-style: normal; font-weight: 400; color: var(--dim); }
 .field textarea { font: 15px/1.5 var(--body); min-height: 120px; }
@@ -582,7 +584,7 @@ select:focus { outline: none; border-color: var(--pink); }
   .footer-row { align-items: flex-start; gap: 12px; }
   .report-link { top: 10px; right: 10px; padding: 6px 9px 4px; font-size: 14px; }
   .masthead { padding-top: 54px; }
-  dialog.report { padding: 18px 16px; box-shadow: 5px 6px 0 var(--pink); }
+  dialog.report-dialog { padding: 18px 16px; box-shadow: 5px 6px 0 var(--pink); }
   .report-preview { margin-left: 0; }
 }
 @media (min-width: 761px) { .card-detail .mobile-meta { display: none; } }
