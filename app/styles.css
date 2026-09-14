@@ -249,17 +249,22 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .error-text { color: var(--danger); }
 
 /* 1. Ratings --------------------------------------------------------- */
-.dropzone-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; border: 2px dashed var(--edge);
+.dropzone-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; border: 2px dashed var(--edge);
   transition: border-color .2s; }
 .dropzone-grid:has(.drop.over), .dropzone-grid:has(.drop:hover) { border-color: var(--pink); }
-.drop { display: flex; flex-direction: column; gap: 18px; padding: 36px 40px; cursor: pointer; }
+.drop { display: flex; flex-direction: column; gap: 18px; padding: 32px 40px; cursor: pointer; }
 .drop-title { font-family: var(--display); text-transform: uppercase; font-size: 34px; line-height: 1; }
 .drop-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .drop.over { background: rgba(255, 62, 165, .07); }
 .drop.small { align-items: center; justify-content: center; min-height: 104px; padding: 12px;
   border: 2px dashed var(--edge); transition: border-color .2s, background .2s; }
 .drop.small:hover, .drop.small.over { border-color: var(--pink); }
-.how-to { display: flex; flex-direction: column; gap: 14px; padding: 36px 32px; background: var(--surface); }
+.how-to { display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 28px 30px;
+  background: var(--surface); }
+/* Kept to one line a step, so this side is no taller than the drop area. */
+.how-to .numbered { gap: 6px; }
+.how-to .numbered li { white-space: nowrap; }
+.how-to code { white-space: nowrap; }
 
 .missing { display: flex; flex-direction: column; }
 .missing .intro { font-size: 14px; color: var(--dim); margin: 8px 0 10px; }
