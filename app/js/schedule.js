@@ -106,10 +106,12 @@ export const screeningId = (screening) => {
 function value(film, screening, { minimum, pinned }) {
   if (pinned) return 1000;
   if (!film) return 0;
-  if (film.scoreable === false) {
-    return film.userRating ?? Math.max((film.prediction ?? 0) - minimum, 0.01);
-  }
-  return Math.max(film.prediction - minimum, 0);
+  const stars = film.scoreable === false ? film.userRating ?? film.prediction ?? 0 : film.prediction;
+  if (stars - minimum <= 0) return film.scoreable === false ? 0.01 : 0;
+  // Stars are a recommendation, so each extra star is worth doubling: one
+  // 5-star film outweighs three 3-star ones. Adding values linearly let a day
+  // of middling films beat the one film someone should not miss.
+  return 2 ** (stars - 1);
 }
 
 /**

@@ -221,6 +221,15 @@ predictor pulls toward the average when the evidence is thin, and for a
 premiere it usually is. `check_blend_parity.py`/`.mjs` holds Python and the
 browser to 0.005 stars, and `check_slate_spread.mjs` measures the spread.
 
+**Stars are a recommendation, not a predicted rating.** Calibrated predictions
+for premieres sit within a few tenths of a star of each other, which says little
+when choosing. The app stretches each person's predictions for a festival over
+the whole scale - the top 5% of their prospects get 5 stars, the bottom 5% one -
+so the order and gaps are the model's and only the scale is changed. The
+predicted rating itself stays in each film's details, with its rank at the
+festival. The planner values each extra star as double, so one film someone
+should not miss outweighs a day of middling ones.
+
 **Two things that sounded good and measured worse.** Both are kept in the
 codebase as recorded negatives rather than deleted:
 

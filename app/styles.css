@@ -495,6 +495,8 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 
 .card-detail .predicted { display: flex; align-items: baseline; gap: 10px; }
 .predicted .num { font: 700 30px/1 var(--mono); color: var(--pink); }
+.card-detail .estimate { font-size: 14px; line-height: 1.5; color: var(--dim); margin-top: -6px; }
+.card-detail .estimate b { color: var(--soft); }
 .predicted .label { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
   color: var(--dim); }
 .alt .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }

@@ -1186,6 +1186,28 @@ async function importCommitments(file) {
 
 let scoring = 0;
 
+/**
+ * Stars are a recommendation, not a guess at the rating someone would give.
+ *
+ * Predicted ratings are calibrated, so for premieres they bunch within a few
+ * tenths of a star of the person's average - accurate, and useless for
+ * choosing. This stretches this person's range on this slate over the whole
+ * scale: their top 5% of prospects get 5 stars, the bottom 5% get 1, and
+ * everything else lands in proportion. The order and the gaps are the model's; only the scale changes.
+ * The predicted rating itself stays available (`estimate`) and is shown in
+ * the film's details.
+ */
+function recommendationScale(predictions) {
+  // Anchored at the 5th and 95th percentiles rather than the extremes, so one
+  // standout film can't squash everyone else into the middle of the scale.
+  const sorted = [...predictions].sort((a, b) => a - b);
+  const at = (q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.round(q * (sorted.length - 1))))];
+  const low = sorted.length >= 20 ? at(0.05) : sorted[0];
+  const high = sorted.length >= 20 ? at(0.95) : sorted[sorted.length - 1];
+  if (!predictions.length || !(high - low > 0.01)) return () => 3;
+  return (value) => Math.min(5, Math.max(0.5, 1 + (4 * (value - low)) / (high - low)));
+}
+
 function score() {
   if (!state.festival || !state.profile) return;
 
@@ -1202,11 +1224,21 @@ function score() {
 
     // Unscoreable items keep the person's own average rather than a fake
     // prediction, and are labelled as such in the UI.
+    const scored = recommender.scoreSlate(state.profile, scoreable);
+    const base = recommender.base(state.profile);
+    const toStars = recommendationScale(scored.map((film) => film.prediction));
     state.scored = [
-      ...recommender.scoreSlate(state.profile, scoreable),
+      ...scored.map((film, index) => ({
+        ...film,
+        estimate: film.prediction,
+        prediction: toStars(film.prediction),
+        rank: index + 1,
+        slateSize: scored.length,
+      })),
       ...rest.map((film) => ({
         ...film,
-        prediction: recommender.base(state.profile),
+        estimate: base,
+        prediction: toStars(base),
         confidence: 'none',
         reasons: { people: [], keywords: [] },
       })),
@@ -1243,11 +1275,11 @@ function rebuild() {
   updateChrome();
 }
 
-/** Five diamonds, filled to the rounded prediction. */
+/** Five diamonds, filled to the rounded recommendation. */
 function diamonds(value) {
   const filled = Math.max(0, Math.min(5, Math.round(value)));
   return (
-    `<span class="diamonds" role="img" aria-label="Predicted ${value.toFixed(1)} out of 5">` +
+    `<span class="diamonds" role="img" aria-label="Recommended ${value.toFixed(1)} out of 5">` +
     '<i></i>'.repeat(filled) +
     '<i class="off"></i>'.repeat(5 - filled) +
     '</span>'
@@ -1481,7 +1513,7 @@ function altRow(entry, { label, action, primary = false, extraBadge = '', note =
     `${film.runtime ? ` · ${film.runtime} min` : ''}` +
     (film.scoreable === false
       ? ' · Not rated — your call'
-      : ` · Predicted ${film.prediction.toFixed(1)}★`) +
+      : ` · ${film.prediction.toFixed(1)}★ for you`) +
     (note ? `<span class="clash-note">${note}</span>` : '') +
     (film.synopsis ? `<span class="syn">${escapeHTML(film.synopsis)}</span>` : '') +
     `</p></div>` +
@@ -1747,8 +1779,16 @@ function filmDetails(film, pick, badges) {
     `<p class="meta mobile-meta">${escapeHTML(filmFacts(film))}${badges}</p>` +
     (unrated
       ? ''
+      // Both pieces: how strongly it's recommended at this festival, and the
+      // rating the model expects the person would actually give it.
       : `<p class="predicted"><span class="num">${film.prediction.toFixed(1)}★</span>` +
-        `<span class="label">Predicted rating</span></p>`) +
+        `<span class="label">Recommendation${
+          film.rank ? ` · #${film.rank} of ${film.slateSize} for you here` : ''
+        }</span></p>` +
+        (Number.isFinite(film.estimate)
+          ? `<p class="estimate">You'd probably rate it about <b>${film.estimate.toFixed(1)}★</b>. ` +
+            'The stars above rank it against the rest of this festival, so the differences are easier to see.</p>'
+          : '')) +
     `<p class="why"><b>Why it's here:</b>${
       unrated ? 'No ratings history can predict this one — your call.' : `${escapeHTML(capitalise(reasonText(film)))}.`
     }</p>` +

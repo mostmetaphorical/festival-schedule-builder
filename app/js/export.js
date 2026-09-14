@@ -102,7 +102,8 @@ export function toICS(schedule, festivalName) {
         film.scoreable === false
           ? 'Not rated by the recommender - your pick.'
           : film.prediction
-            ? `Predicted: ${film.prediction.toFixed(1)} stars`
+            ? `Recommendation: ${film.prediction.toFixed(1)} of 5` +
+              (Number.isFinite(film.estimate) ? ` (predicted rating ${film.estimate.toFixed(1)})` : '')
             : '',
       ]
         .filter(Boolean)
