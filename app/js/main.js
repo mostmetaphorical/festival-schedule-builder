@@ -1054,9 +1054,40 @@ function nextCommitmentDay() {
   return days[Math.min(at + 1, days.length - 1)];
 }
 
-/** Minutes since midnight to the value an <input type=time> takes. */
-const timeValue = (minutes) =>
-  minutes == null ? '' : `${String(Math.floor((minutes % 1440) / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+/**
+ * Commitment times run from 7:00 AM to 2:00 AM, every 15 minutes - a festival
+ * day, with late nights after the evening rather than at the top of the list.
+ * Times are counted on from the morning, so 1:00 AM is 25 hours (1500).
+ */
+const DAY_START = 7 * 60;
+const DAY_END = 26 * 60;
+const onFromMorning = (minutes) => (minutes % 1440 < DAY_START ? (minutes % 1440) + 1440 : minutes % 1440);
+
+/**
+ * A dropdown's options between two times. A time outside them (from an
+ * imported calendar) is kept, so loading a plan never changes a commitment.
+ */
+function timeOptions({ from, to, selected, placeholder }) {
+  const minutes = [];
+  for (let m = from; m <= to; m += 15) minutes.push(m);
+  if (selected != null && !minutes.includes(selected)) {
+    minutes.push(selected);
+    minutes.sort((a, b) => a - b);
+  }
+  return (
+    `<option value="">${placeholder}</option>` +
+    minutes
+      .map((m) => `<option value="${m}"${m === selected ? ' selected' : ''}>${formatTime(m)}</option>`)
+      .join('')
+  );
+}
+
+const startOptions = (selected) =>
+  timeOptions({ from: DAY_START, to: DAY_END - 15, selected, placeholder: 'Start' });
+
+// Only times after the start are offered as the end.
+const endOptions = (start, selected) =>
+  timeOptions({ from: start == null ? DAY_START + 15 : start + 15, to: DAY_END, selected, placeholder: 'End' });
 
 function renderCommitments() {
   const box = $('#commitments');
@@ -1065,19 +1096,21 @@ function renderCommitments() {
 
   state.commitments.forEach((commitment, index) => {
     const parsed = commitment.window ? parseCommitment(commitment) : null;
+    const startAt = parsed ? onFromMorning(parsed.start) : null;
+    const endAt = parsed ? onFromMorning(parsed.end) : null;
     const row = document.createElement('div');
     row.className = 'commitment';
     row.innerHTML =
       `<input type="date" value="${escapeAttribute(commitment.date || '')}" data-field="date"` +
       (days.length ? ` min="${days[0]}" max="${days[days.length - 1]}"` : '') +
       ' aria-label="Day">' +
-      // Two time pickers rather than free text: nothing to mistype, and the
-      // browser's own picker on a phone. An end before the start runs overnight.
+      // Two dropdowns rather than free text or the browser's time input,
+      // which behaves differently in every browser.
       `<span class="time-range" data-field="window">` +
-      `<input type="time" step="900" data-part="start" aria-label="Starts" value="${timeValue(parsed?.start)}">` +
+      `<select data-part="start" aria-label="Starts"${startAt == null ? ' class="empty"' : ''}>${startOptions(startAt)}</select>` +
       '<span class="to" aria-hidden="true">to</span>' +
-      `<input type="time" step="900" data-part="end" aria-label="Ends" value="${timeValue(parsed?.end)}">` +
-      `<span class="overnight"${parsed && parsed.end > 1440 ? '' : ' hidden'}>+1 day</span>` +
+      `<select data-part="end" aria-label="Ends"${endAt == null ? ' class="empty"' : ''}>${endOptions(startAt, endAt)}</select>` +
+      `<span class="overnight"${startAt < 1440 && endAt > 1440 ? '' : ' hidden'}>+1 day</span>` +
       '</span>' +
       `<input type="text" value="${escapeAttribute(commitment.label || '')}" data-field="label"` +
       ' placeholder="e.g. Dentist" aria-label="What">' +
@@ -1093,26 +1126,26 @@ function renderCommitments() {
     const end = row.querySelector('[data-part=end]');
     const overnight = row.querySelector('.overnight');
     const syncTime = () => {
-      const [sh, sm] = start.value.split(':').map(Number);
-      const [eh, em] = end.value.split(':').map(Number);
       const complete = Boolean(start.value && end.value);
-      const same = complete && sh * 60 + sm === eh * 60 + em;
+      const s = Number(start.value);
+      const e = Number(end.value);
+      start.classList.toggle('empty', !start.value);
+      end.classList.toggle('empty', !end.value);
+      // Only a range that starts before midnight and ends after it spills
+      // into the next day. One that starts after midnight is the early
+      // morning of the day chosen, so its date stays as picked.
+      overnight.hidden = !complete || s >= 1440 || e <= 1440;
       // Half a range is kept out of the plan until both ends are set.
-      end.setCustomValidity(same ? 'The end time must differ from the start.' : '');
-      end.classList.toggle('invalid', same);
-      if (same) end.reportValidity();
-      overnight.hidden = !complete || same || eh * 60 + em > sh * 60 + sm;
-      commitment.window = complete && !same
-        ? `${formatTime(sh * 60 + sm)} - ${formatTime(eh * 60 + em)}`
-        : '';
+      commitment.window = complete && e > s ? `${formatTime(s)} - ${formatTime(e)}` : '';
       replan();
     };
     start.addEventListener('change', () => {
-      // A start with no end yet gets a one-hour window to adjust from.
-      if (start.value && !end.value) {
-        const [h, m] = start.value.split(':').map(Number);
-        end.value = timeValue((h * 60 + m + 60) % 1440);
-      }
+      const s = start.value ? Number(start.value) : null;
+      let e = end.value ? Number(end.value) : null;
+      // A start with no end yet, or one at or past the end, gets a one-hour
+      // window to adjust from.
+      if (s != null && (e == null || e <= s)) e = Math.min(s + 60, DAY_END);
+      end.innerHTML = endOptions(s, e);
       syncTime();
     });
     end.addEventListener('change', syncTime);

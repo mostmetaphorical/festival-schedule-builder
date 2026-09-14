@@ -181,7 +181,7 @@ button.linkish:disabled { color: var(--quiet); border-color: transparent; cursor
 :focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
 
 input[type=text], input[type=url], input[type=password], input[type=number],
-input[type=date], input[type=time], textarea {
+input[type=date], textarea {
   width: 100%; min-height: 48px; padding: 10px 14px; background: var(--page);
   border: 2px solid var(--edge); border-radius: 0; color: var(--text); font: 16px/1.4 var(--body);
   transition: border-color .15s;
@@ -336,16 +336,20 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 /* An empty list would still take a gap at the top of the box. */
 #commitments:empty { display: none; }
 .commitments-box .fold.inner > summary { padding: 14px 0; }
-.commitment { display: grid; grid-template-columns: 190px 320px minmax(0, 1fr) 48px; gap: 12px; align-items: center;
+.commitment { display: grid; grid-template-columns: 190px 370px minmax(0, 1fr) 48px; gap: 12px; align-items: center;
   animation: panel-in .25s var(--ease); }
 .commitment.head { animation: none; font-size: 12px; font-weight: 700; letter-spacing: .1em;
   text-transform: uppercase; color: var(--dim); }
-.time-range { display: flex; align-items: center; gap: 8px; }
-.time-range input[type=time] { flex: 1 1 0; min-width: 0; font-family: var(--mono); font-size: 15px; color: var(--lime);
-  color-scheme: dark; }
+.time-range { position: relative; display: flex; align-items: center; gap: 8px; }
+.time-range select { flex: 1 1 0; min-width: 0; width: auto; padding: 0 6px 0 10px; font-family: var(--mono); font-size: 14px;
+  color: var(--lime); color-scheme: dark; }
+.time-range select.empty { color: var(--dim); }
+.time-range select option { color: var(--text); }
 .time-range .to { font-size: 13px; color: var(--dim); }
-.time-range .overnight { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--yellow); white-space: nowrap; }
+/* Under the end time, so it never pushes the boxes in its row out of line. */
+.time-range .overnight { position: absolute; top: calc(100% + 4px); right: 0; font-size: 11px; font-weight: 700;
+  line-height: 1; letter-spacing: .06em; text-transform: uppercase; color: var(--yellow); white-space: nowrap; }
+.commitment:has(.overnight:not([hidden])) { margin-bottom: 10px; }
 .remove { width: 48px; height: 48px; display: grid; place-items: center; background: none; border: 0;
   color: var(--dim); cursor: pointer; font-size: 22px; line-height: 1; transition: color .15s; }
 .remove:hover { color: var(--danger); }
@@ -652,8 +656,9 @@ select:focus { outline: none; border-color: var(--pink); }
   .commitment { grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .commitment > input, .commitment > .time-range { grid-column: 1; }
   .time-range { flex-wrap: wrap; gap: 6px; min-width: 0; }
-  .time-range input[type=time] { padding: 10px 6px; font-size: 13px; }
-  .time-range .overnight { flex-basis: 100%; }
+  .time-range select { padding: 0 6px; font-size: 13px; }
+  .time-range .overnight { position: static; flex-basis: 100%; text-align: right; }
+  .commitment:has(.overnight:not([hidden])) { margin-bottom: 0; }
   .commitment .remove { grid-column: 2; grid-row: 1; width: 44px; height: 44px; }
   .commitment.head { display: none; }
   .prefs { grid-template-columns: 1fr; gap: 16px; }
