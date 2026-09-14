@@ -397,6 +397,25 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .alt .syn { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
   overflow: hidden; }
 .full-note { color: var(--yellow); font-size: 14px; margin-top: 4px; }
+/* Films just outside the slot: offered, but visibly a step removed. */
+.alt.near { opacity: .5; transition: opacity .2s var(--ease); }
+.alt.near:hover, .alt.near:focus-within { opacity: 1; }
+.alt .clash-note { display: block; color: var(--yellow); margin: 2px 0; }
+.badge.warn-badge { border-color: var(--yellow); color: var(--yellow); }
+.alternatives .alt + .intro { border-top: 1px solid var(--line); margin-top: 6px; }
+
+.marker.alert { background: var(--yellow); }
+.clash-box { display: flex; flex-direction: column; gap: 10px; border: 2px solid var(--yellow);
+  border-left-width: 6px; padding: 16px 22px; margin-bottom: 16px; }
+.clash-box .name { font-family: var(--display); text-transform: uppercase; font-size: 26px; line-height: 1;
+  color: var(--yellow); }
+.clash-box .meta { font-size: 15px; line-height: 1.5; color: var(--soft); }
+.clash-box .card-actions .quiet { color: var(--soft); border-color: var(--line-2); }
+
+.card-detail .predicted { display: flex; align-items: baseline; gap: 10px; }
+.predicted .num { font: 700 30px/1 var(--mono); color: var(--pink); }
+.predicted .label { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dim); }
 .alt .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
 
 .free-box { display: flex; flex-direction: column; border: 2px dashed var(--edge); margin-bottom: 16px; }
@@ -546,7 +565,11 @@ select:focus { outline: none; border-color: var(--pink); }
   .rail::before { left: 10px; }
   .day-head + .row .rail::before { top: 6px; }
   .marker { width: 12px; height: 12px; margin-top: 6px; }
-  .row > .card, .row > .free-box { grid-column: 2; }
+  .row > .card, .row > .free-box, .row > .clash-box { grid-column: 2; }
+  .row.clash .time { display: none; }
+  .row.clash .rail { grid-row: 1; }
+  .clash-box { padding: 14px; }
+  .predicted .num { font-size: 26px; }
   .card-head { grid-template-columns: 44px minmax(0, 1fr) 32px; gap: 12px; padding: 12px; }
   .poster { width: 44px; height: 66px; box-shadow: 3px 3px 0 var(--pink); }
   .poster.empty { font-size: 18px; }

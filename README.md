@@ -63,11 +63,16 @@ and installs the dependencies; on Ubuntu you may first need
 slate and marked "not rated" rather than scored, because no rating history can
 predict them. They can be pinned into the plan like anything else.
 
-**Editing** — every slot has *Swap* (shows what else is on at that hour, with
-synopses) and *Drop*. A pinned choice outranks the model, and the schedule
-re-solves around it. Dropping a film leaves its slot free and lists what fits
-there, rather than quietly moving the next-best film in; the dropped film stays
-in those lists, marked, so it can be put straight back.
+**Editing** — every slot has *Swap* and *Drop*. Swap lists what else is on at
+that hour, with synopses, and greys out films starting within an hour either
+side, which can still be chosen. An edit changes only what it touches: the rest
+of the plan stays put. If a swapped-in film runs into another pick, both stay
+and the plan shows a clash warning with a choice of which to drop; the swap
+list says so before choosing. Dropping a film leaves its slot free and lists
+what fits there, rather than quietly moving the next-best film in; the dropped
+film stays in those lists, marked, so it can be put straight back. Changing
+the daily limit, the gap between films or commitments re-plans around the
+films you picked yourself.
 
 **Exports** — `.ics` for the phone's calendar, a self-contained HTML page, and
 print-to-PDF. The HTML export has two flavours: schedule only, which is safe to

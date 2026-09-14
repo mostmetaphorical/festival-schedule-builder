@@ -52,6 +52,9 @@ const state = {
   scored: [],
   commitments: [],
   pinned: new Set(),
+  // Screenings a swap elsewhere left in place. Swapping one film shouldn't
+  // rearrange the rest of the plan, so everything else is held where it was.
+  kept: new Set(),
   excluded: new Set(),
   // Time slots emptied by dropping a film, kept free until the person fills
   // them: [{title, date, start, end}].
@@ -150,8 +153,8 @@ function wireUp() {
       input.dispatchEvent(new Event('change'));
     })
   );
-  $('#max-per-day').addEventListener('change', rebuild);
-  $('#buffer').addEventListener('change', rebuild);
+  $('#max-per-day').addEventListener('change', replan);
+  $('#buffer').addEventListener('change', replan);
   $('#to-plan').addEventListener('click', () => {
     rebuild();
     showStep(4);
@@ -756,6 +759,7 @@ function useFestival(data, { external = false, notes = [], problems = [] } = {})
 
   state.festival = data;
   state.pinned = new Set();
+  state.kept = new Set();
   state.excluded = new Set();
   state.held = [];
   state.openCards = new Set();
@@ -808,13 +812,13 @@ function renderCommitments() {
         input.setCustomValidity(unreadable ? 'Use a range like 6:00 PM - 8:00 PM' : '');
         input.classList.toggle('invalid', Boolean(unreadable));
         if (unreadable) input.reportValidity();
-        rebuild();
+        replan();
       })
     );
     row.querySelector('[data-remove]').addEventListener('click', () => {
       state.commitments.splice(index, 1);
       renderCommitments();
-      rebuild();
+      replan();
     });
     box.appendChild(row);
   });
@@ -874,7 +878,7 @@ async function importCommitments(file) {
     (!found.length ? '<p class="muted small">No events with a date and time were found in it.</p>' : '');
 
   renderCommitments();
-  rebuild();
+  replan();
 }
 
 /* ---------- scoring and planning ---------- */
@@ -899,6 +903,12 @@ function score() {
   rebuild();
 }
 
+/** New limits mean a new plan: only the person's own picks stay put. */
+function replan() {
+  state.kept.clear();
+  rebuild();
+}
+
 function rebuild() {
   if (!state.scored.length) return;
 
@@ -910,6 +920,7 @@ function rebuild() {
       maxPerDay: Number($('#max-per-day').value) || Infinity,
       buffer: Number($('#buffer').value),
       pinned: state.pinned,
+      kept: state.kept,
       excluded: state.excluded,
       held: state.held,
     }
@@ -986,6 +997,11 @@ function renderPlan() {
     const entries = [
       ...day.picks.map((pick) => ({ start: pick.start, row: () => pickRow(day, pick, single) })),
       ...gaps.map((gap) => ({ start: gap.start, row: () => gapRow(day, gap) })),
+      // Just before the later film, so the warning sits between the two.
+      ...(day.clashes || []).map((clash) => ({
+        start: clash.second.start - 0.5,
+        row: () => clashRow(day, clash),
+      })),
     ].sort((a, b) => a.start - b.start);
     for (const entry of entries) {
       const row = entry.row();
@@ -1042,15 +1058,7 @@ function pickRow(day, pick, single) {
   setOpen(state.openCards.has(id));
   head.addEventListener('click', () => setOpen(!card.classList.contains('open')));
 
-  row.querySelector('[data-drop]').addEventListener('click', () => {
-    state.excluded.add(film.title);
-    state.pinned.delete(id);
-    state.openCards.delete(id);
-    // Leave the slot empty, showing what else fits, rather than letting the
-    // planner slide the next-best film into it.
-    state.held.push({ title: film.title, date: day.date, start: pick.start, end: pick.end });
-    rebuild();
-  });
+  row.querySelector('[data-drop]').addEventListener('click', () => dropPick(day, pick));
   row.querySelector('[data-swap]').addEventListener('click', () => {
     const existing = clip.querySelector('.alternatives');
     if (existing) return existing.remove();
@@ -1059,25 +1067,77 @@ function pickRow(day, pick, single) {
   return row;
 }
 
+/** Hold every current pick where it is, so an edit changes only what it touches. */
+function keepPlan() {
+  for (const planned of state.schedule?.days || []) {
+    for (const pick of planned.picks) state.kept.add(screeningId(pick));
+  }
+}
+
+function dropPick(day, pick) {
+  const id = screeningId(pick);
+  keepPlan();
+  state.excluded.add(pick.film.title);
+  state.pinned.delete(id);
+  state.kept.delete(id);
+  state.openCards.delete(id);
+  // Leave the slot empty, showing what else fits, rather than letting the
+  // planner slide the next-best film into it.
+  state.held.push({ title: pick.film.title, date: day.date, start: pick.start, end: pick.end });
+  rebuild();
+}
+
 /**
- * What else was showing at that time, so a pick can be overruled knowingly.
- * Shown inline rather than in a dialog: choosing between films means reading
- * what they are, and a one-line prompt can't show that.
+ * Make `chosen` a pick.
  *
- * Make `chosen` the pick for its time slot.
+ * With `replacing`, this is a swap: that one pick gives way and everything
+ * else in the plan stays exactly where it is - even a film the new choice now
+ * runs into. The clash is shown as a warning for the person to settle; the
+ * planner doesn't quietly settle it for them by changing a film they didn't
+ * touch. The displaced film isn't marked as dropped - a swap is "this instead
+ * of that", not "never show me that again" - so it can be swapped straight back.
  *
- * This replaces whatever was pinned in that slot rather than marking the
- * displaced film as dropped - a swap is "this instead of that, here", not
- * "never show me that again". The displaced film stays available, so it
- * appears among the alternatives and can be swapped straight back.
+ * Without `replacing` (adding a film to free time), whatever was pinned in
+ * the same slot gives way.
  */
-function pinInstead(day, chosen) {
-  for (const entry of day.all) {
-    if (entry.film && entry.start < chosen.end && chosen.start < entry.end) {
-      state.pinned.delete(screeningId(entry));
-      state.openCards.delete(screeningId(entry));
+function pinInstead(day, chosen, replacing = null) {
+  const chosenId = screeningId(chosen);
+  // Slots this leaves empty stay empty, showing what fits, rather than being
+  // refilled behind the person's back - the same as after a drop.
+  const emptied = [];
+  if (replacing) {
+    emptied.push({ title: replacing.film.title, date: day.date, start: replacing.start, end: replacing.end });
+  }
+  for (const planned of state.schedule?.days || []) {
+    for (const pick of planned.picks) {
+      if (pick.film.title === chosen.film.title && screeningId(pick) !== chosenId) {
+        emptied.push({ title: pick.film.title, date: planned.date, start: pick.start, end: pick.end });
+      }
     }
   }
+  keepPlan();
+  if (replacing) {
+    const replacedId = screeningId(replacing);
+    state.pinned.delete(replacedId);
+    state.kept.delete(replacedId);
+    state.openCards.delete(replacedId);
+  } else {
+    for (const entry of day.all) {
+      if (entry.film && entry.start < chosen.end && chosen.start < entry.end) {
+        state.pinned.delete(screeningId(entry));
+        state.kept.delete(screeningId(entry));
+        state.openCards.delete(screeningId(entry));
+      }
+    }
+  }
+  // A film is only planned once: choosing it here moves it from any other
+  // screening it had.
+  for (const set of [state.pinned, state.kept]) {
+    for (const id of [...set]) {
+      if (id !== chosenId && id.startsWith(`${chosen.film.title}@`)) set.delete(id);
+    }
+  }
+  state.kept.delete(chosenId);
   state.excluded.delete(chosen.film.title);
   // Choosing something for a slot that was being kept free fills it; the hold
   // has done its job. A film put back no longer holds its old slot either.
@@ -1086,13 +1146,14 @@ function pinInstead(day, chosen) {
       window.title !== chosen.film.title &&
       !(window.date === day.date && window.start < chosen.end && chosen.start < window.end)
   );
-  state.pinned.add(screeningId(chosen));
+  state.held.push(...emptied);
+  state.pinned.add(chosenId);
 }
 
-function altRow(entry, { label, action, primary = false, extraBadge = '' }) {
+function altRow(entry, { label, action, primary = false, extraBadge = '', note = '', near = false }) {
   const film = entry.film;
   return (
-    `<div class="alt"><div>` +
+    `<div class="alt${near ? ' near' : ''}"><div>` +
     `<div class="alt-title">${escapeHTML(film.title)}` +
     (film.kind === 'event' ? '<span class="badge">Event</span>' : '') +
     (entry.blockedBy ? '<span class="badge">During a commitment</span>' : '') +
@@ -1103,55 +1164,133 @@ function altRow(entry, { label, action, primary = false, extraBadge = '' }) {
     (film.scoreable === false
       ? ' · Not rated — your call'
       : ` · Predicted ${film.prediction.toFixed(1)}★`) +
+    (note ? `<span class="clash-note">${note}</span>` : '') +
     (film.synopsis ? `<span class="syn">${escapeHTML(film.synopsis)}</span>` : '') +
     `</p></div>` +
     `<button class="btn${primary ? ' primary' : ''}" data-${action}>${label}</button></div>`
   );
 }
 
+// How far either side of a pick the swap list looks for films that don't
+// quite overlap it, but could still be taken in its place.
+const NEAR_MARGIN = 60;
+
 function alternativesPanel(day, pick) {
-  const options = day.all
+  const pickId = screeningId(pick);
+  const others = day.picks.filter((other) => screeningId(other) !== pickId);
+  const plannedOn = new Map();
+  for (const planned of state.schedule.days) {
+    for (const each of planned.picks) plannedOn.set(each.film.title, planned.date);
+  }
+
+  // Dropped films stay in the list, marked, so a drop can be undone from the
+  // slot where the film was. They sort below the rest.
+  const byPreference = (a, b) =>
+    Number(state.excluded.has(a.film.title)) - Number(state.excluded.has(b.film.title)) ||
+    (b.film.prediction || 0) - (a.film.prediction || 0);
+  const candidates = day.all.filter(
+    (entry) =>
+      entry.film &&
+      entry.film.title !== pick.film.title &&
+      !others.some((other) => other.film.title === entry.film.title)
+  );
+  const overlapping = candidates
+    .filter((entry) => entry.start < pick.end && pick.start < entry.end)
+    .sort(byPreference);
+  const near = candidates
     .filter(
       (entry) =>
-        entry.film &&
-        entry.film.title !== pick.film.title &&
-        entry.start < pick.end &&
-        pick.start < entry.end
+        !overlapping.includes(entry) &&
+        entry.start < pick.end + NEAR_MARGIN &&
+        pick.start - NEAR_MARGIN < entry.end
     )
-    // Dropped films stay in the list, marked, so a drop can be undone from
-    // the slot where the film was. They sort below the rest.
-    .sort(
-      (a, b) =>
-        Number(state.excluded.has(a.film.title)) - Number(state.excluded.has(b.film.title)) ||
-        (b.film.prediction || 0) - (a.film.prediction || 0)
-    );
+    .sort((a, b) => a.start - b.start || byPreference(a, b));
+
+  const row = (entry, isNear) => {
+    // Say before choosing what a choice runs into. Choosing it anyway keeps
+    // both, flagged, rather than removing the other film.
+    const runsInto = others.filter((other) => other.start < entry.end && entry.start < other.end);
+    const elsewhere = plannedOn.get(entry.film.title);
+    const notes = [
+      ...runsInto.map(
+        (other) =>
+          `Runs into ${escapeHTML(other.film.title)} at ${formatTime(other.start)}, ` +
+          'which stays in your plan and is flagged as a clash.'
+      ),
+      elsewhere && elsewhere !== day.date
+        ? `Already planned on ${escapeHTML(weekdayName(elsewhere))}; choosing it moves it here.`
+        : '',
+    ].filter(Boolean);
+    return altRow(entry, {
+      label: 'Use this instead',
+      action: 'pick',
+      near: isNear,
+      note: notes.join(' '),
+      extraBadge:
+        (state.excluded.has(entry.film.title) ? '<span class="badge">Dropped</span>' : '') +
+        (runsInto.length ? '<span class="badge warn-badge">Clash</span>' : ''),
+    });
+  };
 
   const panel = document.createElement('div');
   panel.className = 'alternatives';
-  if (!options.length) {
-    panel.innerHTML = '<p class="intro">Nothing else is showing in that slot.</p>';
+  if (!overlapping.length && !near.length) {
+    panel.innerHTML = '<p class="intro">Nothing else is showing around that time.</p>';
     return panel;
   }
   panel.innerHTML =
-    `<p class="intro">Also showing against ${escapeHTML(pick.film.title)}</p>` +
-    options
-      .map((entry) =>
-        altRow(entry, {
-          label: 'Use this instead',
-          action: 'pick',
-          extraBadge: state.excluded.has(entry.film.title) ? '<span class="badge">Dropped</span>' : '',
-        })
-      )
-      .join('');
+    (overlapping.length
+      ? `<p class="intro">Also showing against ${escapeHTML(pick.film.title)}</p>` +
+        overlapping.map((entry) => row(entry, false)).join('')
+      : `<p class="intro">Nothing else overlaps ${escapeHTML(pick.film.title)}</p>`) +
+    (near.length
+      ? `<p class="intro">Within an hour either side</p>` +
+        near.map((entry) => row(entry, true)).join('')
+      : '');
 
+  const options = [...overlapping, ...near];
   panel.querySelectorAll('[data-pick]').forEach((button, index) =>
     button.addEventListener('click', () => {
-      pinInstead(day, options[index]);
+      pinInstead(day, options[index], pick);
       state.openCards.add(screeningId(options[index]));
       rebuild();
     })
   );
   return panel;
+}
+
+const weekdayName = (date) =>
+  new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long' });
+
+/**
+ * Two picks that run into each other. The plan keeps both until the person
+ * chooses, so the warning sits between them with the choice right there.
+ */
+function clashRow(day, { first, second }) {
+  const buffer = Number($('#buffer').value) || 0;
+  const filmEnds = first.start + (first.film.runtime || first.end - first.start - buffer);
+  const detail =
+    filmEnds > second.start
+      ? `${escapeHTML(first.film.title)} runs until ${formatTime(filmEnds)}, ` +
+        `${filmEnds - second.start} min into ${escapeHTML(second.film.title)}.`
+      : `${escapeHTML(first.film.title)} ends at ${formatTime(filmEnds)}, leaving ` +
+        `${second.start - filmEnds} min to reach ${escapeHTML(second.film.title)} — ` +
+        `less than the ${buffer} min you allowed between films.`;
+
+  const row = document.createElement('div');
+  row.className = 'row clash';
+  row.innerHTML =
+    '<div class="time"></div>' +
+    '<div class="rail"><i class="marker alert"></i></div>' +
+    `<div class="clash-box" role="alert">` +
+    `<p class="name">Clash</p><p class="meta">${detail}</p>` +
+    `<div class="card-actions">` +
+    `<button class="btn quiet" data-drop-first>Drop ${escapeHTML(first.film.title)}</button>` +
+    `<button class="btn quiet" data-drop-second>Drop ${escapeHTML(second.film.title)}</button>` +
+    `</div></div>`;
+  row.querySelector('[data-drop-first]').addEventListener('click', () => dropPick(day, first));
+  row.querySelector('[data-drop-second]').addEventListener('click', () => dropPick(day, second));
+  return row;
 }
 
 const escapeHTML = (value) =>
@@ -1273,6 +1412,10 @@ function filmDetails(film, pick, badges) {
   return (
     `<div class="stack">` +
     `<p class="meta mobile-meta">${escapeHTML(filmFacts(film))}${badges}</p>` +
+    (unrated
+      ? ''
+      : `<p class="predicted"><span class="num">${film.prediction.toFixed(1)}★</span>` +
+        `<span class="label">Predicted rating</span></p>`) +
     `<p class="why"><b>Why it's here:</b>${
       unrated ? 'No ratings history can predict this one — your call.' : `${escapeHTML(capitalise(reasonText(film)))}.`
     }</p>` +
@@ -1448,6 +1591,7 @@ const sessionData = () => ({
   ratings: state.ratings,
   commitments: state.commitments,
   pinned: [...state.pinned],
+  kept: [...state.kept],
   excluded: [...state.excluded],
   held: state.held,
   festival: state.festival?.festival || null,
@@ -1464,6 +1608,7 @@ async function restoreSession() {
   state.ratings = saved.ratings;
   state.commitments = saved.commitments || [];
   state.pinned = new Set(saved.pinned || []);
+  state.kept = new Set(saved.kept || []);
   state.excluded = new Set(saved.excluded || []);
   state.held = Array.isArray(saved.held) ? saved.held : [];
   setStatus(`Restored ${saved.ratings.length} ratings saved in this browser.`);
@@ -1481,6 +1626,7 @@ async function restoreFromFile(file) {
   state.ratings = data.ratings || [];
   state.commitments = data.commitments || [];
   state.pinned = new Set(data.pinned || []);
+  state.kept = new Set(data.kept || []);
   state.excluded = new Set(data.excluded || []);
   state.held = Array.isArray(data.held) ? data.held : [];
   await resolve();

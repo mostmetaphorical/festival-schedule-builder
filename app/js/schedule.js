@@ -193,24 +193,51 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
     days.get(screening.date).push(entry);
   }
 
+  // Screenings the person chose, plus the ones a swap elsewhere kept in place,
+  // are fixed: taken as they are, even when two of them clash, because
+  // choosing between them is the person's call. The plan reports the clash
+  // instead. A pin wins over a commitment - someone insisting on a screening
+  // during their shift is their call too - but a kept film does not, since
+  // nobody chose it against the commitment. Each film is fixed at most once,
+  // at its earliest fixed screening, and isn't offered at its other showings.
+  const kept = new Set(options.kept || []);
+  const fixedTitles = new Set();
+  const dates = [...days.keys()].sort();
+  for (const date of dates) {
+    for (const entry of days.get(date).sort((a, b) => a.start - b.start)) {
+      const wanted =
+        entry.pinned || (kept.has(screeningId(entry)) && !entry.blockedBy);
+      entry.fixed = Boolean(
+        wanted && entry.film && !entry.excluded && !fixedTitles.has(entry.film.title)
+      );
+      if (entry.fixed) {
+        fixedTitles.add(entry.film.title);
+        entry.value = Math.max(entry.value, 1000);
+      }
+    }
+  }
+
   // A film with several screenings should only be counted once, so solve,
   // then drop repeats and re-solve without them until nothing repeats.
   const plan = [];
-  const seen = new Set();
+  const seen = new Set(fixedTitles);
 
-  for (const date of [...days.keys()].sort()) {
-    let available = days
+  for (const date of dates) {
+    const fixed = days.get(date).filter((entry) => entry.fixed);
+    // Once the person has started editing, the rest of the plan is theirs:
+    // the optimiser adds nothing, and free time shows what could fill it.
+    let available = kept.size ? [] : days
       .get(date)
       .filter(
         (entry) =>
           entry.film &&
+          !entry.fixed &&
           !entry.excluded &&
           entry.value > 0 &&
-          // A pin wins over a commitment: if someone insists on a screening
-          // during their shift, that is their call to make, not ours. The
-          // same goes for a slot they emptied.
-          (!entry.blockedBy || entry.pinned) &&
-          (!entry.held || entry.pinned)
+          !entry.blockedBy &&
+          // A slot the person emptied stays empty until they fill it.
+          !entry.held &&
+          !fixed.some((pick) => clashes(pick, entry))
       );
 
     let chosen;
@@ -231,11 +258,14 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
       );
     }
 
-    let picks = chosen.picks;
+    let picks = [...fixed, ...chosen.picks].sort((a, b) => a.start - b.start);
     if (picks.length > maxPerDay) {
-      // Keep the best-rated ones, then restore chronological order.
+      // Keep the person's own picks first, then the best-rated, then restore
+      // chronological order.
       picks = [...picks]
-        .sort((a, b) => b.value - a.value)
+        .sort(
+          (a, b) => b.value - a.value || (b.film.prediction || 0) - (a.film.prediction || 0)
+        )
         .slice(0, maxPerDay)
         .sort((a, b) => a.start - b.start);
     }
@@ -244,11 +274,26 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
     plan.push({
       date,
       picks,
+      clashes: findClashes(picks),
       all: days.get(date).sort((a, b) => a.start - b.start),
     });
   }
 
   return { days: plan, rejected, missed: findMissed(days, seen, byTitle) };
+}
+
+/**
+ * Picks that run into each other, earlier one first. Only fixed picks can
+ * clash - the optimiser never chooses overlapping screenings itself.
+ */
+function findClashes(picks) {
+  const found = [];
+  for (let i = 0; i < picks.length; i++) {
+    for (let j = i + 1; j < picks.length; j++) {
+      if (clashes(picks[i], picks[j])) found.push({ first: picks[i], second: picks[j] });
+    }
+  }
+  return found;
 }
 
 /**
