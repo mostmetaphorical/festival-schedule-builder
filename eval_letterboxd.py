@@ -154,7 +154,7 @@ def build_dataset(
         ratings=pd.DataFrame(ratings),
         films=frame[["title", "year", "genres"]],
     )
-    tmdb = {
+    metadata = {
         int(index): {
             "director": row["meta"].get("director", []),
             "writer": row["meta"].get("writer", []),
@@ -167,7 +167,7 @@ def build_dataset(
         }
         for index, row in frame.iterrows()
     }
-    return dataset, tmdb, names
+    return dataset, metadata, names
 
 
 def main() -> None:
@@ -175,7 +175,7 @@ def main() -> None:
     bundle = json.loads(Path(args.bundle).read_text(encoding="utf-8"))
 
     print(f"Reading exports from {args.exports}")
-    dataset, tmdb, names = build_dataset(
+    dataset, metadata, names = build_dataset(
         Path(args.exports), bundle, args.min_ratings
     )
 
@@ -186,7 +186,7 @@ def main() -> None:
     splits = build_splits(
         dataset, user_ids, args.train_frac, args.seed, args.split
     )
-    space = FeatureSpace(dataset.films, tmdb=tmdb,
+    space = FeatureSpace(dataset.films, metadata=metadata,
                          include_facets=RECOMMENDED_FACETS)
     profiles = {s.user_id: space.build_profile(s.user_id, s.train) for s in splits}
 

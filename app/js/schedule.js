@@ -149,6 +149,13 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
   // if it costs two better-rated films; an excluded one is never offered.
   const pinned = new Set(options.pinned || []);
   const excluded = new Set(options.excluded || []);
+  // Slots the person emptied by dropping a film. The optimiser leaves them
+  // empty rather than quietly moving the next-best film in: a drop is "not
+  // that", not "something else, chosen for me". The person can still fill one
+  // by picking a film for it, which pins it.
+  const held = (options.held || []).filter(
+    (window) => window && window.date && Number.isFinite(window.start) && Number.isFinite(window.end)
+  );
 
   const byTitle = new Map(scored.map((film) => [film.title, film]));
   const blocked = commitments.map(parseCommitment).filter(Boolean);
@@ -179,6 +186,7 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
       value: value(film, screening, { minimum, pinned: isPinned }),
       blockedBy: conflict || null,
       excluded: excluded.has(screening.film),
+      held: held.some((window) => window.date === screening.date && clashes(timing, window)),
     };
 
     if (!days.has(screening.date)) days.set(screening.date, []);
@@ -199,8 +207,10 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
           !entry.excluded &&
           entry.value > 0 &&
           // A pin wins over a commitment: if someone insists on a screening
-          // during their shift, that is their call to make, not ours.
-          (!entry.blockedBy || entry.pinned)
+          // during their shift, that is their call to make, not ours. The
+          // same goes for a slot they emptied.
+          (!entry.blockedBy || entry.pinned) &&
+          (!entry.held || entry.pinned)
       );
 
     let chosen;

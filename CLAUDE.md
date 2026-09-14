@@ -38,9 +38,19 @@ explains the product and the measured results; this file is how to work on it.
 - Personal commitments parsed from a festival page go to
   `app/data/my-commitments.json`, which is gitignored. Never into
   `festival.json`.
-- Gitignored and must stay that way: `tmdb_key.txt`, `/data/` (MovieLens,
-  licensed for research only — never redistribute), rating exports,
-  `app/fixtures/private-*`, `my-commitments.json`.
+- Gitignored and must stay that way: `/data/` (MovieLens, licensed for
+  research only — never redistribute), `/raw/` (festival pages and data saved
+  by hand), rating exports, `app/fixtures/private-*`, `my-commitments.json`.
+
+### Film data sources
+- Credits, genres and keywords come from **Wikidata** (CC0); synopses from
+  **Wikipedia** (CC BY-SA 4.0 — any synopsis shown must credit its article);
+  posters from **each festival's own listing**.
+- **Do not use TMDB.** Its API terms forbid use "in connection with" a machine
+  learning application, which this is. IMDb's datasets can't be republished
+  and OMDb's posters aren't its to license, so neither is a substitute.
+- Don't automate collection from festival or ticketing sites (Eventive's terms
+  forbid bots and data-gathering tools). Converters read files a person saved.
 - `app/fixtures/demo-ratings.csv` is invented, not anyone's real history.
 - Letterboxd: no scraping, ever. Their robots.txt disallows it and profiles are
   other people's data. Real data only arrives as exports people chose to send.
@@ -109,7 +119,9 @@ explains the product and the measured results; this file is how to work on it.
 ./.venv/bin/python run_eval.py --n-users 100       # accuracy test
 ./.venv/bin/python eval_letterboxd.py exports/     # test on real exports
 ./.venv/bin/python parse_festival.py <page.html>   # build festival.json
-./.venv/bin/python enrich_festival.py              # credits + posters from TMDB
+./.venv/bin/python enrich_festival.py              # credits for known films, from Wikidata
+./.venv/bin/python enrich_wikidata.py              # training-film metadata (resumable)
+./.venv/bin/python build_bundle.py                 # app/data/library.json from Wikidata
 ./.venv/bin/python export_model.py                 # retrain, write model.json
 ```
 

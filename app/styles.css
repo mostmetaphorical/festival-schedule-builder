@@ -438,8 +438,36 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 
 footer { padding: 28px 0 40px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.6; color: #8a84ad; }
 .footer-row { display: flex; align-items: center; gap: 18px; }
-.tmdb-credit { flex: 0 0 auto; display: grid; place-items: center; width: 120px; height: 36px; border: 1.5px solid var(--quiet);
-  color: var(--dim); font-weight: 800; letter-spacing: .1em; font-size: 12px; }
+
+/* Bug reports -------------------------------------------------------- */
+.masthead { position: relative; }
+/* Styled like the step labels and buttons: Anton, square, a solid outline,
+   and the same pink lift on hover as the main buttons. */
+.report-link { position: absolute; top: 16px; right: 18px; display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 12px 5px; background: var(--page); border: 2px solid var(--quiet); color: var(--soft);
+  font: 400 17px/1 var(--display); text-transform: uppercase; letter-spacing: .05em; cursor: pointer;
+  transition: transform .12s var(--ease), background .15s, border-color .15s, color .15s, box-shadow .15s; }
+.report-link::before { content: ""; width: 8px; height: 8px; background: var(--pink); transform: rotate(45deg); }
+.report-link:hover { background: var(--pink); border-color: var(--pink); color: var(--page);
+  box-shadow: 3px 3px 0 var(--lime); transform: translate(-2px, -2px); }
+.report-link:hover::before { background: var(--page); }
+.report-link:active { box-shadow: none; transform: none; }
+dialog.report { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow: auto; padding: 24px;
+  background: var(--surface); color: var(--text); border: 2px solid var(--line-2); box-shadow: 8px 9px 0 var(--pink); }
+dialog.report[open] { animation: panel-in .25s var(--ease); }
+dialog.report::backdrop { background: rgba(4, 3, 12, .75); }
+dialog.report .block-head { align-items: center; }
+dialog.report .close { background: none; border: 0; color: var(--dim); font-size: 28px; line-height: 1; cursor: pointer;
+  padding: 0 4px; }
+dialog.report .close:hover { color: var(--text); }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; }
+.field em { font-style: normal; font-weight: 400; color: var(--dim); }
+.field textarea { font: 15px/1.5 var(--body); min-height: 120px; }
+select { width: 100%; min-height: 48px; padding: 0 14px; background: var(--page); border: 2px solid var(--edge);
+  border-radius: 0; color: var(--text); font: 16px var(--body); color-scheme: dark; }
+select:focus { outline: none; border-color: var(--pink); }
+.report-preview { margin: -6px 0 0 40px; padding: 10px 12px; background: var(--page); border: 1px solid var(--line);
+  font: 12px/1.55 var(--mono); color: var(--dim); white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* Phones ------------------------------------------------------------- */
 @media (max-width: 760px) {
@@ -552,7 +580,10 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); font-size: 13p
   .contribute-grid { grid-template-columns: 1fr; gap: 24px; }
   .contribute h2 { font-size: 28px; }
   .footer-row { align-items: flex-start; gap: 12px; }
-  .tmdb-credit { width: 96px; height: 30px; }
+  .report-link { top: 10px; right: 10px; padding: 6px 9px 4px; font-size: 14px; }
+  .masthead { padding-top: 54px; }
+  dialog.report { padding: 18px 16px; box-shadow: 5px 6px 0 var(--pink); }
+  .report-preview { margin-left: 0; }
 }
 @media (min-width: 761px) { .card-detail .mobile-meta { display: none; } }
 
@@ -568,7 +599,7 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); font-size: 13p
   .title-3d { font-size: 32pt; }
   .title-3d .solid { text-shadow: none; }
   .title-3d .outline { -webkit-text-stroke: 1px #000; }
-  .steps, .kicker, #strength, .block, .remember, .contribute, footer, .card-side .chev, .card-actions,
+  .report-link, dialog, .steps, .kicker, #strength, .block, .remember, .contribute, footer, .card-side .chev, .card-actions,
   .free-box, .alternatives, .plan-extra, .panel:not(#panel-4) { display: none !important; }
   .panel#panel-4 { display: flex !important; animation: none; }
   .card { box-shadow: none !important; border: 1px solid #999; break-inside: avoid; }

@@ -22,9 +22,10 @@ SHRINKAGE = 3.0
 YEAR_SIGMA = 10.0
 RUNTIME_SIGMA = 25.0
 
-# Facets from film metadata alone. TMDB adds the rest when it's been fetched.
+# Facets from MovieLens alone. Film metadata (credits, keywords and so on,
+# from Wikidata) adds the rest when it's been fetched.
 BASE_FACETS = ("genre", "decade")
-TMDB_FACETS = ("director", "writer", "cast", "keyword", "country", "language")
+RICH_FACETS = ("director", "writer", "cast", "keyword", "country", "language")
 
 # The set that measured best (see README). Genre, decade and year are
 # deliberately absent: they are crude enough to dilute the sharper signals
@@ -63,7 +64,7 @@ class FeatureSpace:
     def __init__(
         self,
         films: pd.DataFrame,
-        tmdb: dict[int, dict] | None = None,
+        metadata: dict[int, dict] | None = None,
         item_stats: pd.DataFrame | None = None,
         include_facets: tuple[str, ...] | None = None,
     ):
@@ -73,15 +74,15 @@ class FeatureSpace:
         show which of them a gain actually came from.
         """
         self.films = films
-        self.tmdb = tmdb or {}
+        self.metadata = metadata or {}
         self.item_stats = item_stats
         self.facets = list(BASE_FACETS)
-        if self.tmdb:
-            self.facets += list(TMDB_FACETS)
+        if self.metadata:
+            self.facets += list(RICH_FACETS)
         # Runtime and synopsis text aren't sets of entities, but they are
         # switchable by name like the rest.
-        self.use_runtime = bool(self.tmdb)
-        self.use_text = bool(self.tmdb)
+        self.use_runtime = bool(self.metadata)
+        self.use_text = bool(self.metadata)
         self.use_year = True
         if include_facets is not None:
             extras = {"runtime", "text", "year"}
@@ -98,7 +99,7 @@ class FeatureSpace:
         self.text = (
             TextIndex({
                 movie_id: (meta or {}).get("overview", "")
-                for movie_id, meta in self.tmdb.items()
+                for movie_id, meta in self.metadata.items()
             })
             if self.use_text
             else None
@@ -107,7 +108,7 @@ class FeatureSpace:
         self._entities = {mid: self._film_entities(mid) for mid in films.index}
         self._year = films.year.to_dict()
         self._runtime = {
-            mid: (meta or {}).get("runtime") for mid, meta in self.tmdb.items()
+            mid: (meta or {}).get("runtime") for mid, meta in self.metadata.items()
         }
 
     # ---------- film side ----------
@@ -120,10 +121,10 @@ class FeatureSpace:
                 [str(int(row.year // 10 * 10))] if pd.notna(row.year) else []
             ),
         }
-        meta = self.tmdb.get(movie_id)
-        if self.tmdb:
+        meta = self.metadata.get(movie_id)
+        if self.metadata:
             meta = meta or {}
-            for facet in TMDB_FACETS:
+            for facet in RICH_FACETS:
                 entities[facet] = frozenset(meta.get(facet) or [])
         return entities
 

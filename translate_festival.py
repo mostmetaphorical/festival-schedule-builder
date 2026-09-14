@@ -1,12 +1,12 @@
-"""Translate a festival's own vocabulary into TMDB's, using Claude.
+"""Translate a festival's own vocabulary into the model's, using Claude.
 
 The recommender compares a festival film against films someone rated, and both
 sides have to be described the same way. Festivals don't oblige: they write
-"Dream-logic slasher", "Great Kills", "Children in Peril". TMDB writes
-"slasher", "gore", "child in peril". Words that don't line up contribute
-nothing, so a premiere with no TMDB entry is nearly invisible to the model.
+"Dream-logic slasher", "Great Kills", "Children in Peril". Wikidata writes
+"slasher film", "gore", "child abuse". Words that don't line up contribute
+nothing, so a premiere with no Wikidata entry is nearly invisible to the model.
 
-This runs once per festival over the films TMDB doesn't know - roughly a dozen
+This runs once per festival over the films Wikidata doesn't know - roughly a dozen
 titles, a few cents - and never per user. Keywords are chosen from the
 vocabulary the model was actually fitted on, so the model can't be handed a
 category it has never seen.
@@ -24,18 +24,14 @@ import os
 import sys
 from pathlib import Path
 
-# TMDB's own genre list. The model knows these and nothing else.
-TMDB_GENRES = [
-    "action", "adventure", "animation", "comedy", "crime", "documentary",
-    "drama", "family", "fantasy", "history", "horror", "music", "mystery",
-    "romance", "science fiction", "thriller", "war", "western",
-]
+# The model's genre list. It knows these and nothing else.
+from festrec_eval.genres import GENRES
 
-SYSTEM = """You translate film festival programme copy into TMDB's vocabulary.
+SYSTEM = """You translate film festival programme copy into a film database's vocabulary.
 
-Festivals invent their own genre and tag wording. TMDB uses a fixed genre list
-and a large but conventional keyword vocabulary. Your job is to describe each
-film the way TMDB would.
+Festivals invent their own genre and tag wording. The database uses a fixed
+genre list and a large but conventional keyword vocabulary. Your job is to
+describe each film the way the database would.
 
 Rules:
 - Choose genres only from the list you are given.
@@ -76,11 +72,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--bundle", default="app/data/library.json")
     p.add_argument("--model", default="claude-opus-5")
     p.add_argument("--vocabulary", type=int, default=1200,
-                   help="how many of the commonest TMDB keywords to offer")
+                   help="how many of the commonest library keywords to offer")
     p.add_argument("--batch", type=int, default=12,
                    help="films per request")
     p.add_argument("--all", action="store_true",
-                   help="translate every film, not just those TMDB didn't know")
+                   help="translate every film, not just those Wikidata didn't know")
     p.add_argument("--cache", default="data/translations.json")
     return p.parse_args()
 
@@ -116,8 +112,8 @@ def main() -> None:
     if not os.environ.get("ANTHROPIC_API_KEY"):
         sys.exit(
             "ANTHROPIC_API_KEY is not set. This step is optional - the app "
-            "works without it, just with weaker matching for films TMDB "
-            "doesn't know."
+            "works without it, just with weaker matching for films "
+            "Wikidata doesn't know."
         )
 
     import anthropic
@@ -134,11 +130,11 @@ def main() -> None:
     todo = [
         film for film in data["films"]
         if film.get("kind") != "event"
-        and (args.all or not film.get("tmdb"))
+        and (args.all or not film.get("wikidata"))
         and film["title"] not in cache
     ]
     if not todo:
-        print("Nothing to translate - every film already has TMDB data or a "
+        print("Nothing to translate - every film already has Wikidata credits or a "
               "cached translation.")
         return
 
@@ -150,7 +146,7 @@ def main() -> None:
     for start in range(0, len(todo), args.batch):
         batch = todo[start:start + args.batch]
         prompt = (
-            f"Allowed genres:\n{', '.join(TMDB_GENRES)}\n\n"
+            f"Allowed genres:\n{', '.join(GENRES)}\n\n"
             f"Allowed keywords:\n{', '.join(vocabulary)}\n\n"
             f"Describe each of these {len(batch)} films:\n\n"
             + "\n\n---\n\n".join(describe(film) for film in batch)
@@ -174,7 +170,7 @@ def main() -> None:
 
         text = next((b.text for b in response.content if b.type == "text"), "{}")
         allowed_keywords = set(vocabulary)
-        allowed_genres = set(TMDB_GENRES)
+        allowed_genres = set(GENRES)
 
         for item in json.loads(text).get("films", []):
             # Trust but verify: anything outside the vocabulary is dropped,

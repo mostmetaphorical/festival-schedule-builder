@@ -16,6 +16,8 @@ import json
 import re
 from pathlib import Path
 
+from festrec_eval.genres import map_genres
+
 # `{t:"Title",y:2026,...}` - JavaScript object keys aren't quoted, so they need
 # quoting before this is JSON. Only matches a short key right after { or ,
 # which is not a shape that occurs inside the prose fields.
@@ -50,55 +52,6 @@ PLACEHOLDER = re.compile(
     r"^\s*(various|undisclosed|unknown|tba|tbc|n/?a|—|-|\?+)\s*$", re.IGNORECASE
 )
 
-# Festivals invent their own genre words; the model was fitted on TMDB's.
-# Anything unmapped simply doesn't contribute, which is better than inventing
-# a category the model has never seen.
-TMDB_GENRES = {
-    "action": "action", "adventure": "adventure", "animation": "animation",
-    "animated": "animation", "stop-motion": "animation", "anime": "animation",
-    "comedy": "comedy", "dark comedy": "comedy", "black comedy": "comedy",
-    "comedic": "comedy", "crime": "crime", "documentary": "documentary",
-    "doc": "documentary", "drama": "drama", "family": "family",
-    "fantasy": "fantasy", "dark fantasy": "fantasy", "history": "history",
-    "historical": "history", "horror": "horror", "creature horror": "horror",
-    "body horror": "horror", "folk horror": "horror", "slasher": "horror",
-    "supernatural": "horror", "music": "music", "musical": "music",
-    "mystery": "mystery", "romance": "romance", "rom-com": "romance",
-    "science fiction": "science fiction", "sci-fi": "science fiction",
-    "scifi": "science fiction", "thriller": "thriller", "war": "war",
-    "western": "western", "neo-western": "western",
-    # Festival wording that means a TMDB genre without using its word.
-    "satire": "comedy", "splatter": "horror", "gory": "horror",
-    "ghost": "horror", "giallo": "horror", "creature": "horror",
-    "psychodrama": "drama", "melodrama": "drama", "noir": "thriller",
-    "heist": "crime", "gangster": "crime", "spy": "thriller",
-    "espionage": "thriller", "survival": "thriller", "kaiju": "science fiction",
-    "cyberpunk": "science fiction", "dystopian": "science fiction",
-    "space": "science fiction", "swordplay": "action", "martial": "action",
-    "revenge": "thriller", "erotic": "romance", "concert": "music",
-}
-
-def map_genres(phrases: list[str]) -> set[str]:
-    """Map festival genre wording onto TMDB's vocabulary.
-
-    Festivals write "Psychological thriller" or "Apocalyptic horror", so the
-    whole phrase rarely matches - but the head noun does. Unmapped wording
-    simply contributes nothing, which beats inventing a category.
-    """
-    found = set()
-    for phrase in phrases:
-        cleaned = str(phrase).strip().lower()
-        if not cleaned:
-            continue
-        if cleaned in TMDB_GENRES:
-            found.add(TMDB_GENRES[cleaned])
-            continue
-        for word in re.split(r"[\s-]+", cleaned):
-            if word in TMDB_GENRES:
-                found.add(TMDB_GENRES[word])
-    return found
-
-
 FIELDS = {
     "t": "title", "y": "year", "c": "country", "m": "runtime",
     "sec": "section", "g": "genre", "tags": "tags", "d": "director",
@@ -129,7 +82,7 @@ def parse_films(html: str) -> list[dict]:
         film["synopsis"] = TAG.sub("", film["synopsis"])
 
         # The recommender scores films by shared credits and themes. A 2026
-        # premiere isn't in TMDB yet, so these come from the festival's own
+        # premiere isn't on Wikidata yet, so these come from the festival's own
         # listing: its tags and genre stand in for keywords.
         real_directors = [
             d for d in film["director"] if not PLACEHOLDER.match(d)
@@ -147,8 +100,8 @@ def parse_films(html: str) -> list[dict]:
                 ),
             }),
             # Genre carries the weight when nobody involved is familiar, which
-            # is most of a premiere-heavy festival. TMDB's vocabulary is the
-            # one the model was fitted on, so map the festival's onto it.
+            # is most of a premiere-heavy festival. The model's genre vocabulary
+            # is fixed, so map the festival's wording onto it.
             "genre": sorted(
                 map_genres(re.split(r"[/,·]", str(film["genre"])) + film["tags"])
             ),

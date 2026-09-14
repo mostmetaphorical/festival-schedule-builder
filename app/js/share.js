@@ -141,3 +141,7 @@ export const shareRatings = (ratings, token) =>
 
 export const shareFestival = (festival, token) =>
   send('/festival', JSON.stringify(festival), token, 'application/json');
+
+/** A bug report: {message, step, contact?, details?}. Never ratings. */
+export const sendReport = (report, token) =>
+  send('/report', JSON.stringify(report), token, 'application/json');

@@ -231,9 +231,9 @@ class TwoRegime(Model):
 
     name = "two_regime"
 
-    def __init__(self, films, tmdb, rich_facets, thin_facets, people_facets):
+    def __init__(self, films, metadata, rich_facets, thin_facets, people_facets):
         self.films = films
-        self.tmdb = tmdb
+        self.metadata = metadata
         self.rich_facets = rich_facets
         self.thin_facets = thin_facets
         self.people_facets = people_facets
@@ -242,13 +242,13 @@ class TwoRegime(Model):
         from .features import FeatureSpace, people_support
 
         self.rich_space = FeatureSpace(
-            self.films, tmdb=self.tmdb, include_facets=self.rich_facets
+            self.films, metadata=self.metadata, include_facets=self.rich_facets
         )
         self.thin_space = FeatureSpace(
-            self.films, tmdb=self.tmdb, include_facets=self.thin_facets
+            self.films, metadata=self.metadata, include_facets=self.thin_facets
         )
         self.reference = FeatureSpace(
-            self.films, tmdb=self.tmdb, include_facets=self.people_facets
+            self.films, metadata=self.metadata, include_facets=self.people_facets
         )
 
         self.rich_profiles = {

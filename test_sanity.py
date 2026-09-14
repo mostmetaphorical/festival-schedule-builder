@@ -107,13 +107,13 @@ def main() -> None:
 
     # 5b. Synopsis similarity has its own leave-one-out path: a training film
     #     must not be compared against a taste profile it helped build.
-    cache = Path("data/tmdb_cache.json")
+    cache = Path("data/film_metadata.json")
     if cache.exists():
-        tmdb = {
+        metadata = {
             int(k): v
             for k, v in json.loads(cache.read_text(encoding="utf-8")).items()
         }
-        rich = FeatureSpace(dataset.films, tmdb=tmdb, include_facets=("text",))
+        rich = FeatureSpace(dataset.films, metadata=metadata, include_facets=("text",))
         rich_profile = rich.build_profile(splits[0].user_id, splits[0].train)
         ids = splits[0].train.movieId.astype(int).tolist()[:20]
         column = rich.feature_names.index("text_sim")
@@ -149,7 +149,7 @@ def main() -> None:
     #    has more room to fit noise, so this is where it must be measured.
     if cache.exists():
         cold = FeatureSpace(
-            dataset.films, tmdb=tmdb, include_facets=RECOMMENDED_FACETS
+            dataset.films, metadata=metadata, include_facets=RECOMMENDED_FACETS
         )
     rng = np.random.default_rng(0)
     shuffled = []
@@ -185,7 +185,7 @@ def main() -> None:
         "shuffled ratings destroy the signal",
         noise_gain < 0.02,
         f"ndcg@10 gain on noise: {noise_gain:+.3f} "
-        f"(real signal is +0.063 on 300 users)",
+        f"(real signal is +0.065 on 300 users)",
     )
 
     print("\nSanity checks")

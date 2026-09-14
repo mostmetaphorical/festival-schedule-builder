@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train-frac", type=float, default=0.7)
     p.add_argument("--split", choices=["random", "time"], default="random")
     p.add_argument("--mode", choices=["cold", "warm", "both"], default="both")
-    p.add_argument("--tmdb", default="data/tmdb_cache.json",
+    p.add_argument("--metadata", default="data/film_metadata.json",
                    help="film metadata cache; used if present")
     p.add_argument("--thin-evidence", action="store_true",
                    help="score only held-out films where the person has rated "
@@ -74,7 +74,7 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def load_tmdb(path: str) -> dict[int, dict] | None:
+def load_metadata(path: str) -> dict[int, dict] | None:
     file = Path(path)
     if not file.exists():
         return None
@@ -85,7 +85,7 @@ def load_tmdb(path: str) -> dict[int, dict] | None:
 PEOPLE = ("director", "writer", "cast")
 
 
-def thin_evidence_masks(dataset, tmdb, splits) -> dict[int, np.ndarray]:
+def thin_evidence_masks(dataset, metadata, splits) -> dict[int, np.ndarray]:
     """Per user, which held-out films involve nobody they have rated.
 
     This is the festival case: a world premiere by a first-time director,
@@ -96,7 +96,7 @@ def thin_evidence_masks(dataset, tmdb, splits) -> dict[int, np.ndarray]:
     test would silently hand the people-free configurations the whole test
     set instead.
     """
-    reference = FeatureSpace(dataset.films, tmdb=tmdb, include_facets=PEOPLE)
+    reference = FeatureSpace(dataset.films, metadata=metadata, include_facets=PEOPLE)
     masks = {}
     for split in splits:
         profile = reference.build_profile(split.user_id, split.train)
@@ -237,7 +237,7 @@ def main() -> None:
     splits = build_splits(
         dataset, user_ids, args.train_frac, args.seed, args.split
     )
-    tmdb = load_tmdb(args.tmdb)
+    metadata = load_metadata(args.metadata)
 
     n_eligible = len(
         dataset.ratings.groupby("userId").size().loc[
@@ -251,9 +251,9 @@ def main() -> None:
           f"({args.split} split), "
           f"{sum(len(s.test) for s in splits)} held-out ratings")
     metadata_note = (
-        f"TMDB cache ({len(tmdb)} films)"
-        if tmdb
-        else "MovieLens only (genres + year) - run enrich_tmdb.py to add "
+        f"Wikidata metadata ({len(metadata)} films)"
+        if metadata
+        else "MovieLens only (genres + year) - run enrich_wikidata.py to add "
         "director, cast and keywords"
     )
     print(f"film metadata: {metadata_note}")
@@ -272,15 +272,15 @@ def main() -> None:
     elif requested:
         facets = requested
     else:
-        # Without TMDB there is nothing to choose between; genre and year are all
+        # Without film metadata there is nothing to choose between; genre and year are all
         # there is. With it, default to the set that measured best.
-        facets = RECOMMENDED_FACETS if tmdb else None
+        facets = RECOMMENDED_FACETS if metadata else None
     spaces = {
-        "cold": FeatureSpace(dataset.films, tmdb=tmdb, include_facets=facets)
+        "cold": FeatureSpace(dataset.films, metadata=metadata, include_facets=facets)
     }
     if args.mode in ("warm", "both"):
         spaces["warm"] = FeatureSpace(
-            dataset.films, tmdb=tmdb, item_stats=item_stats, include_facets=facets
+            dataset.films, metadata=metadata, item_stats=item_stats, include_facets=facets
         )
     print(f"features in play: {', '.join(spaces['cold'].feature_names)}")
 
@@ -291,7 +291,7 @@ def main() -> None:
 
     masks = None
     if args.thin_evidence:
-        masks = thin_evidence_masks(dataset, tmdb, splits)
+        masks = thin_evidence_masks(dataset, metadata, splits)
         kept = sum(int(m.sum()) for m in masks.values())
         total_test = sum(len(m) for m in masks.values())
         print(f"thin evidence only: {kept} of {total_test} held-out ratings "
@@ -305,10 +305,10 @@ def main() -> None:
             continue
         space = spaces[condition]
         models: list[Model] = [GlobalMean(), UserMean(), ContentRidge()]
-        if tmdb:
+        if metadata:
             models.append(
                 TwoRegime(
-                    dataset.films, tmdb, RECOMMENDED_FACETS, THIN_FACETS, PEOPLE
+                    dataset.films, metadata, RECOMMENDED_FACETS, THIN_FACETS, PEOPLE
                 )
             )
         if condition == "warm":

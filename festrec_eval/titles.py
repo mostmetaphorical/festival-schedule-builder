@@ -3,7 +3,7 @@
 The same film is written differently everywhere. MovieLens moves articles to
 the end ("Big Lebowski, The"), keeps original titles in brackets ("Oldboy
 (Oldeuboi)"), and writes years in the title. Letterboxd writes "The Big
-Lebowski". TMDB writes it a third way, sometimes with different punctuation.
+Lebowski". Wikidata writes it a third way, sometimes with different punctuation.
 
 Unmatched means a film the person rated contributes nothing, so this is worth
 getting right. app/js/metadata.js implements the same rules - change one,

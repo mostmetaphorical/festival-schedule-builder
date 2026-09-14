@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--data", default="data/ml-latest-small")
-    p.add_argument("--tmdb", default="data/tmdb_cache.json")
+    p.add_argument("--metadata", default="data/film_metadata.json")
     p.add_argument("--out", default="app/data/model.json")
     p.add_argument("--min-ratings", type=int, default=15)
     return p.parse_args()
@@ -40,10 +40,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     dataset = load_movielens(args.data)
-    tmdb = {
+    metadata = {
         int(k): v
         for k, v in json.loads(
-            Path(args.tmdb).read_text(encoding="utf-8")
+            Path(args.metadata).read_text(encoding="utf-8")
         ).items()
     }
 
@@ -52,7 +52,7 @@ def main() -> None:
     users = eligible_users(dataset, args.min_ratings)
     splits = build_splits(dataset, users, train_frac=1.0, seed=0)
 
-    space = FeatureSpace(dataset.films, tmdb=tmdb,
+    space = FeatureSpace(dataset.films, metadata=metadata,
                          include_facets=RECOMMENDED_FACETS)
     profiles = {s.user_id: space.build_profile(s.user_id, s.train) for s in splits}
     model = ContentRidge(evidence_shrinkage=EVIDENCE_SHRINKAGE)

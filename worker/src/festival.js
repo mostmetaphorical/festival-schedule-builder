@@ -168,6 +168,9 @@ export function validateFestival(data) {
       year: integer(film.year, `${where} year`, 1870, 2100),
       runtime: integer(film.runtime, `${where} runtime`, 1, LIMITS.runtime),
       synopsis: text(film.synopsis, `${where} synopsis`, LIMITS.synopsis),
+      // The Wikipedia article a synopsis came from, which its licence requires
+      // the app to credit.
+      wikipedia: text(film.wikipedia, `${where} wikipedia`, LIMITS.title),
       section: text(film.section, `${where} section`, LIMITS.section),
       country: text(film.country, `${where} country`, LIMITS.country),
       kind,

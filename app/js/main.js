@@ -9,12 +9,8 @@
  */
 
 import { readExport } from './letterboxd.js';
-import {
-  BundleProvider,
-  MetadataCache,
-  TMDBProvider,
-  resolveLibrary,
-} from './metadata.js';
+import { BundleProvider, MetadataCache, resolveLibrary } from './metadata.js';
+import { WikidataProvider } from './wikidata.js';
 import { Recommender, profileStrength } from './recommend.js';
 import {
   buildSchedule,
@@ -33,6 +29,7 @@ import { festivalFromCSV, isPosterURL, looksLikeCSV } from './festival-csv.js';
 import {
   MIN_RATINGS_TO_SHARE,
   botCheck,
+  sendReport,
   shareFestival,
   shareRatings,
   shareStatus,
@@ -55,12 +52,17 @@ const state = {
   commitments: [],
   pinned: new Set(),
   excluded: new Set(),
+  // Time slots emptied by dropping a film, kept free until the person fills
+  // them: [{title, date, start, end}].
+  held: [],
   // Film cards the person has opened, kept open across re-renders so a swap
   // or a preference change doesn't snap everything shut.
   openCards: new Set(),
   schedule: null,
   step: 1,
-  tmdbKey: '',
+  // Live lookups send film titles to Wikidata, so they only happen once the
+  // person asks for them.
+  lookUpMissing: false,
   // The demo profile is invented; sharing it would only pollute the test data.
   isDemo: false,
   // Set once a share succeeds, so the same history isn't sent twice.
@@ -131,7 +133,7 @@ function wireUp() {
     });
   });
 
-  $('#save-key').addEventListener('click', useTMDBKey);
+  $('#look-up-missing').addEventListener('click', lookUpMissing);
   $('#add-commitment').addEventListener('click', () => addCommitmentRow());
   $('#commitments-file').addEventListener('change', (event) => {
     const file = event.target.files[0];
@@ -176,6 +178,7 @@ function wireUp() {
   });
 
   wireSharing();
+  wireReport();
 
   // The email route hands the file to the person and opens a pre-filled
   // message. Nothing is transmitted from the page itself.
@@ -251,23 +254,18 @@ async function resolve() {
   if (!bundle) {
     bundle = new BundleProvider(await fetch('data/library.json').then((r) => r.json()));
   }
-  const provider = state.tmdbKey
-    ? new TMDBProvider(state.tmdbKey, cache)
-    : bundle;
-
-  // With a key, look up only what the bundle doesn't already cover.
-  let result;
-  if (state.tmdbKey) {
-    const first = await resolveLibrary(state.ratings, bundle);
-    const rest = await resolveLibrary(first.missing, provider, (done, total) =>
-      setStatus(`Looking up ${done} of ${total} films TMDB might know…`)
+  // The bundle first; only what it doesn't cover goes to Wikidata, and only
+  // once the person has asked for that.
+  let result = await resolveLibrary(state.ratings, bundle);
+  if (state.lookUpMissing && result.missing.length) {
+    const live = new WikidataProvider(cache);
+    const rest = await resolveLibrary(result.missing, live, (done, total) =>
+      setStatus(`Looking up ${done} of ${total} films on Wikidata…`)
     );
     result = {
-      resolved: [...first.resolved, ...rest.resolved],
+      resolved: [...result.resolved, ...rest.resolved],
       missing: rest.missing,
     };
-  } else {
-    result = await resolveLibrary(state.ratings, provider);
   }
 
   state.library = result.resolved;
@@ -293,6 +291,8 @@ async function resolve() {
 function renderMissing() {
   const box = $('#missing-list');
   const count = state.missing.length;
+  // Once looked up, whatever is still missing isn't on Wikidata either.
+  $('#look-up-missing').disabled = !count || state.lookUpMissing;
   $('#missing-heading').textContent = count
     ? `${count} ${count === 1 ? 'film' : 'films'} it couldn't identify`
     : "Films it couldn't identify";
@@ -320,12 +320,14 @@ function renderMissing() {
     (count > 40 ? `<p class="muted small">…and ${count - 40} more.</p>` : '');
 }
 
-function useTMDBKey() {
-  const key = $('#tmdb-key').value.trim();
-  if (!key) return;
-  state.tmdbKey = key;
+function lookUpMissing() {
+  if (!state.missing.length) return;
+  state.lookUpMissing = true;
+  $('#look-up-missing').disabled = true;
   setStatus('Looking up the films that weren\'t in the bundled list…');
-  resolve();
+  resolve().finally(() => {
+    $('#look-up-missing').disabled = !state.missing.length;
+  });
 }
 
 /* ---------- step 2: festival ---------- */
@@ -428,7 +430,7 @@ function loadFestivalText(text, { name = '' } = {}) {
 
 // The bot check loads Cloudflare's script, so it only loads once someone
 // ticks a consent box - a visitor who never shares never contacts Cloudflare.
-const bots = { ratings: null, festival: null };
+const bots = { ratings: null, festival: null, report: null };
 let statusCheck = null;
 
 function wireSharing() {
@@ -479,6 +481,107 @@ function updateFestivalShareButton() {
     $('#share-festival-consent').checked &&
     bots.festival?.ready()
   );
+}
+
+/* ---------- bug reports ---------- */
+
+const STEP_NAMES = { 1: 'ratings', 2: 'festival', 3: 'your-time', 4: 'plan' };
+
+/**
+ * What a report says about the device, if the box is ticked - and exactly
+ * this is shown to the person before they send it. Never ratings, never
+ * commitments: only what helps reproduce a bug.
+ */
+function reportDetails() {
+  const planned = state.schedule?.days.reduce((sum, day) => sum + day.picks.length, 0) || 0;
+  return {
+    browser: navigator.userAgent.slice(0, 300),
+    screen: `${window.innerWidth}×${window.innerHeight}`,
+    festival: state.festival?.festival || 'none chosen',
+    films: `${state.ratings.length} ratings imported, ${planned} films planned`,
+    page: STEP_NAMES[state.step] || 'other',
+    version: document.querySelector('meta[name="app-version"]')?.content || 'alpha',
+  };
+}
+
+function wireReport() {
+  const dialog = $('#report-dialog');
+  const message = $('#report-message');
+  const includeDetails = $('#report-details');
+  const send = $('#report-send');
+
+  const refresh = () => {
+    const details = reportDetails();
+    $('#report-preview').hidden = !includeDetails.checked;
+    $('#report-preview').textContent = Object.entries(details)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
+    send.disabled = !(message.value.trim().length >= 10 && bots.report?.ready());
+    // The email fallback carries the same text, so nothing typed is lost.
+    const body = [
+      message.value.trim(),
+      includeDetails.checked ? `\n---\n${$('#report-preview').textContent}` : '',
+    ].join('');
+    $('#report-email').href =
+      'mailto:festrecommender.crucial122@passmail.net?subject=' +
+      encodeURIComponent('Bug report') + '&body=' + encodeURIComponent(body);
+  };
+
+  $$('[data-report]').forEach((button) =>
+    button.addEventListener('click', async () => {
+      $('#report-step').value = STEP_NAMES[state.step] || 'other';
+      $('#report-note').textContent = '';
+      refresh();
+      dialog.showModal();
+      message.focus();
+      if (!bots.report) {
+        try {
+          bots.report = await botCheck($('#report-bot'), refresh);
+        } catch (error) {
+          $('#report-note').textContent =
+            `${error.message} Sending isn't available right now — the email link still works.`;
+        }
+      }
+    })
+  );
+  message.addEventListener('input', refresh);
+  includeDetails.addEventListener('change', refresh);
+  // A click on the backdrop closes the form, like pressing Escape.
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  send.addEventListener('click', async () => {
+    if (!bots.report?.ready()) return;
+    const report = {
+      message: message.value.trim(),
+      step: $('#report-step').value,
+      contact: $('#report-contact').value.trim() || undefined,
+      details: includeDetails.checked ? reportDetails() : undefined,
+    };
+    send.disabled = true;
+    send.textContent = 'Sending…';
+    const result = await sendReport(report, bots.report.take());
+    send.textContent = 'Send report';
+    const note = $('#report-note');
+    if (result.ok) {
+      message.value = '';
+      $('#report-contact').value = '';
+      note.classList.remove('error-text');
+      note.textContent = report.contact
+        ? 'Sent — thank you. Any reply will go to the address you gave.'
+        : 'Sent — thank you. It helps a lot.';
+    } else {
+      note.classList.add('error-text');
+      // "Not found" means the share service doesn't have the report route -
+      // an older Worker - which says nothing useful to the person sending.
+      const reason = result.error === 'Not found.'
+        ? "Reports can't be received right now."
+        : result.error || 'Sending failed.';
+      note.textContent = `${reason} Your message is still here — the email link below will send it.`;
+    }
+    refresh();
+  });
 }
 
 /** The share offer on the Plan step: shown only where it makes sense. */
@@ -647,6 +750,7 @@ function useFestival(data, { external = false, notes = [], problems = [] } = {})
   state.festival = data;
   state.pinned = new Set();
   state.excluded = new Set();
+  state.held = [];
   state.openCards = new Set();
 
   // Commitments already on the festival file are a starting point, not a
@@ -800,6 +904,7 @@ function rebuild() {
       buffer: Number($('#buffer').value),
       pinned: state.pinned,
       excluded: state.excluded,
+      held: state.held,
     }
   );
 
@@ -934,6 +1039,9 @@ function pickRow(day, pick, single) {
     state.excluded.add(film.title);
     state.pinned.delete(id);
     state.openCards.delete(id);
+    // Leave the slot empty, showing what else fits, rather than letting the
+    // planner slide the next-best film into it.
+    state.held.push({ title: film.title, date: day.date, start: pick.start, end: pick.end });
     rebuild();
   });
   row.querySelector('[data-swap]').addEventListener('click', () => {
@@ -964,6 +1072,13 @@ function pinInstead(day, chosen) {
     }
   }
   state.excluded.delete(chosen.film.title);
+  // Choosing something for a slot that was being kept free fills it; the hold
+  // has done its job. A film put back no longer holds its old slot either.
+  state.held = state.held.filter(
+    (window) =>
+      window.title !== chosen.film.title &&
+      !(window.date === day.date && window.start < chosen.end && chosen.start < window.end)
+  );
   state.pinned.add(screeningId(chosen));
 }
 
@@ -993,11 +1108,16 @@ function alternativesPanel(day, pick) {
       (entry) =>
         entry.film &&
         entry.film.title !== pick.film.title &&
-        !state.excluded.has(entry.film.title) &&
         entry.start < pick.end &&
         pick.start < entry.end
     )
-    .sort((a, b) => (b.film.prediction || 0) - (a.film.prediction || 0));
+    // Dropped films stay in the list, marked, so a drop can be undone from
+    // the slot where the film was. They sort below the rest.
+    .sort(
+      (a, b) =>
+        Number(state.excluded.has(a.film.title)) - Number(state.excluded.has(b.film.title)) ||
+        (b.film.prediction || 0) - (a.film.prediction || 0)
+    );
 
   const panel = document.createElement('div');
   panel.className = 'alternatives';
@@ -1007,7 +1127,15 @@ function alternativesPanel(day, pick) {
   }
   panel.innerHTML =
     `<p class="intro">Also showing against ${escapeHTML(pick.film.title)}</p>` +
-    options.map((entry) => altRow(entry, { label: 'Use this instead', action: 'pick' })).join('');
+    options
+      .map((entry) =>
+        altRow(entry, {
+          label: 'Use this instead',
+          action: 'pick',
+          extraBadge: state.excluded.has(entry.film.title) ? '<span class="badge">Dropped</span>' : '',
+        })
+      )
+      .join('');
 
   panel.querySelectorAll('[data-pick]').forEach((button, index) =>
     button.addEventListener('click', () => {
@@ -1095,8 +1223,11 @@ const peopleLinks = (names, role) =>
 
 /** Say what the score was actually built on. */
 function reasonText(film) {
+  // Someone who both wrote and directed appears once per role; say it once.
+  const seenPeople = new Set();
   const people = film.reasons?.people
-    ?.map(
+    ?.filter((person) => !seenPeople.has(person.name) && seenPeople.add(person.name))
+    .map(
       (person) =>
         `you rated ${person.films} ${person.films === 1 ? 'film' : 'films'} with ` +
         `${person.name} ${person.average.toFixed(1)}★`
@@ -1149,6 +1280,14 @@ function filmDetails(film, pick, badges) {
       .join('')}</dl>` +
     (hasLinks
       ? '<p class="caveat">Name links go to Letterboxd. A first-time director may not have a page yet.</p>'
+      : '') +
+    // A synopsis taken from Wikipedia is CC BY-SA: it must say where it came from.
+    (film.wikipedia && film.synopsis
+      ? `<p class="caveat">Synopsis from <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(
+          String(film.wikipedia).replace(/ /g, '_')
+        )}" target="_blank" rel="noopener noreferrer">Wikipedia</a>, ` +
+        '<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" ' +
+        'rel="noopener noreferrer">CC BY-SA 4.0</a>.</p>'
       : '') +
     `</div>`
   );
@@ -1226,7 +1365,7 @@ function gapRow(day, gap) {
           action: 'add',
           primary: true,
           extraBadge: state.excluded.has(entry.film.title)
-            ? '<span class="badge">You dropped this</span>'
+            ? '<span class="badge">Dropped</span>'
             : '',
         }).replace('<div class="alt"', `<div class="alt"${index >= FITS_SHOWN ? ' hidden' : ''}`)
       )
@@ -1288,6 +1427,8 @@ function renderDropped(plan) {
   details.querySelectorAll('[data-undrop]').forEach((button) =>
     button.addEventListener('click', () => {
       state.excluded.delete(button.dataset.undrop);
+      // Put back means back in its own slot, so release that slot's hold.
+      state.held = state.held.filter((window) => window.title !== button.dataset.undrop);
       rebuild();
     })
   );
@@ -1301,6 +1442,7 @@ const sessionData = () => ({
   commitments: state.commitments,
   pinned: [...state.pinned],
   excluded: [...state.excluded],
+  held: state.held,
   festival: state.festival?.festival || null,
 });
 
@@ -1316,6 +1458,7 @@ async function restoreSession() {
   state.commitments = saved.commitments || [];
   state.pinned = new Set(saved.pinned || []);
   state.excluded = new Set(saved.excluded || []);
+  state.held = Array.isArray(saved.held) ? saved.held : [];
   setStatus(`Restored ${saved.ratings.length} ratings saved in this browser.`);
   await resolve();
 }
@@ -1332,6 +1475,7 @@ async function restoreFromFile(file) {
   state.commitments = data.commitments || [];
   state.pinned = new Set(data.pinned || []);
   state.excluded = new Set(data.excluded || []);
+  state.held = Array.isArray(data.held) ? data.held : [];
   await resolve();
 }
 

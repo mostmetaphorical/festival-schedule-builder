@@ -53,8 +53,8 @@ and installs the dependencies; on Ubuntu you may first need
 
 | Step | What happens |
 |---|---|
-| Ratings | Reads a Letterboxd export (`.zip` or `ratings.csv`) or an IMDb export. Credits come from `data/library.json`, bundled with the app, so no API key is needed for films it knows. A TMDB key can be pasted in to cover the rest; it stays in the browser. |
-| Festival | Picks from `data/festivals.json`, or loads a schedule from a URL or pasted JSON. |
+| Ratings | Reads a Letterboxd export (`.zip` or `ratings.csv`) or an IMDb export. Credits come from `data/library.json`, bundled with the app and built from Wikidata. Films it doesn't know can be looked up on Wikidata live, on request — no key, and only the titles are sent. |
+| Festival | Picks from `data/festivals.json`, or loads a schedule — a spreadsheet (CSV, with a downloadable template) or JSON — from a file, a URL or pasted text. Posters come from the festival file. |
 | Your time | Volunteer shifts, work, appointments — typed in, or imported from `.ics` or CSV. |
 | Plan | A conflict-free schedule with reasons, which the person can override film by film. |
 
@@ -64,13 +64,27 @@ predict them. They can be pinned into the plan like anything else.
 
 **Editing** — every slot has *Swap* (shows what else is on at that hour, with
 synopses) and *Drop*. A pinned choice outranks the model, and the schedule
-re-solves around it.
+re-solves around it. Dropping a film leaves its slot free and lists what fits
+there, rather than quietly moving the next-best film in; the dropped film stays
+in those lists, marked, so it can be put straight back.
 
 **Exports** — `.ics` for the phone's calendar, a self-contained HTML page, and
 print-to-PDF. The HTML export has two flavours: schedule only, which is safe to
 host or share, or schedule plus rating history, which can be loaded back into
 the app later but is a personal file. The app says which is which at the point
 of export.
+
+**No third parties by default** — fonts are served from `app/fonts/` (all
+three are under the SIL Open Font License; `fetch_fonts.py` refreshes them), so
+opening the page contacts no one but this site. Posters load from wherever the
+festival file points, and Wikidata is only contacted if someone asks it to
+look up films the bundled library doesn't know.
+
+**Reporting a bug** — *Report a bug* (top right of every page) opens a
+short form: what went wrong, where, an optional email for a reply, and — if
+the box stays ticked — technical details that are shown in full before sending
+(browser, window size, festival, counts; never ratings). It goes to the same
+Worker as sharing, or can be emailed instead.
 
 **Storage** — off until switched on, then `localStorage` only. Not a cookie:
 cookies are sent to a server on every request and cap out near 4KB, neither of
@@ -97,7 +111,8 @@ ratings, real years, sane title lengths). Any failure rejects the whole file.
 The original bytes are never stored — a new file is rebuilt from the checked
 values, with spreadsheet formulas neutralised. Festival files go through the
 same pattern with a schema check, markup refused, and posters accepted only
-from TMDB.
+as plain `https` addresses. The summary lists every poster host, so the
+reviewer sees where images would load from before a festival goes public.
 
 **Nothing about the sender is kept**: no IP address, filename or browser
 details. Each upload is a random id plus the day it arrived. Cloudflare's
@@ -108,11 +123,15 @@ reviewed; `worker/review-festival.sh` puts one on a branch for a pull request,
 where CI re-validates it, and a person compares it with the official schedule
 before merging.
 
+Bug reports use the same pattern: a bot check, a 16 KB cap, a description of
+10–3,000 characters, and only known fields rebuilt into storage.
+
 ```bash
-cd worker && npm test                          # 37 tests, incl. malicious uploads
+cd worker && npm test                          # 44 tests, incl. malicious uploads
 npm run deploy                                 # tests first, then deploy
 worker/download-ratings.sh [--delete]          # shared ratings -> exports/
 worker/review-festival.sh [<key>|--reject <key>]
+worker/download-reports.sh [--delete]         # bug reports -> reports/ (gitignored)
 ```
 
 For local testing, `wrangler dev` uses Cloudflare's documented always-pass
@@ -128,13 +147,13 @@ were quietly breaking that:
 | Problem | Fix | Effect |
 |---|---|---|
 | MovieLens writes "Big Lebowski, The"; Letterboxd writes "The Big Lebowski" | `festrec_eval/titles.py`, matched on both sides | library coverage 56% → 83% |
-| The bundled film list stopped at 2018, missing every recent favourite | `build_tmdb_bundle.py` builds it from TMDB instead | 83% → **96%** on a real 674-film export |
-| Festival films described in festival wording ("Dream-logic slasher") | `enrich_festival.py` matches the lineup to TMDB | 66 of 81 films gained real credits and themes |
+| The bundled film list stopped at 2018, missing every recent favourite | `build_bundle.py` takes the most widely written-about films of every year, and more of them from 2018 on | 83% → **95%** on a real 674-film export and 87% on a 502-film one (the TMDB-built list reached 96% on the first). Most of what's left is from the 2020s, which the in-app Wikidata lookup covers on request |
+| Festival films described in festival wording ("Dream-logic slasher") | `enrich_festival.py` matches the lineup to Wikidata | repertory and known titles gain real credits and themes |
 | Films with no metadata scored *highest* | evidence shrinkage (below) | unknown shorts no longer top the list |
 
-On a real 674-rating Letterboxd export, this took the profile from 380 matched
-films with no genre data at all, to 645 matched films knowing 430 directors,
-2,025 actors, 2,369 themes and 18 genres.
+On a real 674-rating Letterboxd export (with the earlier TMDB-built data),
+this took the profile from 380 matched films with no genre data at all, to 645
+matched films knowing 430 directors, 2,025 actors, 2,369 themes and 18 genres.
 
 **Evidence shrinkage.** Standardised features make "nothing is known about this
 film" a specific point in feature space, not a neutral one — so films with no
@@ -172,8 +191,8 @@ explicitly, and other people's viewing histories aren't ours to collect.
 
 ### Translating festival vocabulary (optional)
 
-`translate_festival.py` uses Claude to describe the films TMDB has never heard
-of in TMDB's own vocabulary, picking only from the keyword list the model was
+`translate_festival.py` uses Claude to describe the films Wikidata has never
+heard of in the model's own vocabulary, picking only from the keyword list the model was
 actually fitted on, so nothing invented can reach it. It runs **once per
 festival** over about a dozen titles — cents, not per user — and the app works
 without it.
@@ -181,15 +200,31 @@ without it.
 ### Rebuilding the app's data
 
 ```bash
+./.venv/bin/python enrich_wikidata.py                 # training-film metadata (resumable)
 ./.venv/bin/python export_model.py                    # model.json + idf.json
-./.venv/bin/python build_tmdb_bundle.py               # library.json, the offline credits
+./.venv/bin/python build_bundle.py                    # library.json, the offline credits
 ./.venv/bin/python parse_festival.py <festival.html>  # festival.json
-./.venv/bin/python enrich_festival.py                 # match the lineup to TMDB
+./.venv/bin/python enrich_festival.py                 # match the lineup to Wikidata
 ./.venv/bin/python translate_festival.py              # optional, needs an Anthropic key
 ```
 
-A TMDB key goes in `tmdb_key.txt` (gitignored). `export_bundle.py` builds the
-same bundle from a local MovieLens copy instead, if you'd rather not call TMDB.
+No API keys are needed. Everything fetched from Wikidata and Wikipedia is
+cached in `data/` (gitignored), so a rebuild only asks about new films.
+
+### Where the film data comes from, and why not TMDB
+
+| What | Source | Licence |
+|---|---|---|
+| Director, writer, cast, genre, keywords, runtime | [Wikidata](https://www.wikidata.org/) | CC0 — free for any use |
+| Synopses of known films | [Wikipedia](https://en.wikipedia.org/) | CC BY-SA 4.0 — the app credits the article wherever one is shown |
+| Festival synopses and posters | the festival's own listing, via its festival file | the festival's |
+
+The app used to get all of this from TMDB. TMDB's API terms forbid using its
+content "in connection with" a machine-learning application, and this is one,
+so it was replaced. IMDb's free datasets can't be republished as a database,
+which the bundled library would be, and OMDb's posters aren't its to license.
+Wikidata covered the training films as well: 99% matched, with a director for
+98%, cast for 95%, a synopsis for 97% and keywords for 78%.
 
 ---
 
@@ -230,7 +265,7 @@ the signal that caused it rather than guessed at:
 
 | Condition | What the model may see | Why it's here |
 |---|---|---|
-| **cold** | Only the film's own details: genre, year, and — once TMDB is fetched — director, writer, cast, keywords | A festival premiere has no ratings yet. This is the number that predicts real behaviour. |
+| **cold** | Only the film's own details: genre, year, and — once Wikidata is fetched — director, writer, cast, keywords, synopsis | A festival premiere has no ratings yet. This is the number that predicts real behaviour. |
 | **warm** | Also the crowd's average rating for each candidate | Impossible at a festival. Included to show what that missing signal is worth. |
 
 Crowd averages are computed from raters outside the sample, so nothing the
@@ -275,7 +310,8 @@ should be read against it, not against zero.
 | `festrec_eval/models.py` | Baselines and the ridge content model |
 | `festrec_eval/metrics.py` | Scoring, with bootstrap intervals over users |
 | `festrec_eval/llm.py` | Optional Claude comparison (`--llm`), cached, costed |
-| `enrich_tmdb.py` | Fetches director, writer, cast and keywords from TMDB |
+| `festrec_eval/wikidata.py`, `enrich_wikidata.py` | Fetch director, writer, cast, keywords and synopses from Wikidata and Wikipedia |
+| `festrec_eval/genres.py` | The model's genre words, and how other sources' wording maps onto them |
 | `test_sanity.py` | The leak checks above |
 
 ## How a film gets scored
@@ -299,27 +335,39 @@ it work on a premiere.
 
 ## Results
 
-300 random raters, cold condition, 15,067 held-out ratings:
+300 random raters, cold condition, 14,927 held-out ratings, with film data
+from Wikidata and Wikipedia:
 
 | model | ndcg@10 | precision@5 | top5_lift | rmse |
 |---|---|---|---|---|
-| user_mean (baseline) | 0.825 | 0.573 | +0.007 | 0.930 |
-| **content model** | **0.888** | **0.711** | **+0.333** | **0.895** |
+| user_mean (baseline) | 0.821 | 0.567 | +0.022 | 0.961 |
+| **content model** | **0.886** | **0.697** | **+0.350** | **0.921** |
 
-Paired against the baseline on the same users: ndcg +0.063 (95% CI +0.053 to
-+0.073), precision@5 +0.138, rmse −0.035. All three favour the model, and the
-intervals exclude zero.
+Paired against the baseline on the same users: ndcg +0.065 (95% CI +0.055 to
++0.076), precision@5 +0.129, rmse −0.040. All three favour the model, and the
+intervals exclude zero. The shuffled-ratings check gains +0.007 on noise.
 
-Which signals earn their place (100 users, cold):
+**Against the earlier TMDB data**, the same test gave ndcg +0.063, precision@5
++0.138 and top5_lift +0.333. Switching sources cost nothing measurable: the
+gains overlap within their intervals. (Absolute scores differ slightly because
+the held-out set differs by the handful of films each source couldn't match.)
+
+Which signals earn their place (100 users, cold, Wikidata; TMDB-era figures in
+brackets):
 
 | signals used | ndcg@10 | spearman | top5_lift |
 |---|---|---|---|
-| genre + decade + year | 0.856 | 0.182 | 0.258 |
-| people (director/writer/cast) | 0.865 | 0.187 | 0.304 |
-| keywords | 0.862 | 0.239 | 0.263 |
-| synopsis text | 0.832 | 0.126 | 0.147 |
-| **people + keywords + text** | **0.880** | **0.279** | **0.363** |
-| everything available | 0.871 | 0.242 | 0.324 |
+| genre + decade + year | 0.856 (0.856) | 0.182 (0.182) | 0.258 (0.258) |
+| people (director/writer/cast) | 0.864 (0.865) | 0.172 (0.187) | 0.318 (0.304) |
+| keywords | 0.850 (0.862) | 0.145 (0.239) | 0.212 (0.263) |
+| synopsis text | 0.867 (0.832) | 0.230 (0.126) | 0.307 (0.147) |
+| **people + keywords + text** | **0.872 (0.880)** | **0.245 (0.279)** | **0.370 (0.363)** |
+| everything available | 0.871 (0.871) | 0.236 (0.242) | 0.300 (0.324) |
+
+Wikidata's keywords are thinner than TMDB's, and Wikipedia's lead paragraphs
+are richer than TMDB's one-line overviews. Those lead paragraphs also name the
+director and stars, so part of the synopsis signal overlaps the people signal.
+The combination still comes out on top.
 
 Using every signal is *worse* than using the right three — genre, decade and
 year are crude enough to dilute the sharper ones, so they are off by default.
@@ -341,10 +389,10 @@ This is the finding that matters most for the app (300 users, cold):
 
 | profile size | users | gain over baseline | top5_lift |
 |---|---|---|---|
-| 15–30 ratings | 47 | +0.023 | +0.02 |
-| 31–75 | 103 | +0.027 | +0.20 |
-| 76–200 | 79 | +0.066 | +0.34 |
-| 201+ | 71 | +0.138 | +0.73 |
+| 15–30 ratings | 59 | +0.014 | +0.07 |
+| 31–75 | 110 | +0.040 | +0.24 |
+| 76–200 | 67 | +0.081 | +0.45 |
+| 201+ | 64 | +0.141 | +0.70 |
 
 Below about 30 ratings the recommender is barely better than telling someone
 they'll like everything equally. It becomes genuinely useful around 75, and
@@ -353,7 +401,7 @@ should tell people where they sit on this table rather than imply every
 profile gets the same quality of answer.
 
 A harder variant — training on what someone watched first and testing on what
-came later (`--split time`) — drops top5_lift to +0.24. Real use looks more
+came later (`--split time`) — drops top5_lift to +0.26 (TMDB-era: +0.24). Real use looks more
 like that than like a random split, so treat it as the honest expectation.
 
 ### One methodological note
@@ -365,18 +413,20 @@ holding it fixed keeps fitting and prediction consistent.
 
 ## Refreshing the metadata
 
-Film details come from TMDB and are cached in `data/tmdb_cache.json` (9,621
-films). To rebuild or extend it, put a free TMDB key in `tmdb_key.txt` and run
-`python enrich_tmdb.py`; it skips what it already has.
+Film details come from Wikidata and Wikipedia and are cached in
+`data/wikidata_films.json`; `data/film_metadata.json` maps them onto MovieLens
+(9,651 films). Run `python enrich_wikidata.py` to rebuild or extend it; it skips
+what it already has, and re-applies the genre rules to cached films without
+fetching them again.
 
 ## Licence and attribution
 
 Code is GPL-3.0 (see `LICENSE`).
 
-Film metadata in `app/data/library.json` comes from **TMDB**. This product uses
-the TMDB API but is not endorsed or certified by TMDB. It is included so the
-app works without every visitor needing an API key; it is a subset of credits
-and keywords, for non-commercial use.
+Film credits in `app/data/library.json` come from **Wikidata** (CC0 1.0).
+Synopses taken from **Wikipedia** are CC BY-SA 4.0 and are credited to their
+article wherever the app shows one. Festival synopses and posters come from
+each festival's own listing.
 
 The recommender's weights were fitted on **MovieLens** (GroupLens Research).
 That dataset is licensed for research use and may not be redistributed, so it

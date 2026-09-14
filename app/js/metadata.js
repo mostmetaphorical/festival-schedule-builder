@@ -4,18 +4,17 @@
  * The recommender works on directors, writers, cast and keywords, so a list of
  * titles has to become a list of credits. Two ways to do that:
  *
- *   bundle - a file shipped with the app. No key, no network, instant, but it
- *            only covers the films in it.
- *   tmdb   - looks up anything, needs a free TMDB key, and is cached in the
- *            browser so it only happens once.
+ *   bundle   - a file shipped with the app, built from Wikidata. No network,
+ *              instant, but it only covers the films in it.
+ *   wikidata - looks up anything else live (wikidata.js), on request, cached in
+ *              the browser so each film is only asked about once.
  *
  * Either way the lookups describe films, never the person doing the looking:
  * no ratings are ever sent anywhere.
  */
 
-const TMDB = 'https://api.themoviedb.org/3';
-const CONCURRENCY = 8;
-const CAST_DEPTH = 6; // must match enrich_tmdb.py
+// Wikimedia asks callers to keep parallel requests modest.
+const CONCURRENCY = 4;
 
 /**
  * One canonical spelling of a title. Mirrors festrec_eval/titles.py - the
@@ -74,65 +73,6 @@ export class BundleProvider {
     }
     return this.at(key(title, ''));
   }
-}
-
-/** Live lookups, with results cached in the browser. */
-export class TMDBProvider {
-  constructor(apiKey, cache) {
-    this.name = 'tmdb';
-    this.apiKey = apiKey;
-    this.cache = cache;
-  }
-
-  async lookup(title, year) {
-    const cacheKey = key(title, year);
-    const cached = await this.cache?.get(cacheKey);
-    if (cached !== undefined) return cached;
-
-    const found = await this.fetchFilm(title, year);
-    await this.cache?.set(cacheKey, found);
-    return found;
-  }
-
-  async fetchFilm(title, year) {
-    const query = new URLSearchParams({
-      api_key: this.apiKey,
-      query: title,
-      include_adult: 'false',
-    });
-    if (year) query.set('year', String(year));
-
-    const search = await fetch(`${TMDB}/search/movie?${query}`);
-    if (!search.ok) throw new Error(`TMDB search failed (${search.status})`);
-    const results = (await search.json()).results || [];
-    if (results.length === 0) return null;
-
-    const details = await fetch(
-      `${TMDB}/movie/${results[0].id}?api_key=${this.apiKey}` +
-        `&append_to_response=credits,keywords`
-    );
-    if (!details.ok) throw new Error(`TMDB lookup failed (${details.status})`);
-    return condense(await details.json());
-  }
-}
-
-/** Same shape the Python enrichment writes, so the model sees what it expects. */
-export function condense(payload) {
-  const crew = payload.credits?.crew || [];
-  const cast = payload.credits?.cast || [];
-  return {
-    title: payload.title,
-    runtime: payload.runtime,
-    director: crew.filter((c) => c.job === 'Director').map((c) => c.name),
-    writer: crew
-      .filter((c) => ['Writer', 'Screenplay', 'Story'].includes(c.job))
-      .map((c) => c.name),
-    cast: cast.slice(0, CAST_DEPTH).map((c) => c.name),
-    keyword: (payload.keywords?.keywords || []).map((k) => k.name),
-    genre: (payload.genres || []).map((g) => g.name),
-    year: (payload.release_date || '').slice(0, 4),
-    overview: payload.overview || '',
-  };
 }
 
 /** A tiny IndexedDB key-value store, so a lookup is only ever paid for once. */

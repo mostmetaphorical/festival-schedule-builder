@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meta's Nifty Film Fest Scheduler</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="masthead">
+  <button class="report-link" type="button" data-report>Report a bug</button>
   <p class="kicker" id="masthead-kicker">Meta's Nifty</p>
   <h1 class="title-3d">
     <span class="solid" id="masthead-name">Film Fest</span>
@@ -74,7 +75,7 @@
     <div id="ratings-status" class="status" role="status" aria-live="polite" hidden></div>
 
     <details class="fold">
-      <summary>Films it couldn't identify, and TMDB lookups</summary>
+      <summary>Films it couldn't identify, and looking them up</summary>
       <div class="fold-body two-col">
         <div>
           <p class="eyebrow" id="missing-heading">Films it couldn't identify</p>
@@ -83,19 +84,19 @@
           </div>
         </div>
         <div class="stack">
-          <p class="eyebrow">Look them up on TMDB</p>
+          <p class="eyebrow">Look them up on Wikidata</p>
           <p>
-            Film credits come from a list bundled with this app. Paste a free TMDB
-            API key and anything missing is looked up — only films are asked
-            about, never you.
+            Film credits come from a library bundled with this app, built from
+            Wikidata. Anything it doesn't know can be looked up there directly —
+            no key or account needed.
           </p>
-          <label class="sr-only" for="tmdb-key">TMDB API key</label>
-          <input type="password" id="tmdb-key" placeholder="TMDB API key (optional)" autocomplete="off">
+          <p class="muted small">
+            This sends those films' titles and years to Wikidata and Wikipedia.
+            Nothing else: not your ratings, and nothing about you.
+          </p>
           <div class="inline-row">
-            <button id="save-key" class="btn">Use this key</button>
-            <span class="lock">The key stays in this browser</span>
+            <button id="look-up-missing" class="btn" disabled>Look up the missing films</button>
           </div>
-          <p class="muted small">No key yet? <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">Get one free from TMDB</a>.</p>
         </div>
       </div>
     </details>
@@ -444,14 +445,64 @@
 
 <footer>
   <div class="wrap footer-row">
-    <a class="tmdb-credit" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>
     <p>
-      Film credits, keywords and posters come from TMDB. This product uses TMDB
-      and the TMDB APIs but is not endorsed, certified, or otherwise approved by
-      TMDB. Your ratings stay on your device unless you choose to share them.
+      Film credits come from <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer">Wikidata</a>
+      (CC0). Synopses marked as from Wikipedia are
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>;
+      other synopses and posters come from each festival's own listing. Your
+      ratings stay on your device unless you choose to share them.
     </p>
   </div>
 </footer>
+
+<dialog class="report" id="report-dialog" aria-labelledby="report-title">
+  <form method="dialog" class="stack" id="report-form">
+    <div class="block-head">
+      <h3 id="report-title">Report a bug</h3>
+      <button class="close" value="cancel" formnovalidate aria-label="Close">×</button>
+    </div>
+
+    <label class="field" for="report-message">
+      <span>What went wrong?</span>
+      <textarea id="report-message" rows="5" minlength="10" maxlength="3000" required
+        placeholder="What you did, what you expected, and what happened instead."></textarea>
+    </label>
+
+    <label class="field" for="report-step">
+      <span>Where</span>
+      <select id="report-step">
+        <option value="ratings">Ratings</option>
+        <option value="festival">Festival</option>
+        <option value="your-time">Your time</option>
+        <option value="plan">Plan</option>
+        <option value="other">Somewhere else</option>
+      </select>
+    </label>
+
+    <label class="check">
+      <input type="checkbox" id="report-details" checked>
+      <span>Include technical details</span>
+    </label>
+    <pre class="report-preview" id="report-preview" aria-live="polite"></pre>
+
+    <label class="field" for="report-contact">
+      <span>Your email, if you'd like a reply <em>(optional)</em></span>
+      <input type="email" id="report-contact" maxlength="200" autocomplete="email">
+    </label>
+
+    <p class="muted small">
+      Sent to a private store only the developer can read. Your ratings are
+      never included. The form loads Cloudflare's bot check to keep spam out.
+    </p>
+    <div class="bot-check" id="report-bot"></div>
+    <p class="muted small" id="report-note" role="status" aria-live="polite"></p>
+
+    <div class="inline-row">
+      <button class="btn primary" type="button" id="report-send" disabled>Send report</button>
+      <span class="muted small">or <a id="report-email" href="mailto:festrecommender.crucial122@passmail.net?subject=Bug%20report">email it instead</a></span>
+    </div>
+  </form>
+</dialog>
 
 <script type="module" src="js/main.js"></script>
 </body>

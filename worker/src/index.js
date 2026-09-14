@@ -4,6 +4,7 @@
  *   GET  /status     is sharing open?
  *   POST /ratings    a Name,Year,Rating CSV, stored privately for evaluation
  *   POST /festival   a festival schedule, stored for review before publishing
+ *   POST /report     a bug report: a description and optional details
  *
  * Write-only by design: there is no route that reads anything back out. Shared
  * files are retrieved by the maintainer with wrangler, never over the web.
@@ -14,6 +15,7 @@
 
 import { decodeText, RejectedUpload, rebuildRatings, validateRatings } from './ratings.js';
 import { validateFestival } from './festival.js';
+import { validateReport } from './report.js';
 import { checkRoom, limitsFrom, readUsage, reserve, status, today } from './usage.js';
 
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -145,6 +147,33 @@ async function acceptFestival(request, env, limits) {
   return { ok: true, id, ...festival.summary };
 }
 
+// A report is a few paragraphs; anything near this size isn't one.
+const MAX_REPORT_BYTES = 16_000;
+
+async function acceptReport(request, env, limits) {
+  await verifyHuman(request, env);
+  const text = decodeText(await readCapped(request, MAX_REPORT_BYTES));
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new RejectedUpload('That is not valid JSON.');
+  }
+  const report = validateReport(data);
+  const stored = JSON.stringify({ ...report, received: today() }, null, 2);
+  const size = new TextEncoder().encode(stored).byteLength;
+
+  const usage = await readUsage(env.SHARES);
+  checkRoom(usage, size, limits);
+  await reserve(env.SHARES, usage, size);
+
+  const id = crypto.randomUUID();
+  await env.SHARES.put(`report/${today()}/${id}.json`, stored, {
+    metadata: { step: report.step, bytes: size, reply: Boolean(report.contact) },
+  });
+  return { ok: true, id };
+}
+
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
@@ -169,6 +198,9 @@ export default {
       }
       if (request.method === 'POST' && pathname === '/festival') {
         return reply(request, env, 201, await acceptFestival(request, env, limits));
+      }
+      if (request.method === 'POST' && pathname === '/report') {
+        return reply(request, env, 201, await acceptReport(request, env, limits));
       }
       return reply(request, env, 404, { ok: false, error: 'Not found.' });
     } catch (error) {

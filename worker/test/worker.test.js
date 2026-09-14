@@ -154,10 +154,33 @@ test('a valid festival is accepted and stored for review', async () => {
   assert.equal(env.SHARES.keys('festival/').length, 1);
 });
 
+test('a bug report is accepted, rebuilt and stored, and needs the bot check', async () => {
+  const report = { message: 'The swap list forgot a dropped film.', step: 'plan', secret: 'x' };
+  const refused = await post('/report', JSON.stringify(report), { type: 'application/json', token: null });
+  assert.equal(refused.status, 403);
+  assert.equal(env.SHARES.keys('report/').length, 0);
+
+  const response = await post('/report', JSON.stringify(report), { type: 'application/json' });
+  assert.equal(response.status, 201);
+  const keys = env.SHARES.keys('report/');
+  assert.equal(keys.length, 1);
+  const stored = JSON.parse(await env.SHARES.get(keys[0]));
+  assert.equal(stored.message, report.message);
+  assert.equal(stored.secret, undefined);
+});
+
+test('an oversized bug report is refused', async () => {
+  const response = await post('/report', JSON.stringify({ message: 'x'.repeat(20000) }), {
+    type: 'application/json',
+  });
+  assert.equal(response.status, 413);
+  assert.equal(env.SHARES.keys('report/').length, 0);
+});
+
 test('there is no way to read anything back', async () => {
   await post('/ratings', ratingsCSV());
   const key = env.SHARES.keys('ratings/')[0];
-  for (const path of [`/${key}`, '/ratings', '/festival', '/usage', '/list']) {
+  for (const path of [`/${key}`, '/ratings', '/festival', '/report', '/usage', '/list']) {
     const response = await worker.fetch(new Request(`https://share.example${path}`), env);
     assert.notEqual(response.status, 200, `GET ${path} returned data`);
   }

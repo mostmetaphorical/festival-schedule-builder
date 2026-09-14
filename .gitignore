@@ -17,6 +17,8 @@ app/fixtures/sample-ratings.csv
 
 # Other people's rating histories are theirs. Keep exports out of the repo.
 exports/
+# Bug reports can carry the sender's email address.
+reports/
 *-ratings.csv
 !app/fixtures/demo-ratings.csv
 
