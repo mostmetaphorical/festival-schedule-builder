@@ -17,6 +17,7 @@ import {
   formatTime,
   onlyChances,
   parseCommitment,
+  parseTime,
   screeningId,
 } from './schedule.js';
 import { downloadHTML, downloadICS, restoreFromHTML } from './export.js';
@@ -162,6 +163,33 @@ function wireUp() {
 
   fileZone($('#festival-drop'), $('#festival-file'), async (file) => {
     loadFestivalText(await file.text(), { name: file.name });
+  });
+  $('#festival-update').addEventListener('click', (event) => {
+    const picker = $('#update-picker');
+    picker.hidden = !picker.hidden;
+    event.currentTarget.setAttribute('aria-expanded', String(!picker.hidden));
+    if (!picker.hidden) $('#update-festival').focus();
+  });
+  $('#update-choose').addEventListener('click', () => $('#festival-update-file').click());
+  $('#festival-update-file').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    const target = $('#update-festival').value;
+    // Updating a festival that isn't the one in use switches to it first, so
+    // the update is compared with what was published.
+    if (target && target !== state.festival?.festival) {
+      const listed = state.festivalIndex?.festivals?.find((festival) => festival.name === target);
+      if (listed?.data) {
+        try {
+          await chooseListed(listed);
+        } catch (error) {
+          reportFestival(null, `Couldn't load ${target} to update it.`, $('#festival-update-report'));
+          return;
+        }
+      }
+    }
+    loadFestivalText(await file.text(), { name: file.name, update: true, target });
   });
 
   $('#load-url').addEventListener('click', async () => {
@@ -358,38 +386,53 @@ function dateRange(from, to) {
 
 function renderFestivals() {
   const list = $('#festival-list');
+  // The disclaimer and update button sit below the festivals you can choose.
+  const currency = $('#festival-currency');
   list.innerHTML = '';
   const festivals = state.festivalIndex?.festivals || [];
   const ready = festivals.filter((f) => f.status === 'ready');
   const planned = festivals.filter((f) => f.status !== 'ready');
+  // A festival loaded from a file gets a card too, so it can be seen and updated.
+  const loaded =
+    state.festival && !ready.some((festival) => festival.name === state.festival.festival)
+      ? {
+          name: state.festival.festival,
+          source: 'Loaded from your file, on this device only',
+        }
+      : null;
+  const cards = [...(loaded ? [loaded] : []), ...ready];
 
-  for (const festival of ready) {
+  for (const festival of cards) {
     const selected = state.festival?.festival === festival.name;
     const stats = selected ? state.festivalCheck?.stats : null;
+    const age = selected && state.festivalAge ? state.festivalAge : {};
+    const uploaded = age.captured || age.uploaded || festival.captured || '';
+    const starts = festival.starts || stats?.from || '';
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'festival';
     button.setAttribute('aria-pressed', String(selected));
     button.innerHTML =
-      `<span class="when">${dateRange(festival.starts, festival.ends)}` +
-      `<small>${escapeHTML(festival.starts.slice(0, 4))}</small></span>` +
+      `<span class="when">${starts ? dateRange(starts, festival.ends || stats?.to) : ''}` +
+      `<small>${escapeHTML(starts.slice(0, 4))}</small></span>` +
       `<span><span class="name">${escapeHTML(festival.name)}</span>` +
-      `<span class="meta">${escapeHTML(festival.city)}${
-        stats ? ` · ${stats.films} films and events · ${stats.screenings} screenings` : ''
+      `<span class="meta">${escapeHTML(festival.city || '')}${
+        stats
+          ? `${festival.city ? ' · ' : ''}${stats.films === 1 ? '1 film' : `${stats.films} films and events`} ·${plural(stats.screenings, 'screening')}`
+          : ''
       }</span>` +
-      (festival.source
-        ? `<span class="source">${escapeHTML(festival.source)}${
-            festival.captured ? ` on ${dateRange(festival.captured)}` : ''
-          }</span>`
-        : '') +
+      `<span class="source">${
+        /^\d{4}-\d{2}-\d{2}/.test(uploaded)
+          ? `Listings uploaded ${escapeHTML(longDate(uploaded.slice(0, 10)))}`
+          : 'Upload date unknown'
+      }${festival.source ? ` · ${escapeHTML(festival.source)}` : ''}</span>` +
       `</span>` +
       `<span class="pick">${selected ? 'Selected' : 'Choose'}</span>`;
     button.addEventListener('click', async () => {
       if (selected) return showStep(3);
       button.querySelector('.pick').textContent = 'Loading…';
       try {
-        const data = await fetch(festival.data).then((r) => r.json());
-        useFestival(data);
+        await chooseListed(festival);
         if (!state.festivalCheck.errors.length) showStep(3);
       } catch (error) {
         button.querySelector('.pick').textContent = 'Try again';
@@ -397,6 +440,16 @@ function renderFestivals() {
     });
     list.appendChild(button);
   }
+  list.appendChild(currency);
+
+  // Everything that has a schedule can be updated.
+  const select = $('#update-festival');
+  const previous = select.value;
+  select.innerHTML = cards
+    .map((festival) => `<option>${escapeHTML(festival.name)}</option>`)
+    .join('');
+  const preferred = state.festival?.festival || previous;
+  if (cards.some((festival) => festival.name === preferred)) select.value = preferred;
 
   if (planned.length) {
     const coming = document.createElement('div');
@@ -416,8 +469,14 @@ function renderFestivals() {
   }
 }
 
+/** Load one of the listed festivals. */
+async function chooseListed(festival) {
+  const data = await fetch(festival.data).then((r) => r.json());
+  useFestival(data, { captured: data.captured || festival.captured || '' });
+}
+
 /** Read a festival from spreadsheet or JSON text, whichever it is. */
-function loadFestivalText(text, { name = '' } = {}) {
+function loadFestivalText(text, { name = '', update = false, target = '' } = {}) {
   const fallbackName = String(name)
     .replace(/\.(csv|json|txt)$/i, '')
     .replace(/[-_]+/g, ' ')
@@ -432,10 +491,148 @@ function loadFestivalText(text, { name = '' } = {}) {
     const message = error instanceof SyntaxError
       ? "It isn't a spreadsheet with title, date and time columns, or a JSON festival file."
       : error.message;
-    reportFestival(null, message);
+    reportFestival(null, message, update ? $('#festival-update-report') : undefined);
     return;
   }
-  useFestival(parsed.data, { external: true, notes: parsed.notes, problems: parsed.problems });
+  // The person said which festival the update is for; a file that spells the
+  // name differently ("Fantastic Fest" for "Fantastic Fest 2026") still is.
+  const renamed =
+    update && target && parsed.data && typeof parsed.data === 'object' && parsed.data.festival !== target
+      ? parsed.data.festival || '(no name)'
+      : '';
+  if (renamed) {
+    parsed.data.festival = target;
+    parsed.notes.push(`The file calls it "${renamed}"; it was treated as ${target}, as chosen.`);
+  }
+  useFestival(parsed.data, {
+    external: true,
+    notes: parsed.notes,
+    problems: parsed.problems,
+    update,
+    // A JSON file can say when its listings were captured; otherwise the
+    // day it was uploaded here is the best available answer.
+    captured: parsed.data?.captured || '',
+    uploaded: new Date().toLocaleDateString('en-CA'),
+  });
+}
+
+const longDate = (date) =>
+  new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+/**
+ * What changed between two versions of a festival's schedule. Screenings are
+ * matched on title, date and the time it means, so "7:30 PM" and "19:30" are
+ * the same showing.
+ */
+function screeningKey(screening) {
+  return `${screening.film}@${screening.date}@${parseTime(screening.time)}`;
+}
+
+function compareSchedules(before, after) {
+  const oldKeys = new Map(before.screenings.map((s) => [screeningKey(s), s]));
+  const newKeys = new Map(after.screenings.map((s) => [screeningKey(s), s]));
+  let removed = [...oldKeys].filter(([key]) => !newKeys.has(key)).map(([, s]) => s);
+  let added = [...newKeys].filter(([key]) => !oldKeys.has(key)).map(([, s]) => s);
+  // One showing gone and one new for the same film reads as a move.
+  const moved = [];
+  for (const title of new Set(removed.map((s) => s.film))) {
+    const gone = removed.filter((s) => s.film === title);
+    const fresh = added.filter((s) => s.film === title);
+    if (gone.length === 1 && fresh.length === 1) moved.push({ from: gone[0], to: fresh[0] });
+  }
+  removed = removed.filter((s) => !moved.some((move) => move.from === s));
+  added = added.filter((s) => !moved.some((move) => move.to === s));
+  const oldTitles = new Set(before.films.map((film) => film.title));
+  const newTitles = new Set(after.films.map((film) => film.title));
+  return {
+    removed,
+    added,
+    moved,
+    newFilms: [...newTitles].filter((title) => !oldTitles.has(title)),
+    goneFilms: [...oldTitles].filter((title) => !newTitles.has(title)),
+  };
+}
+
+const showing = (s) => `${weekdayName(s.date).slice(0, 3)} ${formatTime(parseTime(s.time))}`;
+
+/**
+ * Carry the person's decisions over to the new schedule: a pick follows its
+ * screening if it still exists, a drop follows its film.
+ */
+function carryOver(before, after, changes) {
+  // The plan as it stands is held, so an update only touches what changed.
+  keepPlan();
+  const idsNow = new Map(after.screenings.map((s) => [screeningKey(s), screeningId(s)]));
+  const keyOf = new Map(before.screenings.map((s) => [screeningId(s), screeningKey(s)]));
+  const titles = new Set(after.films.map((film) => film.title));
+  const lostPicks = [];
+  const remap = (set, { report }) =>
+    new Set(
+      [...set].flatMap((id) => {
+        const now = idsNow.get(keyOf.get(id));
+        if (now) return [now];
+        if (titles.has(id)) return [id];
+        if (report) lostPicks.push(before.screenings.find((s) => screeningId(s) === id));
+        return [];
+      })
+    );
+  const planned = new Set(
+    (state.schedule?.days || []).flatMap((day) => day.picks.map((pick) => screeningId(pick)))
+  );
+  const lostPlanned = [...changes.removed, ...changes.moved.map((move) => move.from)].filter(
+    (s) => planned.has(screeningId(s)) && !state.pinned.has(screeningId(s))
+  );  state.pinned = remap(state.pinned, { report: true });
+  state.kept = remap(state.kept, { report: false });
+  state.excluded = new Set([...state.excluded].filter((title) => titles.has(title)));
+  state.held = state.held.filter((window) => titles.has(window.title));
+  return [...lostPicks.filter(Boolean), ...lostPlanned];
+}
+
+function reportUpdate(changes, lost) {
+  const box = $('#festival-update-report');
+  const list = (items) => `<ul>${items.map((text) => `<li>${escapeHTML(text)}</li>`).join('')}</ul>`;
+  const lines = [...(state.festivalNotes || [])];
+  for (const s of lost) {
+    const move = changes.moved.find((each) => each.from === s);
+    lines.push(
+      move
+        ? `${s.film} was in your plan at ${showing(s)} and has moved to ${showing(move.to)}. ` +
+            'Its old slot is empty; add it at the new time if it still fits.'
+        : `${s.film} (${showing(s)}) was in your plan and is no longer listed at that time.`
+    );
+  }
+  const parts = [
+    changes.moved.length ? `${plural(changes.moved.length, 'screening')} moved` : '',
+    changes.removed.length ? `${plural(changes.removed.length, 'screening')} removed` : '',
+    changes.added.length ? `${plural(changes.added.length, 'screening')} added` : '',
+    changes.newFilms.length ? plural(changes.newFilms.length, 'new film') : '',
+    changes.goneFilms.length ? `${plural(changes.goneFilms.length, 'film')} gone` : '',
+  ].filter(Boolean);
+  const summary = parts.length ? `${capitalise(parts.join(', '))}.` : 'No screenings changed.';
+  const LISTED = 8;
+  lines.push(
+    ...changes.moved.slice(0, LISTED).map(
+      ({ from, to }) => `Moved: ${from.film}, ${showing(from)} → ${showing(to)}`
+    ),
+    ...changes.removed.slice(0, LISTED).map((s) => `Removed: ${s.film}, ${showing(s)}`),
+    ...changes.added.slice(0, LISTED).map((s) => `Added: ${s.film}, ${showing(s)}`)
+  );
+  if ([changes.moved, changes.removed, changes.added].some((list) => list.length > LISTED)) {
+    lines.push('…and more.');
+  }
+
+  box.hidden = false;
+  box.className = `report${lost.length ? ' error' : ''}`;
+  box.innerHTML =
+    `<p class="report-title">Schedule updated</p>` +
+    `<p>${escapeHTML(summary)}${
+      lost.length ? ' Your plan kept everything else; the gaps show what fits now.' : ''
+    }</p>` +
+    (lines.length ? list(lines) : '');
 }
 
 /* ---------- sharing ---------- */
@@ -691,8 +888,7 @@ async function sendFestival() {
 }
 
 /** Say what was found, and what looks wrong, before anything is acted on. */
-function reportFestival(check, note = '') {
-  const box = $('#festival-report');
+function reportFestival(check, note = '', box = $('#festival-report')) {
   box.hidden = false;
   // Messages quote titles and dates from the file itself, so they are text,
   // never markup - a festival file must not be able to inject into the page.
@@ -731,17 +927,38 @@ function reportFestival(check, note = '') {
     (note ? `<p>${escapeHTML(note)}</p>` : '');
 }
 
-function useFestival(data, { external = false, notes = [], problems = [] } = {}) {
+function useFestival(
+  data,
+  { external = false, notes = [], problems = [], update = false, captured = '', uploaded = '' } = {}
+) {
   // Check before use: a missing date or a mismatched title produces a plan
   // with silent holes in it, which is worse than a refusal.
   const check = validateFestival(data);
   check.errors.push(...problems);
+  // An update to a different festival is just a new festival.
+  const previous =
+    update && state.festival && state.festival.festival === data?.festival ? state.festival : null;
+  if (update && check.errors.length) {
+    // Leave the festival in use alone; say what's wrong where the button is.
+    state.festivalNotes = notes;
+    state.festivalLoadedName = data?.festival;
+    reportFestival(check, '', $('#festival-update-report'));
+    return;
+  }
   state.festivalCheck = check;
   state.festivalNotes = notes;
   state.festivalLoadedName = data?.festival;
   // A festival already listed in the app has nothing to share.
   state.festivalExternal = external;
-  if (external) reportFestival(check);
+  if (external && !update) reportFestival(check);
+  if (update && !previous) {
+    $('#festival-update-report').hidden = false;
+    $('#festival-update-report').className = 'report';
+    $('#festival-update-report').innerHTML =
+      `<p class="report-title">Loaded as a new festival</p><p>That file is for ` +
+      `${escapeHTML(data.festival)}, not ${escapeHTML(state.festival?.festival || 'the one in use')}, ` +
+      'so your picks and drops were cleared.</p>';
+  }
 
   const submittable = external && check.errors.length === 0;
   $('#submit-email').disabled = !submittable;
@@ -757,12 +974,20 @@ function useFestival(data, { external = false, notes = [], problems = [] } = {})
 
   if (check.errors.length) return;
 
+  if (previous) {
+    const changes = compareSchedules(previous, data);
+    const lost = carryOver(previous, data, changes);
+    reportUpdate(changes, lost);
+  } else {
+    state.pinned = new Set();
+    state.kept = new Set();
+    state.excluded = new Set();
+    state.held = [];
+    state.openCards = new Set();
+    if (!update) $('#festival-update-report').hidden = true;
+  }
   state.festival = data;
-  state.pinned = new Set();
-  state.kept = new Set();
-  state.excluded = new Set();
-  state.held = [];
-  state.openCards = new Set();
+  state.festivalAge = { captured, uploaded };
 
   // Commitments already on the festival file are a starting point, not a
   // decision - the person can delete them.
@@ -1644,11 +1869,22 @@ function setStatus(html, isError = false) {
 /** The title shows the festival once there is one; the steps show progress. */
 function updateChrome() {
   const name = state.festival?.festival;
-  const match = name?.match(/^(.*\S)\s+(\d{4})$/);
-  $('#masthead-kicker').textContent = name ? "Meta's Nifty Film Fest Scheduler" : "Meta's Nifty";
-  $('#masthead-name').textContent = name ? (match ? match[1] : name) : 'Film Fest';
-  $('#masthead-year').textContent = name ? (match ? match[2] : '') : 'Scheduler';
-  $('#masthead-year').hidden = Boolean(name && !match);
+  const banner = $('#fest-banner');
+  if (name !== banner.dataset.festival) {
+    banner.dataset.festival = name || '';
+    banner.hidden = !name;
+    if (name) {
+      const days = state.festival.days?.length
+        ? [...state.festival.days].sort()
+        : [...new Set(state.festival.screenings.map((s) => s.date))].sort();
+      $('#fest-banner-name').textContent = name;
+      $('#fest-banner-when').textContent = days.length ? dateRange(days[0], days[days.length - 1]) : '';
+      // Restart the unfurl for each newly chosen festival.
+      banner.classList.remove('unfurl');
+      void banner.offsetWidth;
+      banner.classList.add('unfurl');
+    }
+  }
   document.title = name ? `${name} · Meta's Nifty Film Fest Scheduler` : "Meta's Nifty Film Fest Scheduler";
 
   const done = {

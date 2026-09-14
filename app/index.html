@@ -12,10 +12,18 @@
 <header class="masthead">
   <button class="report-link" type="button" data-report>Report a bug</button>
   <p class="kicker" id="masthead-kicker">Meta's Nifty</p>
-  <h1 class="title-3d">
-    <span class="solid" id="masthead-name">Film Fest</span>
-    <span class="outline" id="masthead-year">Scheduler</span>
-  </h1>
+  <div class="title-wrap">
+    <h1 class="title-3d">
+      <span class="solid">Film Fest</span>
+      <span class="outline">Scheduler</span>
+    </h1>
+    <!-- Pasted over the title once a festival is chosen, like an update
+         glued onto a poster. -->
+    <p class="fest-banner" id="fest-banner" hidden>
+      <span class="fest-name" id="fest-banner-name"></span>
+      <span class="fest-when" id="fest-banner-when"></span>
+    </p>
+  </div>
 
   <nav class="steps" aria-label="Steps">
     <button class="step" data-step="1" aria-current="step">
@@ -117,6 +125,28 @@
     </div>
 
     <div id="festival-list" class="festivals"></div>
+
+    <div class="currency" id="festival-currency">
+      <p>
+        <b>Check before you queue.</b> Festivals move, add and cancel screenings
+        after their listings are uploaded, so something may have changed since.
+        Confirm times on the festival's own site or app.
+      </p>
+      <div class="inline-row">
+        <button type="button" class="btn" id="festival-update" aria-expanded="false"
+                aria-controls="update-picker">Upload a schedule update</button>
+      </div>
+      <div class="update-picker" id="update-picker" hidden>
+        <label class="eyebrow" for="update-festival">Which festival is it for?</label>
+        <div class="inline-row">
+          <select id="update-festival"></select>
+          <input type="file" id="festival-update-file" accept=".csv,.json,text/csv,application/json" hidden>
+          <button type="button" class="btn primary" id="update-choose">Choose the .csv or .json</button>
+        </div>
+        <p class="muted small">A newer file of that festival's schedule. If it's the one you're planning, your picks and drops carry over.</p>
+      </div>
+      <div id="festival-update-report" class="report" role="status" aria-live="polite" hidden></div>
+    </div>
 
     <details class="fold" id="festival-fold">
       <summary>Add a festival that isn't listed <span class="summary-note">· from a spreadsheet, a file, a web address, or pasted data</span></summary>

@@ -63,7 +63,7 @@ hr { border: 0; height: 1px; background: var(--line); margin: 0; }
 
 .muted { color: var(--dim); font-size: 15px; line-height: 1.6; }
 .small { font-size: 14px; }
-.lede { font-size: 17px; line-height: 1.65; color: var(--soft); max-width: 64ch; }
+.lede { font-size: 17px; line-height: 1.65; color: var(--soft); }
 .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em;
            text-transform: uppercase; color: var(--dim); }
 .stack { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -89,6 +89,35 @@ hr { border: 0; height: 1px; background: var(--line); margin: 0; }
             overflow-wrap: anywhere; }
 .title-3d .solid { text-shadow: -.038em 0 0 var(--pink), .038em 0 0 var(--lime); }
 .title-3d .outline { color: transparent; -webkit-text-stroke: max(2px, .023em) var(--pink); }
+
+/* The chosen festival, pasted across the title like an update glued onto a
+   poster: slanted like the weekday stamps, unrolling from the left. */
+.title-wrap { position: relative; display: flex; justify-content: center; max-width: 100%; }
+.title-wrap:has(.fest-banner:not([hidden])) { margin-bottom: 30px; }
+.fest-banner { position: absolute; left: 50%; top: 64%; z-index: 2; width: max-content; max-width: min(92vw, 860px);
+  display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; column-gap: 18px;
+  background: var(--lime); color: var(--page); padding: 10px 26px 6px;
+  box-shadow: 6px 6px 0 #000; transform: translateX(-50%) rotate(-4deg); transform-origin: left center;
+  pointer-events: none; --ear: 30px; }
+.fest-banner .fest-name, .fest-banner .fest-when { font-family: var(--display); text-transform: uppercase;
+  font-size: clamp(30px, 4.6vw, 58px); line-height: 1; letter-spacing: .01em; }
+.fest-banner .fest-name { overflow-wrap: anywhere; }
+/* The dates echo the title's outlined word, in the banner's ink. */
+.fest-banner .fest-when { color: transparent; -webkit-text-stroke: max(1.5px, .025em) var(--page); white-space: nowrap; }
+/* Ribbon ears: a darker fold tucked behind each end, notched like cut paper. */
+.fest-banner::before, .fest-banner::after { content: ""; position: absolute; top: 7px; bottom: -7px;
+  width: var(--ear); background: #7fa827; }
+.fest-banner::before { left: calc(-1 * var(--ear));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 45% 50%); }
+.fest-banner::after { right: calc(-1 * var(--ear));
+  clip-path: polygon(0 0, 100% 0, 55% 50%, 100% 100%, 0 100%); }
+.fest-banner.unfurl { animation: unfurl .7s var(--ease) both; }
+/* The clip opens past the edges at the end, so the ears and shadow show. */
+@keyframes unfurl {
+  0%   { clip-path: inset(-40px calc(100% + 60px) -40px -60px); transform: translateX(-50%) rotate(-1deg) scaleY(.85); }
+  70%  { clip-path: inset(-40px -60px -40px -60px); transform: translateX(-50%) rotate(-5deg) scaleY(1.02); }
+  100% { clip-path: inset(-40px -60px -40px -60px); transform: translateX(-50%) rotate(-4deg); }
+}
 
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 190px)); width: min(760px, 100%);
          margin-top: 18px; }
@@ -261,6 +290,12 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .festival[aria-pressed="true"] .pick { background: var(--pink); border-color: var(--pink); color: var(--page); }
 .festival[aria-pressed="true"] .pick::before { content: ""; width: 16px; height: 16px;
   background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230c0b1a' stroke-width='3.2' stroke-linecap='square'%3E%3Cpath d='M4 12l5 5L20 6'/%3E%3C/svg%3E"); }
+.currency { display: flex; flex-direction: column; gap: 14px; border-left: 4px solid var(--yellow);
+  padding: 4px 0 4px 24px; margin: 20px 0 28px; }
+.currency > p { font-size: 15px; line-height: 1.6; color: var(--soft); }
+.currency > p b:first-child { color: var(--yellow); margin-right: 4px; }
+.update-picker { display: flex; flex-direction: column; gap: 10px; }
+.update-picker select { width: auto; min-width: min(320px, 100%); }
 .coming { display: flex; flex-direction: column; margin-top: 8px; }
 .coming .eyebrow { padding: 0 24px 8px; }
 .coming-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 24px; align-items: center;
@@ -392,7 +427,7 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
   border-top: 1px solid var(--line); }
 .alt:first-of-type { border-top: 0; }
 .alt .alt-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 19px; font-weight: 700; }
-.alt .detail { font-size: 14px; line-height: 1.55; color: var(--dim); max-width: 64ch; margin-top: 4px; }
+.alt .detail { font-size: 14px; line-height: 1.55; color: var(--dim); margin-top: 4px; }
 .alt .when { font-family: var(--mono); font-weight: 700; color: var(--soft); }
 .alt .syn { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
   overflow: hidden; }
@@ -435,17 +470,17 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   border-bottom: 2px solid var(--line-2); padding-bottom: 12px; }
 .export-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
-.warn { font-size: 14px; line-height: 1.55; color: var(--dim); max-width: 72ch; padding-left: 40px;
+.warn { font-size: 14px; line-height: 1.55; color: var(--dim); padding-left: 40px;
   margin-top: -8px; transition: color .2s; }
 .warn.sharing { color: var(--yellow); }
-.share > p { color: var(--soft); max-width: 70ch; }
+.share > p { color: var(--soft); }
 .share-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin: 0; background: var(--page); }
 .share-facts div { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; background: var(--surface); }
 .share-facts dt { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
 .share-facts dd { margin: 0; font-size: 15px; line-height: 1.5; color: var(--soft); }
 .remember { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center;
   margin-top: 48px; padding: 24px 28px; }
-.remember .muted { padding-left: 40px; max-width: 70ch; }
+.remember .muted { padding-left: 40px; }
 
 /* Contribute and footer --------------------------------------------- */
 .contribute { background: var(--surface-2); padding: 56px 0 60px; }
@@ -497,6 +532,10 @@ select:focus { outline: none; border-color: var(--pink); }
   .kicker { font-size: 10px; letter-spacing: .22em; padding: 0 16px; }
   .title-3d { flex-direction: column; align-items: center; font-size: clamp(52px, 18vw, 72px); }
   .title-3d .solid { text-shadow: -3px 0 0 var(--pink), 3px 0 0 var(--lime); }
+  .fest-banner { top: 24%; padding: 7px 14px 4px; box-shadow: 4px 4px 0 #000; column-gap: 10px; --ear: 18px;
+    max-width: calc(100vw - 56px); }
+  .fest-banner::before, .fest-banner::after { top: 5px; bottom: -5px; }
+  .fest-banner .fest-name, .fest-banner .fest-when { font-size: clamp(22px, 7.2vw, 32px); }
   .title-3d .outline { -webkit-text-stroke-width: 2px; }
   .steps { margin-top: 14px; padding: 0 6px; }
   .step { gap: 10px; }
@@ -622,6 +661,9 @@ select:focus { outline: none; border-color: var(--pink); }
   body { background: #fff; color: #000; font-size: 11pt; }
   .masthead { background: none; padding: 0 0 12pt; }
   .title-3d { font-size: 32pt; }
+  .fest-banner { position: static; transform: none; box-shadow: none; background: none; animation: none; padding: 0; }
+  .fest-banner::before, .fest-banner::after { display: none; }
+  .fest-banner .fest-when { -webkit-text-stroke: 1px #000; }
   .title-3d .solid { text-shadow: none; }
   .title-3d .outline { -webkit-text-stroke: 1px #000; }
   .report-link, dialog, .steps, .kicker, #strength, .block, .remember, .contribute, footer, .card-side .chev, .card-actions,

@@ -55,7 +55,7 @@ and installs the dependencies; on Ubuntu you may first need
 | Step | What happens |
 |---|---|
 | Ratings | Reads a Letterboxd export (`.zip` or `ratings.csv`) or an IMDb export. Credits come from `data/library.json`, bundled with the app and built from Wikidata. Films it doesn't know can be looked up on Wikidata live, on request — no key, and only the titles are sent. |
-| Festival | Picks from `data/festivals.json`, or loads a schedule — a spreadsheet (CSV, with a downloadable template) or JSON — from a file, a URL or pasted text. Posters come from the festival file. |
+| Festival | Picks from `data/festivals.json`, or loads a schedule — a spreadsheet (CSV, with a downloadable template) or JSON — from a file, a URL or pasted text. Posters come from the festival file. Each festival card says when its listings were uploaded (a JSON file’s optional `captured` date, or the day the file was loaded). Below the list, a reminder to confirm times sits with *Upload a schedule update*: pick the festival, load a newer file, and the plan is kept while a report lists what moved, was added or was removed. Once a festival is chosen, its name is pasted across the page title as a slanted banner. |
 | Your time | Volunteer shifts, work, appointments — typed in, or imported from `.ics` or CSV. |
 | Plan | A conflict-free schedule with reasons, which the person can override film by film. |
 
