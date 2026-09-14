@@ -120,6 +120,8 @@ explains the product and the measured results; this file is how to work on it.
 ./.venv/bin/python dev_server.py                   # local site, no caching
 ./.venv/bin/python test_sanity.py                  # leakage checks
 ./.venv/bin/python run_eval.py --n-users 100       # accuracy test
+./.venv/bin/python diagnose.py [--folds 5]         # RMSE/MAE, P@10/R@10, leakage, cold start, latency
+node diagnose_js.mjs exports/                      # browser model: parity with Python, latency, slate spread
 ./.venv/bin/python eval_letterboxd.py exports/     # test on real exports
 ./.venv/bin/python convert_eventive.py raw/<fest> --name "<Festival Year>" --previous app/data/festival.json
                                                    # festival.json from saved Eventive films/events responses
