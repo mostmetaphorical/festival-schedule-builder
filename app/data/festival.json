@@ -3666,14 +3666,14 @@
       "date": "2026-09-17",
       "time": "5:00 PM",
       "runtime": 150,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 3"
     },
     {
       "film": "Resident Evil",
       "date": "2026-09-17",
       "time": "5:15 PM",
       "runtime": 93,
-      "venue": "Theater 4"
+      "venue": "Theaters 4, 5, 6, 7, 8 and 9"
     },
     {
       "film": "Resident Evil Post-Screening Celebration",
@@ -3687,14 +3687,14 @@
       "date": "2026-09-17",
       "time": "8:15 PM",
       "runtime": 104,
-      "venue": "Theater 5"
+      "venue": "Theaters 4, 5, 6, 7, 8 and 9"
     },
     {
       "film": "Janur Ireng: Sewu Dino the Prequel",
       "date": "2026-09-17",
       "time": "8:45 PM",
       "runtime": 94,
-      "venue": "Theater 2"
+      "venue": "Theaters 1, 2 and 3"
     },
     {
       "film": "Opening Night Party!",
@@ -3708,21 +3708,21 @@
       "date": "2026-09-17",
       "time": "11:15 PM",
       "runtime": 81,
-      "venue": "Theater 8"
+      "venue": "Theaters 4, 8 and 9"
     },
     {
       "film": "Flapjax",
       "date": "2026-09-17",
       "time": "11:30 PM",
       "runtime": 98,
-      "venue": "Theater 3"
+      "venue": "Theaters 3, 5 and 7"
     },
     {
       "film": "Roy from Space",
       "date": "2026-09-17",
       "time": "11:45 PM",
       "runtime": 64,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 6"
     },
     {
       "film": "Doug Loves Movies",
@@ -3750,21 +3750,21 @@
       "date": "2026-09-18",
       "time": "11:00 AM",
       "runtime": 106,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 6"
     },
     {
       "film": "Roma Elastica",
       "date": "2026-09-18",
       "time": "11:15 AM",
       "runtime": 107,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 7 and 8"
     },
     {
       "film": "Kylgor in the Grisly Abyss",
       "date": "2026-09-18",
       "time": "11:30 AM",
       "runtime": 74,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 5"
     },
     {
       "film": "The Face of Horror",
@@ -3792,14 +3792,14 @@
       "date": "2026-09-18",
       "time": "2:00 PM",
       "runtime": 118,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 7"
     },
     {
       "film": "Death of a Yellow Bird",
       "date": "2026-09-18",
       "time": "2:15 PM",
       "runtime": 93,
-      "venue": "Theater 8"
+      "venue": "Theaters 4 and 8"
     },
     {
       "film": "The Ones Who Grieve",
@@ -3820,7 +3820,7 @@
       "date": "2026-09-18",
       "time": "5:00 PM",
       "runtime": 102,
-      "venue": "Theater 3"
+      "venue": "Theaters 1, 2, 3, 5 and 8"
     },
     {
       "film": "Kung Fu Deadly",
@@ -3862,7 +3862,7 @@
       "date": "2026-09-18",
       "time": "8:00 PM",
       "runtime": 115,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 4"
     },
     {
       "film": "Upiro",
@@ -3890,21 +3890,21 @@
       "date": "2026-09-18",
       "time": "8:30 PM",
       "runtime": 85,
-      "venue": "Theater 7"
+      "venue": "Theaters 1, 2, 5 and 7"
     },
     {
       "film": "Secret Screening #1",
       "date": "2026-09-18",
       "time": "11:15 PM",
       "runtime": 90,
-      "venue": "Theater 3"
+      "venue": "Theaters 3, 4, 5, 6, 7 and 9"
     },
     {
       "film": "Attack on Paradise",
       "date": "2026-09-18",
       "time": "11:30 PM",
       "runtime": 99,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 8"
     },
     {
       "film": "Hyperreal Breakfast Club",
@@ -3918,7 +3918,7 @@
       "date": "2026-09-19",
       "time": "11:00 AM",
       "runtime": 90,
-      "venue": "Theater 6"
+      "venue": "Theaters 6, 7 and 8"
     },
     {
       "film": "3 Weeks After",
@@ -3932,7 +3932,7 @@
       "date": "2026-09-19",
       "time": "11:40 AM",
       "runtime": 86,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 9"
     },
     {
       "film": "Henry: Portrait of a Serial Killer",
@@ -3953,7 +3953,7 @@
       "date": "2026-09-19",
       "time": "2:00 PM",
       "runtime": 110,
-      "venue": "Theater 8"
+      "venue": "Theaters 8 and 9"
     },
     {
       "film": "Future Tense",
@@ -3967,14 +3967,14 @@
       "date": "2026-09-19",
       "time": "2:15 PM",
       "runtime": 101,
-      "venue": "Theater 5"
+      "venue": "Theaters 5, 6 and 7"
     },
     {
       "film": "The Birthday Party",
       "date": "2026-09-19",
       "time": "2:30 PM",
       "runtime": 114,
-      "venue": "Theater 1"
+      "venue": "Theaters 1 and 2"
     },
     {
       "film": "Jollyface",
@@ -4002,14 +4002,14 @@
       "date": "2026-09-19",
       "time": "5:10 PM",
       "runtime": 111,
-      "venue": "Theater 5"
+      "venue": "Theaters 5, 7 and 8"
     },
     {
       "film": "The Blood Countess",
       "date": "2026-09-19",
       "time": "5:15 PM",
       "runtime": 119,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 3"
     },
     {
       "film": "Creature FX Makeup Demo",
@@ -4051,7 +4051,7 @@
       "date": "2026-09-19",
       "time": "8:15 PM",
       "runtime": 85,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3, 5 and 7"
     },
     {
       "film": "Shorts With Legs",
@@ -4079,14 +4079,14 @@
       "date": "2026-09-19",
       "time": "11:00 PM",
       "runtime": 92,
-      "venue": "Theater 5"
+      "venue": "Theaters 5, 7, 8 and 9"
     },
     {
       "film": "Kick On",
       "date": "2026-09-19",
       "time": "11:15 PM",
       "runtime": 89,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 4"
     },
     {
       "film": "Screamplay",
@@ -4107,7 +4107,7 @@
       "date": "2026-09-20",
       "time": "11:05 AM",
       "runtime": 92,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 5"
     },
     {
       "film": "Dog God",
@@ -4163,21 +4163,21 @@
       "date": "2026-09-20",
       "time": "2:00 PM",
       "runtime": 92,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 5"
     },
     {
       "film": "Too Many Beasts",
       "date": "2026-09-20",
       "time": "2:20 PM",
       "runtime": 96,
-      "venue": "Theater 1"
+      "venue": "Theaters 1 and 2"
     },
     {
       "film": "5 More Minutes",
       "date": "2026-09-20",
       "time": "2:30 PM",
       "runtime": 93,
-      "venue": "Theater 7"
+      "venue": "Theaters 7 and 8"
     },
     {
       "film": "Hell House",
@@ -4205,14 +4205,14 @@
       "date": "2026-09-20",
       "time": "5:00 PM",
       "runtime": 110,
-      "venue": "Theater 2"
+      "venue": "Theaters 2, 5, 7, 8 and 9"
     },
     {
       "film": "What Happened to Doris?",
       "date": "2026-09-20",
       "time": "5:20 PM",
       "runtime": 92,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 3 and 4"
     },
     {
       "film": "Girl in the Night",
@@ -4226,7 +4226,7 @@
       "date": "2026-09-20",
       "time": "8:00 PM",
       "runtime": 98,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 5"
     },
     {
       "film": "Bloody Tennis",
@@ -4247,7 +4247,7 @@
       "date": "2026-09-20",
       "time": "8:30 PM",
       "runtime": 104,
-      "venue": "Theater 6"
+      "venue": "Theaters 6 and 7"
     },
     {
       "film": "Blood Feast",
@@ -4268,28 +4268,28 @@
       "date": "2026-09-20",
       "time": "11:00 PM",
       "runtime": 84,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 4"
     },
     {
       "film": "No Way Down",
       "date": "2026-09-20",
       "time": "11:15 PM",
       "runtime": 91,
-      "venue": "Theater 5"
+      "venue": "Theaters 5, 8 and 9"
     },
     {
       "film": "Ogroff (Presented by Bleeding Skull)",
       "date": "2026-09-20",
       "time": "11:30 PM",
       "runtime": 89,
-      "venue": "Theater 6"
+      "venue": "Theaters 6 and 7"
     },
     {
       "film": "Game Master",
       "date": "2026-09-21",
       "time": "11:00 AM",
       "runtime": 89,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 4"
     },
     {
       "film": "Monday Market",
@@ -4303,14 +4303,14 @@
       "date": "2026-09-21",
       "time": "11:15 AM",
       "runtime": 98,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 3 and 6"
     },
     {
       "film": "Victorian Psycho",
       "date": "2026-09-21",
       "time": "11:30 AM",
       "runtime": 102,
-      "venue": "Theater 5"
+      "venue": "Theaters 5, 7 and 8"
     },
     {
       "film": "Screamplay",
@@ -4331,21 +4331,21 @@
       "date": "2026-09-21",
       "time": "2:00 PM",
       "runtime": 94,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 6"
     },
     {
       "film": "The Face of Horror",
       "date": "2026-09-21",
       "time": "2:15 PM",
       "runtime": 120,
-      "venue": "Theater 7"
+      "venue": "Theaters 1, 7 and 9"
     },
     {
       "film": "Ogroff (Presented by Bleeding Skull)",
       "date": "2026-09-21",
       "time": "2:30 PM",
       "runtime": 89,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 8"
     },
     {
       "film": "Little Doors",
@@ -4380,14 +4380,14 @@
       "date": "2026-09-21",
       "time": "5:20 PM",
       "runtime": 104,
-      "venue": "Theater 3"
+      "venue": "Theaters 3, 5 and 8"
     },
     {
       "film": "Godmother",
       "date": "2026-09-21",
       "time": "5:45 PM",
       "runtime": 85,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 7"
     },
     {
       "film": "Fright or Wrong Trivia",
@@ -4401,14 +4401,14 @@
       "date": "2026-09-21",
       "time": "8:00 PM",
       "runtime": 90,
-      "venue": "Theater 4"
+      "venue": "Theaters 4, 5, 6, 7, 8 and 9"
     },
     {
       "film": "Into the Sky",
       "date": "2026-09-21",
       "time": "8:30 PM",
       "runtime": 97,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 3"
     },
     {
       "film": "Short Fuse",
@@ -4422,7 +4422,7 @@
       "date": "2026-09-21",
       "time": "11:15 PM",
       "runtime": 92,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 9"
     },
     {
       "film": "Fantastic Feud 2026",
@@ -4436,14 +4436,14 @@
       "date": "2026-09-21",
       "time": "11:35 PM",
       "runtime": 106,
-      "venue": "Theater 6"
+      "venue": "Theaters 6, 7 and 8"
     },
     {
       "film": "Dieux Par Dupieux: Full Phil & Vertiginous",
       "date": "2026-09-22",
       "time": "11:00 AM",
       "runtime": 150,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 3"
     },
     {
       "film": "Drawn & Quartered",
@@ -4464,14 +4464,14 @@
       "date": "2026-09-22",
       "time": "11:15 AM",
       "runtime": 115,
-      "venue": "Theater 4"
+      "venue": "Theaters 4, 6 and 7"
     },
     {
       "film": "Ürei",
       "date": "2026-09-22",
       "time": "11:20 AM",
       "runtime": 80,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 8 and 9"
     },
     {
       "film": "Jollyface",
@@ -4485,14 +4485,14 @@
       "date": "2026-09-22",
       "time": "2:15 PM",
       "runtime": 108,
-      "venue": "Theater 7"
+      "venue": "Theaters 7, 8 and 9"
     },
     {
       "film": "Play House",
       "date": "2026-09-22",
       "time": "2:30 PM",
       "runtime": 85,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 6"
     },
     {
       "film": "Pathetic Fallacy",
@@ -4520,21 +4520,21 @@
       "date": "2026-09-22",
       "time": "5:00 PM",
       "runtime": 106,
-      "venue": "Theater 6"
+      "venue": "Theaters 6 and 7"
     },
     {
       "film": "Death of a Yellow Bird",
       "date": "2026-09-22",
       "time": "5:15 PM",
       "runtime": 93,
-      "venue": "Theater 4"
+      "venue": "Theaters 4 and 8"
     },
     {
       "film": "The Glorious Dead",
       "date": "2026-09-22",
       "time": "5:30 PM",
       "runtime": 81,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 3"
     },
     {
       "film": "Magick Mtn.",
@@ -4548,7 +4548,7 @@
       "date": "2026-09-22",
       "time": "8:00 PM",
       "runtime": 104,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 4"
     },
     {
       "film": "Mr. Creamjeans' Hidey Hole",
@@ -4569,14 +4569,14 @@
       "date": "2026-09-22",
       "time": "8:15 PM",
       "runtime": 103,
-      "venue": "Theater 7"
+      "venue": "Theaters 7 and 8"
     },
     {
       "film": "Kick On",
       "date": "2026-09-22",
       "time": "8:30 PM",
       "runtime": 89,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 5"
     },
     {
       "film": "Kylgor in the Grisly Abyss",
@@ -4597,14 +4597,14 @@
       "date": "2026-09-22",
       "time": "11:00 PM",
       "runtime": 96,
-      "venue": "Theater 7"
+      "venue": "Theaters 7, 8 and 9"
     },
     {
       "film": "The Heretiks",
       "date": "2026-09-22",
       "time": "11:20 PM",
       "runtime": 89,
-      "venue": "Theater 2"
+      "venue": "Theaters 1, 2, 3 and 6"
     },
     {
       "film": "BURNT ENDominations",
@@ -4618,7 +4618,7 @@
       "date": "2026-09-23",
       "time": "11:00 AM",
       "runtime": 106,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2 and 4"
     },
     {
       "film": "Morning Meditation",
@@ -4632,14 +4632,14 @@
       "date": "2026-09-23",
       "time": "11:15 AM",
       "runtime": 96,
-      "venue": "Theater 6"
+      "venue": "Theaters 6, 8 and 9"
     },
     {
       "film": "The Blood Countess",
       "date": "2026-09-23",
       "time": "11:35 AM",
       "runtime": 119,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 5"
     },
     {
       "film": "Hell House",
@@ -4660,28 +4660,28 @@
       "date": "2026-09-23",
       "time": "2:00 PM",
       "runtime": 118,
-      "venue": "Theater 8"
+      "venue": "Theaters 8 and 9"
     },
     {
       "film": "Corpus",
       "date": "2026-09-23",
       "time": "2:20 PM",
       "runtime": 102,
-      "venue": "Theater 1"
+      "venue": "Theaters 1 and 7"
     },
     {
       "film": "Phreaker",
       "date": "2026-09-23",
       "time": "2:30 PM",
       "runtime": 98,
-      "venue": "Theater 5"
+      "venue": "Theaters 5 and 6"
     },
     {
       "film": "Welcome to Dolly's House",
       "date": "2026-09-23",
       "time": "2:45 PM",
       "runtime": 86,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 3"
     },
     {
       "film": "Fangoria Horror Trivia brought to you by ParamountScares",
@@ -4695,14 +4695,14 @@
       "date": "2026-09-23",
       "time": "5:00 PM",
       "runtime": 107,
-      "venue": "Theater 7"
+      "venue": "Theaters 7 and 9"
     },
     {
       "film": "5 More Minutes",
       "date": "2026-09-23",
       "time": "5:15 PM",
       "runtime": 93,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 4 and 6"
     },
     {
       "film": "3 Weeks After",
@@ -4716,7 +4716,7 @@
       "date": "2026-09-23",
       "time": "5:30 PM",
       "runtime": 99,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 3"
     },
     {
       "film": "Platypus",
@@ -4737,35 +4737,35 @@
       "date": "2026-09-23",
       "time": "8:00 PM",
       "runtime": 94,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 3 and 9"
     },
     {
       "film": "The Birthday Party",
       "date": "2026-09-23",
       "time": "8:15 PM",
       "runtime": 114,
-      "venue": "Theater 2"
+      "venue": "Theaters 2, 7 and 8"
     },
     {
       "film": "Gimme Truth",
       "date": "2026-09-23",
       "time": "8:45 PM",
       "runtime": 84,
-      "venue": "Theater 5"
+      "venue": "Theaters 5 and 6"
     },
     {
       "film": "Posthumous",
       "date": "2026-09-23",
       "time": "11:00 PM",
       "runtime": 110,
-      "venue": "Theater 4"
+      "venue": "Theaters 4, 7, 8 and 9"
     },
     {
       "film": "What Happened to Doris?",
       "date": "2026-09-23",
       "time": "11:30 PM",
       "runtime": 92,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 2, 3 and 5"
     },
     {
       "film": "Blood Feast",
@@ -4779,7 +4779,7 @@
       "date": "2026-09-24",
       "time": "11:00 AM",
       "runtime": 111,
-      "venue": "Theater 5"
+      "venue": "Theaters 5 and 7"
     },
     {
       "film": "Visions Of/From South Africa",
@@ -4793,35 +4793,35 @@
       "date": "2026-09-24",
       "time": "11:15 AM",
       "runtime": 101,
-      "venue": "Theater 6"
+      "venue": "Theaters 6 and 8"
     },
     {
       "film": "Too Many Beasts",
       "date": "2026-09-24",
       "time": "11:30 AM",
       "runtime": 96,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 3"
     },
     {
       "film": "Jim Queen",
       "date": "2026-09-24",
       "time": "11:45 AM",
       "runtime": 84,
-      "venue": "Theater 1"
+      "venue": "Theaters 1 and 4"
     },
     {
       "film": "River",
       "date": "2026-09-24",
       "time": "2:00 PM",
       "runtime": 92,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 5"
     },
     {
       "film": "No Way Down",
       "date": "2026-09-24",
       "time": "2:15 PM",
       "runtime": 91,
-      "venue": "Theater 1"
+      "venue": "Theaters 1, 7, 8 and 9"
     },
     {
       "film": "Henry: Portrait of a Serial Killer",
@@ -4835,49 +4835,49 @@
       "date": "2026-09-24",
       "time": "2:45 PM",
       "runtime": 64,
-      "venue": "Theater 2"
+      "venue": "Theaters 2 and 6"
     },
     {
       "film": "The Ones Who Grieve",
       "date": "2026-09-24",
       "time": "5:00 PM",
       "runtime": 116,
-      "venue": "Theater 3"
+      "venue": "Theaters 3 and 4"
     },
     {
       "film": "Donkey Princess",
       "date": "2026-09-24",
       "time": "5:15 PM",
       "runtime": 90,
-      "venue": "Theater 2"
+      "venue": "Theaters 2, 8 and 9"
     },
     {
       "film": "The Squirrel",
       "date": "2026-09-24",
       "time": "5:15 PM",
       "runtime": 92,
-      "venue": "Theater 1"
+      "venue": "Theaters 1 and 5"
     },
     {
       "film": "Sick",
       "date": "2026-09-24",
       "time": "5:45 PM",
       "runtime": 90,
-      "venue": "Theater 6"
+      "venue": "Theaters 6 and 7"
     },
     {
       "film": "Bloody Tennis",
       "date": "2026-09-24",
       "time": "8:00 PM",
       "runtime": 90,
-      "venue": "Theater 2"
+      "venue": "Theaters 1, 2 and 9"
     },
     {
       "film": "The Swallow",
       "date": "2026-09-24",
       "time": "8:15 PM",
       "runtime": 82,
-      "venue": "Theater 3"
+      "venue": "Theaters 3, 4, 5, 6, 7 and 8"
     },
     {
       "film": "Closing Night Party",

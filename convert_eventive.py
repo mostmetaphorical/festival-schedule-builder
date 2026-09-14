@@ -129,6 +129,18 @@ def people(value) -> list[str]:
     ))
 
 
+def theatres(names: list[str]) -> str:
+    """['Theater 3', 'Theater 1', 'Theater 7'] -> 'Theaters 1, 3 and 7'."""
+    names = list(dict.fromkeys(n for n in names if n))
+    numbered = [re.fullmatch(r"(Theat(?:er|re))\s+(\d+)", n) for n in names]
+    if len(names) > 1 and all(numbered):
+        word = numbered[0].group(1)
+        numbers = sorted(int(m.group(2)) for m in numbered)
+        listed = ", ".join(map(str, numbers[:-1])) + f" and {numbers[-1]}"
+        return f"{word}s {listed}"
+    return ", ".join(names)
+
+
 def minutes(value) -> int | None:
     match = re.search(r"\d+", str(value or ""))
     return int(match.group()) if match else None
@@ -215,7 +227,7 @@ def main() -> None:
             continue
         films[record["id"]] = build_film(record, previous_films.get(match_key(record["name"])))
 
-    screenings, seen, side_events = [], set(), {}
+    screenings, seen, side_events = [], {}, {}
     for event in event_records:
         if event.get("visibility", "visible") != "visible" or SKIP_EVENT.search(event.get("name", "")):
             continue
@@ -231,22 +243,28 @@ def main() -> None:
             titles = [side["title"]]
         for title in titles:
             film = next((f for f in [*films.values(), *side_events.values()] if f["title"] == title), {})
-            # The same film often starts in several theatres at once; one
-            # showing is enough to plan around.
+            venue = (event.get("venue") or {}).get("name", "").strip()
+            # The same film often starts in several theatres at once. That is
+            # one showing to plan around, in all of those theatres.
             key = (title, start.isoformat())
             if key in seen:
+                if venue:
+                    seen[key].append(venue)
                 continue
-            seen.add(key)
+            seen[key] = [venue] if venue else []
             screening = {
                 "film": title,
                 "date": start.date().isoformat(),
                 "time": start.strftime("%I:%M %p").lstrip("0"),
                 "runtime": film.get("runtime") or length,
+                "_key": key,
             }
-            venue = (event.get("venue") or {}).get("name", "").strip()
-            if venue:
-                screening["venue"] = venue
             screenings.append(screening)
+
+    for screening in screenings:
+        venue = theatres(seen[screening.pop("_key")])
+        if venue:
+            screening["venue"] = venue
 
     lineup = sorted([*films.values(), *side_events.values()], key=lambda f: match_key(f["title"]))
     screened = {s["film"] for s in screenings}

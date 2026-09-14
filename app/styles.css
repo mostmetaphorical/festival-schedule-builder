@@ -381,6 +381,9 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .gap-toggle .sign::after { top: 0; bottom: 0; left: 4px; width: 2px; transition: transform .2s var(--ease); }
 .gap-toggle[aria-expanded="true"] .sign::after { transform: scaleY(0); }
 .row.free .free-head { cursor: pointer; }
+/* Folded away, free time is just its one line of detail. */
+.row.free:not(.open) .free-head .name { display: none; }
+.row.free:not(.open) .free-head { padding-top: 14px; padding-bottom: 14px; }
 .row.free .clock { color: var(--quiet); }
 
 .card { display: flex; flex-direction: column; background: var(--surface); margin-bottom: 16px; min-width: 0;

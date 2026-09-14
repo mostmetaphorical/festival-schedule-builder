@@ -118,7 +118,9 @@ export function toICS(schedule, festivalName) {
         `DTEND:${icsTime(pick.date, pick.start + runtime)}`,
         icsLine(`SUMMARY:${escapeText(film.title || pick.film)}`),
         icsLine(`DESCRIPTION:${escapeText(description)}`),
-        film.venue ? icsLine(`LOCATION:${escapeText(film.venue)}`) : '',
+        pick.venue || film.venue
+          ? icsLine(`LOCATION:${escapeText(pick.venue || film.venue)}`)
+          : '',
         'END:VEVENT'
       );
     }

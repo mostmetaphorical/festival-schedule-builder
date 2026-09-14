@@ -1614,6 +1614,10 @@ function filmDetails(film, pick, badges) {
     `${formatTime(pick.start)}${film.runtime ? `–${formatTime(ends)}` : ''}` +
       (tailFor(film) ? `<br><span class="caveat">Planned with ${QA_MINUTES} min for a Q&amp;A</span>` : ''),
   ]);
+  // Where this showing is - a film can start in several theatres at once.
+  if (pick.venue) {
+    rows.push(['Where', escapeHTML(pick.venue)]);
+  }
 
   const unrated = film.scoreable === false;
   const hasLinks = people.director?.length || people.cast?.length;
