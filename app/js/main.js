@@ -1633,6 +1633,29 @@ function filmDetails(film, pick, badges) {
   if (pick.venue) {
     rows.push(['Where', escapeHTML(pick.venue)]);
   }
+  // The film's other showings, so a clash or a better day is easy to spot.
+  const others = (state.festival?.screenings || [])
+    .filter((s) => s.film === film.title && !(s.date === pick.date && s.time === pick.time))
+    .sort((a, b) => a.date.localeCompare(b.date) || parseTime(a.time) - parseTime(b.time));
+  if (others.length) {
+    rows.push([
+      others.length === 1 ? 'Also showing' : 'Other showings',
+      others
+        .map((s) => {
+          const day = new Date(`${s.date}T12:00:00`).toLocaleDateString(undefined, {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+          });
+          return (
+            `<span class="other-showing">${escapeHTML(day)}, ${formatTime(parseTime(s.time))}` +
+            (s.venue ? `<span class="caveat"> · ${escapeHTML(s.venue)}</span>` : '') +
+            `</span>`
+          );
+        })
+        .join(''),
+    ]);
+  }
 
   const unrated = film.scoreable === false;
   const hasLinks = people.director?.length || people.cast?.length;

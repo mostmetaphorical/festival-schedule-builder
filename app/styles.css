@@ -79,8 +79,8 @@ hr { border: 0; height: 1px; background: var(--line); margin: 0; }
 /* Masthead and steps ------------------------------------------------ */
 .masthead {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  text-align: center; padding: 38px 16px 64px;
-  background: linear-gradient(to bottom, #000 0, #000 calc(100% - 70px), var(--page) 100%);
+  text-align: center; padding: 38px 16px 36px;
+  background: linear-gradient(to bottom, #000 0, #000 calc(100% - 44px), var(--page) 100%);
 }
 .kicker { font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase;
           color: var(--dim); }
@@ -152,7 +152,7 @@ hr { border: 0; height: 1px; background: var(--line); margin: 0; }
 .step:focus-visible { outline: none; }
 .step:focus-visible .label { outline: 2px solid var(--lime); outline-offset: 3px; }
 
-main { padding: 28px 0 90px; }
+main { padding: 12px 0 90px; }
 .panel { display: flex; flex-direction: column; gap: 28px; animation: panel-in .35s var(--ease); }
 .panel[hidden] { display: none; }
 @keyframes panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -366,6 +366,7 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .strength.weak b, .strength.too-small b { color: var(--danger); }
 
 .day { display: flex; flex-direction: column; margin-top: 44px; }
+#plan > .day:first-child { margin-top: 4px; }
 .day-head { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; padding-bottom: 24px; }
 .day-head .weekday { font-family: var(--display); text-transform: uppercase; font-size: 64px; line-height: 1;
   background: var(--lime); color: var(--page); padding: 6px 18px 2px; transform: rotate(-3deg);
@@ -438,6 +439,8 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 /* Four lines until Read more; long festival blurbs are hard to scan whole. */
 .card-detail .synopsis.clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4;
   line-clamp: 4; overflow: hidden; }
+.credits .other-showing { display: block; }
+.credits .other-showing + .other-showing { margin-top: 4px; }
 .card-detail .read-more { align-self: flex-start; margin-top: -8px; font-size: 14px; font-weight: 600; }
 .credits { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 10px 14px; margin: 0;
   font-size: 15px; line-height: 1.5; align-content: start; }
@@ -512,12 +515,15 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .remember .muted { padding-left: 40px; }
 
 /* Contribute and footer --------------------------------------------- */
-.contribute { background: var(--surface-2); padding: 56px 0 60px; }
-.contribute-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 56px; }
+.contribute { background: var(--surface-2); padding: 48px 0 52px; }
+/* The heading spans both columns, so the two sides start level and run to
+   similar lengths. */
+.contribute-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 56px; }
+.contribute-grid > h2 { grid-column: 1 / -1; }
 .contribute h2 { font-size: 36px; line-height: 1.05; }
 .contribute p { font-size: 16px; line-height: 1.65; color: var(--soft); }
 .contribute .muted { font-size: 15px; color: var(--dim); }
-.threshold { align-self: start; border-left: 4px solid var(--lime); padding: 4px 0 4px 24px; }
+.threshold { align-self: start; border-left: 4px solid var(--lime); padding: 2px 0 2px 24px; }
 .threshold-title { font-size: 18px !important; font-weight: 700; line-height: 1.4 !important; color: var(--text) !important; }
 .contribute .fold.inner .fold-body { background: var(--surface-2); padding: 12px 0 0; }
 
@@ -557,7 +563,7 @@ select:focus { outline: none; border-color: var(--pink); }
 /* Phones ------------------------------------------------------------- */
 @media (max-width: 760px) {
   body { font-size: 15px; }
-  .masthead { padding: 26px 0 48px; gap: 12px; }
+  .masthead { padding: 26px 0 30px; gap: 12px; }
   .kicker { font-size: 10px; letter-spacing: .22em; padding: 0 16px; }
   .title-3d { flex-direction: column; align-items: center; font-size: clamp(52px, 18vw, 72px); }
   .title-3d .solid { text-shadow: -3px 0 0 var(--pink), 3px 0 0 var(--lime); }
@@ -675,7 +681,7 @@ select:focus { outline: none; border-color: var(--pink); }
   .remember .btn { width: 100%; }
 
   .contribute { padding: 32px 0 34px; }
-  .contribute-grid { grid-template-columns: 1fr; gap: 24px; }
+  .contribute-grid { grid-template-columns: 1fr; gap: 18px; }
   .contribute h2 { font-size: 28px; }
   .footer-row { align-items: flex-start; gap: 12px; }
   .report-link { top: 10px; right: 10px; padding: 6px 9px 4px; font-size: 14px; }
