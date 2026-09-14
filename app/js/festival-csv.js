@@ -72,7 +72,22 @@ export function normaliseDate(value) {
     if (Number(b) > 12) return iso(year, a, b);
     return null;
   }
+
+  // Written out: "Thursday, September 17, 2026", "Sep 17 2026", "17 Sept 2026".
+  const words = text.replace(/^[a-z]+day,?\s+/i, '').replace(/(\d)(st|nd|rd|th)\b/gi, '$1');
+  match = words.match(/^([a-z]+)\.?\s+(\d{1,2}),?\s+(\d{4})$/i);
+  if (match && monthNumber(match[1])) return iso(match[3], monthNumber(match[1]), match[2]);
+  match = words.match(/^(\d{1,2})\s+([a-z]+)\.?,?\s+(\d{4})$/i);
+  if (match && monthNumber(match[2])) return iso(match[3], monthNumber(match[2]), match[1]);
   return null;
+}
+
+const MONTHS = 'january february march april may june july august september october november december'.split(' ');
+
+/** "September", "Sept" or "Sep" -> 9; anything else -> 0. */
+function monthNumber(word) {
+  const name = word.toLowerCase();
+  return name.length < 3 ? 0 : MONTHS.findIndex((month) => month.startsWith(name)) + 1;
 }
 
 function iso(year, month, day) {

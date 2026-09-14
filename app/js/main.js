@@ -30,6 +30,7 @@ import {
   validateFestival,
 } from './festival-io.js';
 import { festivalFromCSV, isPosterURL, looksLikeCSV } from './festival-csv.js';
+import { commitmentsFromText } from './commitments-io.js';
 import { mailto, revealContact } from './contact.js';
 import {
   MIN_RATINGS_TO_SHARE,
@@ -151,11 +152,7 @@ function wireUp() {
 
   $('#look-up-missing').addEventListener('click', lookUpMissing);
   $('#add-commitment').addEventListener('click', () => addCommitmentRow());
-  $('#commitments-file').addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    event.target.value = '';
-    if (file) importCommitments(file);
-  });
+  fileZone($('#commitments-drop'), $('#commitments-file'), importCommitments);
 
   $$('.step-btn').forEach((button) =>
     button.addEventListener('click', () => {
@@ -1161,34 +1158,7 @@ function renderCommitments() {
 
 /** Accepts a calendar export or a simple CSV. */
 async function importCommitments(file) {
-  const text = await file.text();
-  const found = [];
-
-  if (/BEGIN:VCALENDAR/i.test(text)) {
-    const events = text.split(/BEGIN:VEVENT/i).slice(1);
-    for (const event of events) {
-      const start = event.match(/DTSTART[^:]*:(\d{8})T?(\d{2})?(\d{2})?/i);
-      const end = event.match(/DTEND[^:]*:(\d{8})T?(\d{2})?(\d{2})?/i);
-      const summary = event.match(/SUMMARY:(.*)/i);
-      if (!start) continue;
-      const date = `${start[1].slice(0, 4)}-${start[1].slice(4, 6)}-${start[1].slice(6, 8)}`;
-      found.push({
-        date,
-        window: `${start[2] || '00'}:${start[3] || '00'} - ${end?.[2] || '23'}:${
-          end?.[3] || '59'
-        }`,
-        label: (summary?.[1] || 'busy').trim(),
-      });
-    }
-  } else {
-    const lines = text.trim().split(/\r?\n/).slice(1);
-    for (const line of lines) {
-      const [date, start, end, label] = line.split(',').map((v) => v?.trim());
-      if (date && start && end) {
-        found.push({ date, window: `${start} - ${end}`, label: label || 'busy' });
-      }
-    }
-  }
+  const { found, unreadable } = commitmentsFromText(await file.text());
 
   // A whole work calendar is mostly irrelevant; only festival days matter.
   const days = new Set(state.festival?.days || []);
@@ -1210,7 +1180,14 @@ async function importCommitments(file) {
           skipped === 1 ? 'was' : 'were'
         } left out.</p>`
       : '') +
-    (!found.length ? '<p class="muted small">No events with a date and time were found in it.</p>' : '');
+    (unreadable.length
+      ? `<p class="muted small">Couldn't read the date or times on ${
+          unreadable.length === 1 ? `row ${unreadable[0]}` : `rows ${unreadable.slice(0, 8).join(', ')}${unreadable.length > 8 ? '…' : ''}`
+        }.</p>`
+      : '') +
+    (!found.length && !unreadable.length
+      ? '<p class="muted small">No events with a date and time were found in it.</p>'
+      : '');
 
   renderCommitments();
   replan();
