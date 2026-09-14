@@ -323,7 +323,10 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .bot-check { min-height: 65px; }
 
 /* 3. Your time ------------------------------------------------------- */
-.commitments-box { display: flex; flex-direction: column; gap: 10px; padding: 24px 24px 22px; }
+.commitments-box { display: flex; flex-direction: column; gap: 10px; padding: 20px 24px 4px; }
+/* An empty list would still take a gap at the top of the box. */
+#commitments:empty { display: none; }
+.commitments-box .fold.inner > summary { padding: 14px 0; }
 .commitment { display: grid; grid-template-columns: 200px 260px minmax(0, 1fr) 48px; gap: 12px; align-items: center;
   animation: panel-in .25s var(--ease); }
 .commitment.head { animation: none; font-size: 12px; font-weight: 700; letter-spacing: .1em;
@@ -335,10 +338,13 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 #commitments { display: flex; flex-direction: column; gap: 10px; }
 .commitments-box:has(#commitments:not(:empty)) .empty-note,
 .commitments-box:has(#commitments:empty) .commitment.head { display: none; }
-.section-title { font-size: 30px; margin-top: 12px; }
+.section-title { font-size: 30px; margin-top: 0; margin-bottom: -10px; }
 .prefs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .pref { display: flex; flex-direction: column; gap: 8px; }
 .pref label { font-size: 16px; font-weight: 600; }
+/* The note sits beside its stepper rather than wrapping under it. */
+.pref .inline-row { flex-wrap: nowrap; }
+.pref .inline-row .muted { min-width: 0; }
 .stepper { display: inline-flex; }
 .stepper input { width: 72px; text-align: center; font: 700 20px var(--mono); border-left: 0; border-right: 0;
   -moz-appearance: textfield; padding: 0; }
@@ -384,6 +390,8 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 /* Folded away, free time is just its one line of detail. */
 .row.free:not(.open) .free-head .name { display: none; }
 .row.free:not(.open) .free-head { padding-top: 14px; padding-bottom: 14px; }
+/* Lowered so its line of detail sits level with the diamond. */
+.row.free:not(.open) .free-box { margin-top: 12px; }
 .row.free .clock { color: var(--quiet); }
 
 .card { display: flex; flex-direction: column; background: var(--surface); margin-bottom: 16px; min-width: 0;
@@ -591,7 +599,7 @@ select:focus { outline: none; border-color: var(--pink); }
   .consent { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; }
   .consent .consent-hint { margin: 0; }
 
-  .commitments-box { padding: 16px; }
+  .commitments-box { padding: 14px 16px 2px; }
   .commitment { grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .commitment > input { grid-column: 1; }
   .commitment .remove { grid-column: 2; grid-row: 1; width: 44px; height: 44px; }
@@ -617,6 +625,7 @@ select:focus { outline: none; border-color: var(--pink); }
   .day-head + .row .rail::before { top: 6px; }
   .marker { width: 12px; height: 12px; margin-top: 6px; }
   .gap-toggle { width: 20px; height: 20px; margin-top: 2px; }
+  .row.free:not(.open) .free-box { margin-top: 0; }
   .gap-toggle .sign { width: 8px; height: 8px; }
   .gap-toggle .sign::before { top: 3px; }
   .gap-toggle .sign::after { left: 3px; }
