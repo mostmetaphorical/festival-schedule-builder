@@ -1913,7 +1913,6 @@ function updateChrome() {
       banner.classList.add('unfurl');
     }
   }
-  document.title = name ? `${name} · Meta's Nifty Film Fest Scheduler` : "Meta's Nifty Film Fest Scheduler";
 
   const done = {
     1: state.library.length > 0,
