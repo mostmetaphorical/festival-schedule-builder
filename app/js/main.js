@@ -1276,6 +1276,20 @@ function pickRow(day, pick, single) {
   const card = row.querySelector('.card');
   const head = row.querySelector('.card-head');
   const clip = row.querySelector('.clip');
+  // A long synopsis shows a few lines until asked for the rest. The button
+  // only appears when the text is actually cut off, which can only be
+  // measured once the card is open.
+  const synopsis = row.querySelector('.synopsis.clamped');
+  const readMore = row.querySelector('[data-read-more]');
+  const checkClamp = () => {
+    if (!synopsis || !synopsis.classList.contains('clamped')) return;
+    readMore.hidden = synopsis.scrollHeight <= synopsis.clientHeight + 2;
+  };
+  readMore?.addEventListener('click', () => {
+    const expanded = synopsis.classList.toggle('clamped') === false;
+    readMore.setAttribute('aria-expanded', String(expanded));
+    readMore.textContent = expanded ? 'Read less' : 'Read more';
+  });
   const setOpen = (open) => {
     card.classList.toggle('open', open);
     head.setAttribute('aria-expanded', String(open));
@@ -1283,6 +1297,7 @@ function pickRow(day, pick, single) {
     clip.inert = !open;
     if (open) state.openCards.add(id);
     else state.openCards.delete(id);
+    if (open) requestAnimationFrame(checkClamp);
   };
   setOpen(state.openCards.has(id));
   head.addEventListener('click', () => setOpen(!card.classList.contains('open')));
@@ -1633,7 +1648,8 @@ function filmDetails(film, pick, badges) {
       unrated ? 'No ratings history can predict this one — your call.' : `${escapeHTML(capitalise(reasonText(film)))}.`
     }</p>` +
     (film.synopsis
-      ? `<p class="synopsis">${escapeHTML(film.synopsis)}</p>`
+      ? `<p class="synopsis clamped">${escapeHTML(film.synopsis)}</p>` +
+        '<button type="button" class="linkish read-more" data-read-more aria-expanded="false" hidden>Read more</button>'
       : '<p class="synopsis none">No synopsis published.</p>') +
     `<div class="card-actions"><button class="btn" data-swap>Swap for another film</button>` +
     `<button class="btn quiet" data-drop>Drop</button></div>` +

@@ -435,6 +435,10 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .card-detail .why b { margin-right: 4px; }
 .card-detail .synopsis { font-size: 16px; line-height: 1.7; color: #ece9f8; }
 .card-detail .synopsis.none { color: var(--dim); font-style: italic; }
+/* Four lines until Read more; long festival blurbs are hard to scan whole. */
+.card-detail .synopsis.clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4;
+  line-clamp: 4; overflow: hidden; }
+.card-detail .read-more { align-self: flex-start; margin-top: -8px; font-size: 14px; font-weight: 600; }
 .credits { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 10px 14px; margin: 0;
   font-size: 15px; line-height: 1.5; align-content: start; }
 .credits dt { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
