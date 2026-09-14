@@ -1277,11 +1277,15 @@ function rebuild() {
 
 /** Five diamonds, filled to the rounded recommendation. */
 function diamonds(value) {
-  const filled = Math.max(0, Math.min(5, Math.round(value)));
+  // In half steps: 3.5 shows three full diamonds and a half-filled fourth.
+  const halves = Math.max(0, Math.min(10, Math.round(value * 2)));
+  const full = Math.floor(halves / 2);
+  const half = halves % 2;
   return (
     `<span class="diamonds" role="img" aria-label="Recommended ${value.toFixed(1)} out of 5">` +
-    '<i></i>'.repeat(filled) +
-    '<i class="off"></i>'.repeat(5 - filled) +
+    '<i></i>'.repeat(full) +
+    '<i class="half"></i>'.repeat(half) +
+    '<i class="off"></i>'.repeat(5 - full - half) +
     '</span>'
   );
 }
@@ -1292,11 +1296,10 @@ const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** "Thriller · Drama · 89 min", the facts that decide a glance. */
 function filmFacts(film) {
-  const genres = film.entities?.genre?.length
-    ? film.entities.genre.slice(0, 2).map(capitalise)
-    : film.genre
-      ? [film.genre]
-      : [];
+  const genres = (film.entities?.genre?.length
+    ? film.entities.genre.slice(0, 2)
+    : String(film.genre || '').split(/\s*[\/·,]\s*/).filter(Boolean).slice(0, 2)
+  ).map(capitalise);
   return [...genres, film.runtime ? `${film.runtime} min` : ''].filter(Boolean).join(' · ');
 }
 
@@ -1310,6 +1313,33 @@ function hoursText(minutes) {
   const rest = Math.round(minutes % 60);
   if (!hours) return `${rest} min`;
   return rest ? `${hours}h ${rest}m` : `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+}
+
+/** What each label on a film means - shown on hover, and in the key above the plan. */
+const BADGE_HELP = {
+  'Only chance': "Its only showing you can make: every other one clashes with something you've said you're busy for, or there isn't another.",
+  'Little to go on': 'Your ratings share few credits, themes or similar films with this one, so its stars rest on thin evidence.',
+  'Not rated': "An event or a film with nothing to score it on. It's in the plan at your average - your call.",
+  'Your pick': 'You chose this screening, so the planner keeps it.',
+  Event: 'A talk, party or live show rather than a film.',
+  Clash: 'Runs into a film already in your plan or one of your commitments.',
+  Dropped: "You dropped this film. It won't be planned unless you add it back.",
+  'During a commitment': "Showing while you've said you're busy.",
+};
+
+function explainBadges(root) {
+  root.querySelectorAll('.badge').forEach((badge) => {
+    const help = BADGE_HELP[badge.textContent.trim()];
+    if (help) badge.title = help;
+  });
+}
+
+function renderPlanKey() {
+  const key = $('#plan-key');
+  if (!key) return;
+  key.querySelector('dl').innerHTML = Object.entries(BADGE_HELP)
+    .map(([label, help]) => `<div><dt><span class="badge${label === 'Only chance' ? ' hot' : label === 'Clash' ? ' warn-badge' : ''}">${escapeHTML(label)}</span></dt><dd>${escapeHTML(help)}</dd></div>`)
+    .join('');
 }
 
 function renderPlan() {
@@ -1355,6 +1385,8 @@ function renderPlan() {
   }
 
   renderDropped(plan);
+  renderPlanKey();
+  explainBadges(plan);
   renderRatingsShare();
 }
 
@@ -1375,7 +1407,8 @@ function pickRow(day, pick, single) {
   row.className = 'row';
   row.innerHTML =
     `<div class="time">${clock(pick.start)}</div>` +
-    '<div class="rail"><i class="marker"></i></div>' +
+    `<div class="rail"><button type="button" class="marker card-toggle" aria-controls="${bodyId}" ` +
+    `aria-expanded="false"><span class="sr-only">Details for ${escapeHTML(film.title)}</span></button></div>` +
     `<article class="card">` +
     `<button class="card-head" aria-expanded="false" aria-controls="${bodyId}">` +
     poster(film) +
@@ -1404,9 +1437,11 @@ function pickRow(day, pick, single) {
     readMore.setAttribute('aria-expanded', String(expanded));
     readMore.textContent = expanded ? 'Read less' : 'Read more';
   });
+  const toggle = row.querySelector('.card-toggle');
   const setOpen = (open) => {
     card.classList.toggle('open', open);
     head.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-expanded', String(open));
     // Closed detail stays out of the tab order and away from screen readers.
     clip.inert = !open;
     if (open) state.openCards.add(id);
@@ -1415,12 +1450,15 @@ function pickRow(day, pick, single) {
   };
   setOpen(state.openCards.has(id));
   head.addEventListener('click', () => setOpen(!card.classList.contains('open')));
+  toggle.addEventListener('click', () => setOpen(!card.classList.contains('open')));
 
   row.querySelector('[data-drop]').addEventListener('click', () => dropPick(day, pick));
   row.querySelector('[data-swap]').addEventListener('click', () => {
     const existing = clip.querySelector('.alternatives');
     if (existing) return existing.remove();
-    clip.appendChild(alternativesPanel(day, pick));
+    const panel = alternativesPanel(day, pick);
+    explainBadges(panel);
+    clip.appendChild(panel);
   });
   return row;
 }
@@ -1652,11 +1690,14 @@ function poster(film) {
 }
 
 function initials(film) {
-  return String(film.title || '?')
-    .replace(/^(the|a|an) /i, '')
+  // Letters only: "CRE[AI]TE" or "#1" must not put a bracket or a hash in the
+  // poster slot. Each word gives its first letter, wherever in the word it is.
+  return String(film.title || '')
+    .replace(/^(the|a|an)\s+/i, '')
     .split(/\s+/)
+    .map((word) => word.match(/\p{L}/u)?.[0] || '')
+    .filter(Boolean)
     .slice(0, 2)
-    .map((word) => word[0] || '')
     .join('')
     .toUpperCase();
 }
