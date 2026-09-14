@@ -10,8 +10,8 @@
       "ends": "2026-09-24",
       "data": "data/festival.json",
       "status": "ready",
-      "source": "Parsed from the published schedule",
-      "captured": "2026-09-12"
+      "source": "From the festival's Eventive listing",
+      "captured": "2026-09-13"
     },
     {
       "id": "sitges-2026",

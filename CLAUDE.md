@@ -121,6 +121,8 @@ explains the product and the measured results; this file is how to work on it.
 ./.venv/bin/python test_sanity.py                  # leakage checks
 ./.venv/bin/python run_eval.py --n-users 100       # accuracy test
 ./.venv/bin/python eval_letterboxd.py exports/     # test on real exports
+./.venv/bin/python convert_eventive.py raw/<fest> --name "<Festival Year>" --previous app/data/festival.json
+                                                   # festival.json from saved Eventive films/events responses
 ./.venv/bin/python parse_festival.py <page.html>   # build festival.json
 ./.venv/bin/python enrich_festival.py              # credits for known films, from Wikidata
 ./.venv/bin/python enrich_wikidata.py              # training-film metadata (resumable)

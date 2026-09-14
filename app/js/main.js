@@ -18,7 +18,9 @@ import {
   onlyChances,
   parseCommitment,
   parseTime,
+  QA_MINUTES,
   screeningId,
+  tailFor,
 } from './schedule.js';
 import { downloadHTML, downloadICS, restoreFromHTML } from './export.js';
 import {
@@ -63,6 +65,9 @@ const state = {
   // Film cards the person has opened, kept open across re-renders so a swap
   // or a preference change doesn't snap everything shut.
   openCards: new Set(),
+  // Free-time boxes the person opened; closed by default, so a long break can
+  // simply be a break.
+  openGaps: new Set(),
   schedule: null,
   step: 1,
   // Live lookups send film titles to Wikidata, so they only happen once the
@@ -1466,12 +1471,14 @@ const weekdayName = (date) =>
  */
 function clashRow(day, { first, second }) {
   const buffer = Number($('#buffer').value) || 0;
-  const filmEnds = first.start + (first.film.runtime || first.end - first.start - buffer);
+  const qa = tailFor(first.film);
+  const filmEnds = first.end - buffer;
+  const withQA = qa ? ' with its Q&amp;A' : '';
   const detail =
     filmEnds > second.start
-      ? `${escapeHTML(first.film.title)} runs until ${formatTime(filmEnds)}, ` +
+      ? `${escapeHTML(first.film.title)} runs until ${formatTime(filmEnds)}${withQA}, ` +
         `${filmEnds - second.start} min into ${escapeHTML(second.film.title)}.`
-      : `${escapeHTML(first.film.title)} ends at ${formatTime(filmEnds)}, leaving ` +
+      : `${escapeHTML(first.film.title)} ends at ${formatTime(filmEnds)}${withQA}, leaving ` +
         `${second.start - filmEnds} min to reach ${escapeHTML(second.film.title)} — ` +
         `less than the ${buffer} min you allowed between films.`;
 
@@ -1602,7 +1609,11 @@ function filmDetails(film, pick, badges) {
   if (film.country) rows.push(['Country', escapeHTML(film.country)]);
   if (film.section) rows.push(['Section', escapeHTML(film.section)]);
   const ends = pick.start + (film.runtime || 0);
-  rows.push(['Showing', `${formatTime(pick.start)}${film.runtime ? `–${formatTime(ends)}` : ''}`]);
+  rows.push([
+    'Showing',
+    `${formatTime(pick.start)}${film.runtime ? `–${formatTime(ends)}` : ''}` +
+      (tailFor(film) ? `<br><span class="caveat">Planned with ${QA_MINUTES} min for a Q&amp;A</span>` : ''),
+  ]);
 
   const unrated = film.scoreable === false;
   const hasLinks = people.director?.length || people.cast?.length;
@@ -1729,11 +1740,16 @@ const FITS_SHOWN = 3;
 
 function gapRow(day, gap) {
   const { fits } = gap;
+  const key = `${day.date}@${gap.start}`;
+  const listId = `gap-${day.date}-${Math.round(gap.start)}`;
   const row = document.createElement('div');
   row.className = 'row free';
+  // The diamond on the timeline opens the list of what could fill the time.
   row.innerHTML =
     `<div class="time">${clock(gap.start)}</div>` +
-    '<div class="rail"><i class="marker hollow"></i></div>' +
+    `<div class="rail"><button type="button" class="marker hollow gap-toggle" aria-controls="${listId}" ` +
+    `aria-expanded="false"><span class="sign" aria-hidden="true"></span>` +
+    `<span class="sr-only">Films for this free time</span></button></div>` +
     `<div class="free-box">` +
     `<div class="free-head"><div><p class="name">Nothing planned</p>` +
     `<p class="meta">${hoursText(gap.end - gap.start)} free, until ${formatTime(gap.end)} · ` +
@@ -1745,7 +1761,7 @@ function gapRow(day, gap) {
       .join(' · ') +
     `</p>` +
     `</div></div>` +
-    `<div class="alternatives">${fits
+    `<div class="alternatives" id="${listId}">${fits
       .map((entry, index) => {
         const warnings = optionWarnings(day, entry, day.picks);
         return altRow(entry, {
@@ -1762,6 +1778,22 @@ function gapRow(day, gap) {
       ? `<p><button class="linkish" data-more>Show ${fits.length - FITS_SHOWN} more</button></p>`
       : '') +
     `</div></div>`;
+
+  const toggle = row.querySelector('.gap-toggle');
+  const list = row.querySelector('.alternatives');
+  const setOpen = (open) => {
+    toggle.setAttribute('aria-expanded', String(open));
+    row.classList.toggle('open', open);
+    list.hidden = !open;
+    if (open) state.openGaps.add(key);
+    else state.openGaps.delete(key);
+  };
+  setOpen(state.openGaps.has(key));
+  toggle.addEventListener('click', () => setOpen(list.hidden));
+  // The heading opens it too: a bigger target than the diamond.
+  row.querySelector('.free-head').addEventListener('click', (event) => {
+    if (!event.target.closest('button, a')) setOpen(list.hidden);
+  });
 
   row.querySelectorAll('[data-add]').forEach((button, index) =>
     button.addEventListener('click', () => {

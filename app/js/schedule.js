@@ -41,16 +41,22 @@ export function formatTime(minutes) {
  * that run past midnight keep counting upward rather than wrapping, so
  * overlap comparisons stay correct.
  */
-export function span(screening, buffer = DEFAULT_BUFFER) {
+export function span(screening, buffer = DEFAULT_BUFFER, tail = 0) {
   const start = parseTime(screening.time);
   if (start === null) return null;
   const runtime = screening.runtime || UNKNOWN_RUNTIME;
   return {
     start,
-    end: start + runtime + buffer,
+    end: start + runtime + tail + buffer,
     runtimeKnown: Boolean(screening.runtime),
   };
 }
+
+// Festival screenings often end with a Q&A. Planning for one keeps the gap
+// between films real: a 20-minute buffer after a Q&A, not during it. Events
+// (parties, trivia) don't have one.
+export const QA_MINUTES = 10;
+export const tailFor = (film) => (film && film.kind !== 'event' ? QA_MINUTES : 0);
 
 /** Commitments: {date, window: "2:00 PM - 12:30 AM"} or {date, start, end}. */
 export function parseCommitment(commitment) {
@@ -165,8 +171,8 @@ export function buildSchedule(scored, screenings, commitments = [], options = {}
   const rejected = [];
 
   for (const screening of screenings) {
-    const timing = span(screening, buffer);
     const film = byTitle.get(screening.film);
+    const timing = span(screening, buffer, tailFor(film));
     if (!timing) {
       rejected.push({ screening, reason: 'unreadable showtime' });
       continue;

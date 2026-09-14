@@ -371,6 +371,16 @@ textarea { font: 13px/1.5 var(--mono); resize: vertical; min-height: 104px; }
 .day-head + .row .rail::before { top: 32px; }
 .marker { position: relative; width: 14px; height: 14px; margin-top: 32px; transform: rotate(45deg); background: var(--pink); }
 .marker.hollow { background: var(--page); border: 2px solid var(--quiet); }
+/* Free time's diamond is a button: + opens the films that could fill it, − closes. */
+.gap-toggle { width: 24px; height: 24px; margin-top: 27px; padding: 0; display: grid; place-items: center;
+  cursor: pointer; font: inherit; color: var(--soft); transition: border-color .15s, background .15s; }
+.gap-toggle:hover { border-color: var(--lime); }
+.gap-toggle .sign { position: relative; width: 10px; height: 10px; transform: rotate(-45deg); }
+.gap-toggle .sign::before, .gap-toggle .sign::after { content: ""; position: absolute; background: currentColor; }
+.gap-toggle .sign::before { left: 0; right: 0; top: 4px; height: 2px; }
+.gap-toggle .sign::after { top: 0; bottom: 0; left: 4px; width: 2px; transition: transform .2s var(--ease); }
+.gap-toggle[aria-expanded="true"] .sign::after { transform: scaleY(0); }
+.row.free .free-head { cursor: pointer; }
 .row.free .clock { color: var(--quiet); }
 
 .card { display: flex; flex-direction: column; background: var(--surface); margin-bottom: 16px; min-width: 0;
@@ -603,6 +613,10 @@ select:focus { outline: none; border-color: var(--pink); }
   .rail::before { left: 10px; }
   .day-head + .row .rail::before { top: 6px; }
   .marker { width: 12px; height: 12px; margin-top: 6px; }
+  .gap-toggle { width: 20px; height: 20px; margin-top: 2px; }
+  .gap-toggle .sign { width: 8px; height: 8px; }
+  .gap-toggle .sign::before { top: 3px; }
+  .gap-toggle .sign::after { left: 3px; }
   .row > .card, .row > .free-box, .row > .clash-box { grid-column: 2; }
   .row.clash .time { display: none; }
   .row.clash .rail { grid-row: 1; }
