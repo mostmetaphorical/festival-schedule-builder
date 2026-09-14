@@ -143,6 +143,8 @@ export async function resolveLibrary(ratings, provider, onProgress = () => {}) {
               // The bundled library carries a synopsis's key terms rather than
               // the text, which is all the recommender reads of it.
               synopsis: meta.overview || meta.terms || '',
+              // Content-predicted crowd factors, for fitting the person's taste vector.
+              ...(Array.isArray(meta.cf) ? { cf: meta.cf } : {}),
             });
           } else missing.push(entry);
         } catch (error) {

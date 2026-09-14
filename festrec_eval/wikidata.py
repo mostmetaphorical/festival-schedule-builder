@@ -192,7 +192,7 @@ def people_and_things(films: dict[str, dict]) -> list[str]:
     """Every item a film record points at, so their names can be fetched once."""
     wanted = set()
     for entity in films.values():
-        for prop in ("P57", "P58", "P161", "P725", "P136", "P921", "P495", "P364"):
+        for prop in ("P57", "P58", "P161", "P725", "P136", "P921", "P495", "P364", "P1040", "P344"):
             ids = claim_ids(entity, prop)
             wanted.update(ids[:CAST_DEPTH] if prop in ("P161", "P725") else ids)
     return sorted(wanted)
@@ -284,6 +284,9 @@ def condense(entity: dict, names: dict[str, str], extract: str = "") -> dict:
         "writer": named("P58"),
         # An animated film's performers are its voice cast.
         "cast": named("P161", CAST_DEPTH) or named("P725", CAST_DEPTH),
+        # Crew: a director's usual editor and cinematographer are part of their track record.
+        "editor": named("P1040"),
+        "cinematographer": named("P344"),
         "keyword": keywords_for(subjects, genre_words),
         "keyword_source": subjects,
         "country": named("P495"),
@@ -316,6 +319,24 @@ class FilmCache:
     def save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(self.records, ensure_ascii=False), encoding="utf-8")
+
+    def fill_crew(self, qids: list[str], step: int = 2000, log=print) -> None:
+        """Add editors (P1040) and cinematographers (P344) to cached films fetched without them."""
+        todo = [q for q in dict.fromkeys(qids)
+                if (record := self.records.get(q)) and "editor" not in record]
+        log(f"fetching crew for {len(todo)} films")
+        for start in range(0, len(todo), step):
+            batch = todo[start:start + step]
+            films = get_entities(batch, "claims")
+            crew_ids = sorted({i for e in films.values() for prop in ("P1040", "P344") for i in claim_ids(e, prop)})
+            names = {qid: label(e) for qid, e in get_entities(crew_ids, "labels").items()}
+            for qid in batch:
+                entity = films.get(qid, {})
+                record = self.records[qid]
+                record["editor"] = [names[i] for i in claim_ids(entity, "P1040") if names.get(i)]
+                record["cinematographer"] = [names[i] for i in claim_ids(entity, "P344") if names.get(i)]
+            self.save()
+            log(f"  {min(start + step, len(todo))}/{len(todo)}")
 
     def fill_overviews(self, qids: list[str], step: int = 1000, log=print) -> None:
         """Add Wikipedia synopses to cached films fetched without them.

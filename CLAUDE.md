@@ -75,6 +75,8 @@ explains the product and the measured results; this file is how to work on it.
 - **Python and JavaScript must agree.** `festrec_eval/features.py` ↔
   `app/js/recommend.js`, and `festrec_eval/titles.py` ↔ `normalise()` in
   `app/js/metadata.js`. Change one, change the other, re-export the model.
+  The blend likewise: `festrec_eval/serve.py` ↔ `app/js/blend.js`; run
+  `check_blend_parity.py` then `node check_blend_parity.mjs` after any change.
 - Measure before claiming an improvement: `run_eval.py`, paired against
   `user_mean`, and compare two models *directly* with a paired bootstrap.
 - A difference on one seed is not a result. Check another seed; results here
@@ -131,6 +133,10 @@ node diagnose_js.mjs exports/                      # browser model: parity with 
 ./.venv/bin/python enrich_wikidata.py              # training-film metadata (resumable)
 ./.venv/bin/python build_bundle.py                 # app/data/library.json from Wikidata
 ./.venv/bin/python export_model.py                 # retrain, write model.json
+./.venv/bin/python export_blend.py                 # blend.json, model-genre.json, track.json
+./.venv/bin/python build_bundle.py --content-factors   # library with synopsis terms and CF factors
+./.venv/bin/python add_content_factors.py <festival.json ...>  # CF factors for festival films
+node check_slate_spread.mjs exports/                  # prediction spread on real slates
 ```
 
 Maintaining shared data:

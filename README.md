@@ -190,6 +190,37 @@ predictions for the demo profile (standard deviation 0.037 → 0.085 stars) and
 widen it by a third to a half for two real exports (0.060 → 0.093, 0.081 →
 0.110). `diagnose.py` and `diagnose_js.mjs` reproduce these figures.
 
+**The cold-item blend (what the app runs).** A festival premiere has no
+ratings, so collaborative filtering can't see it directly. The app combines five
+signals that can, each computed in the browser from the person's own ratings and
+tables built offline from MovieLens (`festrec_eval/serve.py` ↔ `app/js/blend.js`):
+
+- the content ridge above, and a genre-aware ridge
+- content kNN: how they rated the films whose synopsis and credits read most alike
+- content-to-CF: a taste vector fitted from their ratings against each film's
+  content-predicted crowd factors, applied to the premiere's own
+- track record: how the crowd rated earlier films by the same director, writer,
+  cast, editor and cinematographer, and by the same director/editor/cinematographer
+  pairings
+
+Weights are stacked on out-of-fold predictions with film-level folds
+(`run_blend.py`, `export_blend.py`). MovieLens, 5-fold, every film held out:
+
+| | RMSE | nDCG@10 | spread |
+|---|---|---|---|
+| content ridge alone | 0.8734 | 0.906 | 0.285 |
+| **blend** | **0.8501** | **0.914** | **0.332** |
+
+Crew and collaboration track records measured neutral on accuracy there
+(0.8498 without them) and add a little spread; they are kept because crew
+matters more for festival films than MovieLens can show. On the real Fantastic
+Fest and TIFF slates the blend roughly doubles how far apart predictions are
+(e.g. standard deviation 0.093 → 0.217 stars for one real profile). Predictions
+are still far narrower than real ratings (about 0.87 stars): a calibrated
+predictor pulls toward the average when the evidence is thin, and for a
+premiere it usually is. `check_blend_parity.py`/`.mjs` holds Python and the
+browser to 0.005 stars, and `check_slate_spread.mjs` measures the spread.
+
 **Two things that sounded good and measured worse.** Both are kept in the
 codebase as recorded negatives rather than deleted:
 

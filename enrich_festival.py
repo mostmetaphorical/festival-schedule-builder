@@ -153,7 +153,7 @@ def main() -> None:
             entities = film.setdefault("entities", {})
             # Wikidata is richer where it has anything; the festival's own
             # listing stays as the fallback.
-            for facet in ("director", "writer", "cast"):
+            for facet in ("director", "writer", "cast", "editor", "cinematographer"):
                 if meta.get(facet):
                     entities[facet] = meta[facet]
             for facet in ("keyword", "genre"):

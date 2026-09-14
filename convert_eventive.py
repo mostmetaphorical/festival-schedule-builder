@@ -156,6 +156,8 @@ def build_film(record: dict, previous: dict | None) -> dict:
     director = people(credits.get("director"))
     cast = people(credits.get("cast"))
     writer = people(credits.get("screenwriter"))
+    editor = people(credits.get("editor"))
+    cinematographer = people(credits.get("cinematographer"))
 
     genre_parts = [g for g in re.split(r"[/,·]", genre) if g.strip()]
     # Judged by section and genre, not title: "The Birthday Party" is a film.
@@ -177,6 +179,8 @@ def build_film(record: dict, previous: dict | None) -> dict:
             "director": director,
             "writer": writer,
             "cast": cast,
+            "editor": editor,
+            "cinematographer": cinematographer,
             # A premiere isn't on Wikidata yet, so the festival's own tags and
             # genre stand in for themes, as in parse_festival.py.
             "keyword": sorted({*(t.lower() for t in tags), *(g.strip().lower() for g in genre_parts)}),

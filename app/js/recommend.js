@@ -64,7 +64,8 @@ export class Recommender {
   textVector(text) {
     const counts = new Map();
     for (const term of this.tokenize(text)) {
-      if (this.idf[term] === undefined) continue;
+      // Own keys only: a word like "constructor" must not find an inherited function.
+      if (!Object.hasOwn(this.idf, term)) continue;
       counts.set(term, (counts.get(term) || 0) + 1);
     }
     const vector = new Map();

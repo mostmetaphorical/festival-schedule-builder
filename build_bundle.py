@@ -81,6 +81,8 @@ def parse_args() -> argparse.Namespace:
                    help="include full Wikipedia synopses (much larger file)")
     p.add_argument("--terms", type=int, default=30,
                    help="synopsis words kept per film for the recommender (0 = none)")
+    p.add_argument("--content-factors", action="store_true",
+                   help="add each film's content-predicted CF factors for the blend (run export_blend.py first)")
     p.add_argument("--idf", default="app/data/idf.json",
                    help="word weights exported with the model; run export_model.py first")
     p.add_argument("--discover-only", action="store_true",
@@ -130,6 +132,12 @@ def main() -> None:
     # A keyword only helps if it recurs; one used once can never match.
     usage = Counter(k for r in records for k in r.get("keyword") or [])
 
+    cf = None
+    if args.content_factors:
+        from add_content_factors import ContentFactorModel
+        print("Computing content factors…")
+        cf = ContentFactorModel().factors_for(records)
+
     films: list[dict] = []
     keys: dict[str, int] = {}
     for film in records:
@@ -152,6 +160,8 @@ def main() -> None:
                 record["terms"] = terms
 
         index = len(films)
+        if cf is not None and cf[index] is not None:
+            record["cf"] = cf[index]
         films.append(record)
 
         # Every spelling points at the one record: the Wikidata label, and the

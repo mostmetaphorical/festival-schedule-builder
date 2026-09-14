@@ -11,7 +11,8 @@
 import { readExport } from './letterboxd.js';
 import { BundleProvider, MetadataCache, resolveLibrary } from './metadata.js';
 import { WikidataProvider } from './wikidata.js';
-import { Recommender, profileStrength } from './recommend.js';
+import { profileStrength } from './recommend.js';
+import { BlendRecommender } from './blend.js';
 import {
   buildSchedule,
   formatTime,
@@ -86,14 +87,18 @@ const cache = new MetadataCache();
 /* ---------- setup ---------- */
 
 async function boot() {
-  const [model, idf, stopwords, festivals] = await Promise.all([
-    fetch('data/model.json').then((r) => r.json()),
-    fetch('data/idf.json').then((r) => r.json()),
-    fetch('data/stopwords.json').then((r) => r.json()),
-    fetch('data/festivals.json').then((r) => r.json()),
+  const json = (path) => fetch(path).then((r) => r.json());
+  const [model, idf, stopwords, festivals, genreModel, blend, track] = await Promise.all([
+    json('data/model.json'),
+    json('data/idf.json'),
+    json('data/stopwords.json'),
+    json('data/festivals.json'),
+    json('data/model-genre.json'),
+    json('data/blend.json'),
+    json('data/track.json'),
   ]);
 
-  recommender = new Recommender(model, idf, stopwords);
+  recommender = new BlendRecommender(model, idf, stopwords, { genreModel, blend, track });
   state.festivalIndex = festivals;
   renderFestivals();
   wireUp();
@@ -1029,13 +1034,29 @@ function useFestival(
 /* ---------- step 3: commitments ---------- */
 
 function addCommitmentRow(commitment = null) {
-  state.commitments.push(
-    commitment || { date: state.festival?.days?.[0] || '', window: '', label: '' }
-  );
+  state.commitments.push(commitment || { date: nextCommitmentDay(), window: '', label: '' });
   renderCommitments();
-  // Focus the new row's time, the field people most often need to type.
-  $('#commitments').lastElementChild?.querySelector('[data-field=window]')?.focus();
+  // Focus the new row's start time, the field people most often need to set.
+  $('#commitments').lastElementChild?.querySelector('[data-part=start]')?.focus();
 }
+
+/**
+ * The day after the last commitment entered - people tend to list them in
+ * order - or that same day if it was the festival's last. The first defaults
+ * to the festival's first day.
+ */
+function nextCommitmentDay() {
+  const days = state.festival?.days || [];
+  const previous = [...state.commitments].reverse().find((c) => c.date)?.date;
+  if (!previous) return days[0] || '';
+  const at = days.indexOf(previous);
+  if (at === -1) return previous;
+  return days[Math.min(at + 1, days.length - 1)];
+}
+
+/** Minutes since midnight to the value an <input type=time> takes. */
+const timeValue = (minutes) =>
+  minutes == null ? '' : `${String(Math.floor((minutes % 1440) / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 
 function renderCommitments() {
   const box = $('#commitments');
@@ -1043,29 +1064,58 @@ function renderCommitments() {
   const days = state.festival?.days || [];
 
   state.commitments.forEach((commitment, index) => {
+    const parsed = commitment.window ? parseCommitment(commitment) : null;
     const row = document.createElement('div');
     row.className = 'commitment';
     row.innerHTML =
       `<input type="date" value="${escapeAttribute(commitment.date || '')}" data-field="date"` +
       (days.length ? ` min="${days[0]}" max="${days[days.length - 1]}"` : '') +
       ' aria-label="Day">' +
-      `<input type="text" value="${escapeAttribute(commitment.window || '')}" data-field="window"` +
-      ' placeholder="e.g. 6:00 PM - 8:00 PM" aria-label="Time">' +
+      // Two time pickers rather than free text: nothing to mistype, and the
+      // browser's own picker on a phone. An end before the start runs overnight.
+      `<span class="time-range" data-field="window">` +
+      `<input type="time" step="900" data-part="start" aria-label="Starts" value="${timeValue(parsed?.start)}">` +
+      '<span class="to" aria-hidden="true">to</span>' +
+      `<input type="time" step="900" data-part="end" aria-label="Ends" value="${timeValue(parsed?.end)}">` +
+      `<span class="overnight"${parsed && parsed.end > 1440 ? '' : ' hidden'}>+1 day</span>` +
+      '</span>' +
       `<input type="text" value="${escapeAttribute(commitment.label || '')}" data-field="label"` +
       ' placeholder="e.g. Dentist" aria-label="What">' +
       '<button class="remove" data-remove aria-label="Remove this commitment">×</button>';
 
-    row.querySelectorAll('input').forEach((input) =>
+    row.querySelectorAll('input[data-field]').forEach((input) =>
       input.addEventListener('change', () => {
         commitment[input.dataset.field] = input.value;
-        const unreadable =
-          input.dataset.field === 'window' && input.value && !parseCommitment(commitment);
-        input.setCustomValidity(unreadable ? 'Use a range like 6:00 PM - 8:00 PM' : '');
-        input.classList.toggle('invalid', Boolean(unreadable));
-        if (unreadable) input.reportValidity();
         replan();
       })
     );
+    const start = row.querySelector('[data-part=start]');
+    const end = row.querySelector('[data-part=end]');
+    const overnight = row.querySelector('.overnight');
+    const syncTime = () => {
+      const [sh, sm] = start.value.split(':').map(Number);
+      const [eh, em] = end.value.split(':').map(Number);
+      const complete = Boolean(start.value && end.value);
+      const same = complete && sh * 60 + sm === eh * 60 + em;
+      // Half a range is kept out of the plan until both ends are set.
+      end.setCustomValidity(same ? 'The end time must differ from the start.' : '');
+      end.classList.toggle('invalid', same);
+      if (same) end.reportValidity();
+      overnight.hidden = !complete || same || eh * 60 + em > sh * 60 + sm;
+      commitment.window = complete && !same
+        ? `${formatTime(sh * 60 + sm)} - ${formatTime(eh * 60 + em)}`
+        : '';
+      replan();
+    };
+    start.addEventListener('change', () => {
+      // A start with no end yet gets a one-hour window to adjust from.
+      if (start.value && !end.value) {
+        const [h, m] = start.value.split(':').map(Number);
+        end.value = timeValue((h * 60 + m + 60) % 1440);
+      }
+      syncTime();
+    });
+    end.addEventListener('change', syncTime);
     row.querySelector('[data-remove]').addEventListener('click', () => {
       state.commitments.splice(index, 1);
       renderCommitments();
@@ -1134,24 +1184,35 @@ async function importCommitments(file) {
 
 /* ---------- scoring and planning ---------- */
 
+let scoring = 0;
+
 function score() {
   if (!state.festival || !state.profile) return;
 
-  const scoreable = state.festival.films.filter((f) => f.scoreable !== false);
-  const rest = state.festival.films.filter((f) => f.scoreable === false);
+  // The blend compares every festival film with everything the person rated,
+  // which can take a moment on a phone: say so, and let the page paint first.
+  const run = ++scoring;
+  state.scored = [];
+  $('#plan').innerHTML =
+    '<p class="thinking" role="status">Working out what you’ll like<span>.</span><span>.</span><span>.</span></p>';
+  setTimeout(() => {
+    if (run !== scoring) return;
+    const scoreable = state.festival.films.filter((f) => f.scoreable !== false);
+    const rest = state.festival.films.filter((f) => f.scoreable === false);
 
-  // Unscoreable items keep the person's own average rather than a fake
-  // prediction, and are labelled as such in the UI.
-  state.scored = [
-    ...recommender.scoreSlate(state.profile, scoreable),
-    ...rest.map((film) => ({
-      ...film,
-      prediction: recommender.base(state.profile),
-      confidence: 'none',
-      reasons: { people: [], keywords: [] },
-    })),
-  ];
-  rebuild();
+    // Unscoreable items keep the person's own average rather than a fake
+    // prediction, and are labelled as such in the UI.
+    state.scored = [
+      ...recommender.scoreSlate(state.profile, scoreable),
+      ...rest.map((film) => ({
+        ...film,
+        prediction: recommender.base(state.profile),
+        confidence: 'none',
+        reasons: { people: [], keywords: [] },
+      })),
+    ];
+    rebuild();
+  }, 40);
 }
 
 /** New limits mean a new plan: only the person's own picks stay put. */
@@ -1816,13 +1877,17 @@ function gapRow(day, gap) {
     `<span class="sr-only">Films for this free time</span></button></div>` +
     `<div class="free-box">` +
     `<div class="free-head"><div><p class="name">Nothing planned</p>` +
-    `<p class="meta">${hoursText(gap.end - gap.start)} free, until ${formatTime(gap.end)} · ` +
-    [
-      gap.fitting ? `${gap.fitting} ${gap.fitting === 1 ? 'film fits' : 'films fit'}` : '',
-      fits.length > gap.fitting ? `${fits.length - gap.fitting} more clash with your plan or commitments` : '',
-    ]
-      .filter(Boolean)
-      .join(' · ') +
+    `<p class="meta">Free until ${formatTime(gap.end)} (${hoursText(gap.end - gap.start)}) · ` +
+    (() => {
+      const overlapping = fits.length - gap.fitting;
+      const fitText = gap.fitting
+        ? `${plural(gap.fitting, 'film')} ${gap.fitting === 1 ? 'fits' : 'fit'} in this time`
+        : 'no film fits in this time';
+      const overlapText = overlapping
+        ? `${overlapping} ${gap.fitting ? 'more' : ''} would overlap a planned film or a commitment`.replace('  ', ' ')
+        : '';
+      return [fitText, overlapText].filter(Boolean).join(' · ');
+    })() +
     `</p>` +
     `</div></div>` +
     `<div class="alternatives" id="${listId}">${fits
