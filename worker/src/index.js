@@ -1,5 +1,5 @@
 /**
- * The share endpoint for Meta's Nifty Film Fest Scheduler.
+ * The share endpoint for Meta's Nifty Film Fest Planner.
  *
  *   GET  /status     is sharing open?
  *   POST /ratings    a Name,Year,Rating CSV, stored privately for evaluation

@@ -1,6 +1,6 @@
 # Working on this project
 
-Meta's Nifty Film Fest Scheduler: a static web app that turns a Letterboxd or
+Meta's Nifty Film Fest Planner: a static web app that turns a Letterboxd or
 IMDb ratings export into a conflict-free festival schedule, plus the offline
 test that decides whether its recommendations are worth trusting. README.md
 explains the product and the measured results; this file is how to work on it.

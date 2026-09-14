@@ -1,4 +1,4 @@
-# Share endpoint for Meta's Nifty Film Fest Scheduler.
+# Share endpoint for Meta's Nifty Film Fest Planner.
 # Deploy from this directory: npm run deploy (runs the tests first).
 
 name = "festrec-share"

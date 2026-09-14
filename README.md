@@ -1,4 +1,4 @@
-# Meta's Nifty Film Fest Scheduler
+# Meta's Nifty Film Fest Planner
 
 **Alpha.** Import your film ratings, say when you're busy, and get a
 conflict-free festival schedule ranked by what you're most likely to enjoy.
