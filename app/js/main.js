@@ -76,7 +76,8 @@ const state = {
   // Live lookups send film titles to Wikidata, so they only happen once the
   // person asks for them.
   lookUpMissing: false,
-  // The demo profile is invented; sharing it would only pollute the test data.
+  // The demo profile is the maintainer's own; sharing it would only add a copy
+  // of ratings the test data already has.
   isDemo: false,
   // Set once a share succeeds, so the same history isn't sent twice.
   sharedRatings: false,
@@ -826,7 +827,7 @@ function renderRatingsShare() {
   const form = $('#share-ratings-form');
   const count = state.ratings.length;
 
-  // Invented demo ratings would only pollute the data being collected.
+  // The demo is the maintainer's ratings; sharing it would duplicate them.
   if (state.isDemo || count === 0) {
     section.hidden = true;
     return;

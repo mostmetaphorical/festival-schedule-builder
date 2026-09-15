@@ -54,7 +54,9 @@ explains the product and the measured results; this file is how to work on it.
   an emailing section, to keep it away from address harvesters.
 - Don't automate collection from festival or ticketing sites (Eventive's terms
   forbid bots and data-gathering tools). Converters read files a person saved.
-- `app/fixtures/demo-ratings.csv` is invented, not anyone's real history.
+- `app/fixtures/demo-ratings.csv` is the maintainer's own Letterboxd ratings,
+  published at their request (Name, Year, Rating only - no watch dates or
+  links). Never replace it with anyone else's history.
 - Letterboxd: no scraping, ever. Their robots.txt disallows it and profiles are
   other people's data. Real data only arrives as exports people chose to send.
 
